@@ -28,7 +28,7 @@ def tshirtMeasuring(imgSrc):
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]							# Sort contours area wise from bigger to smaller
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if ((height*width*.3)>areaTshirt) or ((height*width*.7)<areaTshirt):			# If contour is too small or too big, ignore it
+	if ((height*width*.25)>areaTshirt) or ((height*width*.7)<areaTshirt):			# If contour is too small or too big, ignore it
 		return frame
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)				# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -49,8 +49,8 @@ def tshirtMeasuring(imgSrc):
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (ellipse[2]-90), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
-	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))				# Rotate actual image
-	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))				# Rotate actual image
+	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
 	# cv2.imshow("Test4", rotated_mask)
 
 
@@ -70,7 +70,7 @@ def tshirtMeasuring(imgSrc):
 			last = i-1			# last white pixel
 			white = False
 	pixel_height = last - first
-	print("pixelHeight = %d" %pixel_height)
+	# print("pixelHeight = %d" %pixel_height)
 	cv2.line(rotated_frame, (first,height_array_y), (last,height_array_y), (255,0,0), 3)			# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	cv2.putText(rotated_frame, '%.1f pixel' %pixel_height, (first,height_array_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display height value on image
@@ -138,7 +138,7 @@ def tshirtMeasuring(imgSrc):
 			last = i-1 				# Last white pixel
 			white = False
 	pixel_body_sweap = last - first
-	print("pixelBodySweap = %d" %pixel_body_sweap)
+	# print("pixelBodySweap = %d" %pixel_body_sweap)
 	cv2.line(rotated_frame, (body_sweap_x,first), (body_sweap_x,last), (255,0,0), 3)			# Draw body sweap calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	cv2.putText(rotated_frame, '%.1f pixel' %pixel_body_sweap, (body_sweap_x-100,first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body sweap value on image
@@ -164,6 +164,8 @@ def tshirtMeasuring(imgSrc):
 		count_for_dif += 1
 		if rotated == False:
 			sleeve_check -= step
+			if sleeve_check <= sleeve_side:
+				break
 			white = False
 			continuous_white = 0
 			continuous_white_counts = []
@@ -195,6 +197,8 @@ def tshirtMeasuring(imgSrc):
 					temp_width_pre = temp_count
 		else:
 			sleeve_check += step
+			if sleeve_check >= sleeve_side:
+				break
 			white = False
 			continuous_white = 0
 			continuous_white_counts = []
@@ -232,7 +236,7 @@ def tshirtMeasuring(imgSrc):
 
 		if len(body_width_first)>0 and len(body_width_last)>0:
 			pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
-			print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
+			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
 				cv2.line(rotated_frame, ((body_width_x + body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x + body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)			# Draw height calculating line on image
 			else:
