@@ -19,6 +19,16 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
         return 0
 
 
+def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
+	(height, width) = imgSrc.shape[:2]
+	imgTemp = imgSrc.copy()
+	cv2.rectangle(imgTemp,(0,0),(imgTemp.shape[1],30),(0,0,0),-1)
+	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
+	cv2.putText(imgSrc, "Press 'q' or 'Ctrl+C' to Exit", (imgSrc.shape[1]-250,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	imgSrc = cv2.resize(imgSrc, (int(width*1.5),int(height*1.5)))
+	return imgSrc
+
+
 def tshirtMeasuring(imgSrc):
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
@@ -39,13 +49,13 @@ def tshirtMeasuring(imgSrc):
 
 	cnts = cv2.findContours(binary.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
 	if len(cnts) == 0:			# If no contours detected skip further process
-		return frame
+		return addTextOnFrame(frame)
 
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
 	if ((height*width*.25)>areaTshirt) or ((height*width*.7)<areaTshirt):		# If contour is too small or too big, ignore it
-		return frame
+		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
@@ -55,7 +65,7 @@ def tshirtMeasuring(imgSrc):
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
-		return frame
+		return addTextOnFrame(frame)
 
 	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
 	# print(int(ellipse[0][0]), int(ellipse[0][1]))
@@ -82,7 +92,7 @@ def tshirtMeasuring(imgSrc):
 	first = 0
 	last = 0
 	if height_array_y<=0 or height<=height_array_y:								# If center of ellipse is at out of frame, further calculations are useless
-		return frame
+		return addTextOnFrame(frame)
 
 	for i in range(0,len(rotated_mask[height_array_y])):						# Calculate pixel height by checking pixel value
 		if white == False and rotated_mask[height_array_y][i] != 0:
@@ -109,8 +119,7 @@ def tshirtMeasuring(imgSrc):
 	if mid_width_array_x<sleeve_check_length or (width-sleeve_check_length)<mid_width_array_x:				# If this false width calculation is useless
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
-		# rotated_frame = cv2.resize(rotated_frame, (int(width*1.5),int(height*1.5)))
-		return rotated_frame
+		return addTextOnFrame(rotated_frame)
 
 	transpose_rotated_mask = np.transpose(rotated_mask)		# Easy to consider row wise
 	sleeve_check_temp1_count = np.count_nonzero(transpose_rotated_mask[mid_width_array_x-sleeve_check_length])		# Get number of white pixels
@@ -281,8 +290,7 @@ def tshirtMeasuring(imgSrc):
 
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))				# Rotate actual image
-	# rotated_frame = cv2.resize(rotated_frame, (int(width*1.5),int(height*1.5)))
-	return rotated_frame
+	return addTextOnFrame(rotated_frame)
 
 
 def getMeasurements():
