@@ -24,7 +24,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(imgTemp.shape[1],30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Press 'q' or 'Ctrl+C' to Exit", (imgSrc.shape[1]-250,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Press 'q' to Exit", (imgSrc.shape[1]-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	imgSrc = cv2.resize(imgSrc, (int(width*1.5),int(height*1.5)))
 	return imgSrc
 
