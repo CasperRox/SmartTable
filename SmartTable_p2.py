@@ -64,20 +64,20 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
-	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
+	if len(ellipse) < 1:																# If ellipse detection false, all other calculations are useless
 		return addTextOnFrame(frame)
 
 	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
 	# print(int(ellipse[0][0]), int(ellipse[0][1]))
-	# box = cv2.boxPoints(ellipse)												# Take 4 cordinates of enclosing rectangle for the ellipse
+	# box = cv2.boxPoints(ellipse)														# Take 4 cordinates of enclosing rectangle for the ellipse
 	# box = np.int0(box)
 	# cv2.drawContours(frame,[box],0,(0,0,255),3)
 	# print(box)
 
 	frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
-	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (ellipse[2]-90), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (ellipse[2]-90), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
-	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
 	# cv2.imshow("Test4", rotated_mask)
@@ -91,10 +91,10 @@ def tshirtMeasuring(imgSrc):
 	white = False
 	first = 0
 	last = 0
-	if height_array_y<=0 or height<=height_array_y:								# If center of ellipse is at out of frame, further calculations are useless
+	if height_array_y<=0 or height<=height_array_y:										# If center of ellipse is at out of frame, further calculations are useless
 		return addTextOnFrame(frame)
 
-	for i in range(0,len(rotated_mask[height_array_y])):						# Calculate pixel height by checking pixel value
+	for i in range(0,len(rotated_mask[height_array_y])):								# Calculate pixel height by checking pixel value
 		if white == False and rotated_mask[height_array_y][i] != 0:
 			first = i 			# first white pixel
 			white = True
@@ -103,16 +103,16 @@ def tshirtMeasuring(imgSrc):
 			white = False
 	pixel_height = last - first
 	# print("pixelHeight = %d" %pixel_height)
-	cv2.line(rotated_frame, (first,height_array_y), (last,height_array_y), (255,0,0), 3)			# Draw height calculating line on image
+	cv2.line(rotated_frame, (first,height_array_y), (last,height_array_y), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f mm' %getmmDistance(pixel_height), (first,height_array_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display height value on image
+	cv2.putText(rotated_frame, '%.1f mm' %getmmDistance(pixel_height), (first,height_array_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
 	# *************************************************************
 	# *************************************************************
-	mid_width_array_x = int(ellipse[0][0])										# To calculate body sweap & body width
-	sleeve_check_length = int(pixel_height * 27 /100)							# Guessing the general distance from middle to sleeve level
+	mid_width_array_x = int(ellipse[0][0])												# To calculate body sweap & body width
+	sleeve_check_length = int(pixel_height * 27 /100)									# Guessing the general distance from middle to sleeve level
 	# cv2.line(rotated_frame, (mid_width_array_x,0), (mid_width_array_x,480), (255,0,0), 3)													# Middle line
 	# cv2.line(rotated_frame, (mid_width_array_x-sleeve_check_length,0), (mid_width_array_x-sleeve_check_length,480), (255,255,0), 3)		# Sleeve check line
 	# cv2.line(rotated_frame, (mid_width_array_x+sleeve_check_length,0), (mid_width_array_x+sleeve_check_length,480), (255,255,0), 3)		# Sleeve check line
@@ -126,12 +126,12 @@ def tshirtMeasuring(imgSrc):
 	sleeve_check_temp2_count = np.count_nonzero(transpose_rotated_mask[mid_width_array_x+sleeve_check_length])		# Get number of white pixels
 	sleeve_side = 0
 	non_sleeve_side = 0
-	rotated = False																# To capture rotated or not
-	if sleeve_check_temp1_count > sleeve_check_temp2_count:						# Sleeves are at starting side
+	rotated = False																		# To capture rotated or not
+	if sleeve_check_temp1_count > sleeve_check_temp2_count:								# Sleeves are at starting side
 		sleeve_side = mid_width_array_x-sleeve_check_length
 		non_sleeve_side = mid_width_array_x+sleeve_check_length
 		rotated = False
-	else:																		# Sleeves are at ending side
+	else:																				# Sleeves are at ending side
 		sleeve_side = mid_width_array_x+sleeve_check_length
 		non_sleeve_side = mid_width_array_x-sleeve_check_length
 		rotated = True
@@ -198,47 +198,44 @@ def tshirtMeasuring(imgSrc):
 	body_width_first = [] 																# To store white area starting points
 	body_width_last = [] 																# To store white area ending points
 	count_for_dif = 0
-	dif = 5
-	continuous_white_counts = []
-	max_index = 0
-	first = []
-	last = []
+	dif = 5																				# Target pixel difference at sleeve starting
+	continuous_white_counts = []														# Number of white pixels in each white region
+	max_index = 0																		# Index of region which have max no. of white pixels
+	first = []																			# Starting points of each white ragion
+	last = []																			# Ending points of each white region
 	while True:
-		count_for_dif += 1
+		count_for_dif += 1																# No. of cycles in the loop
 		if rotated == False:
-			sleeve_check -= step
+			sleeve_check -= step														# Pixel value checking frequency
 			if sleeve_check <= sleeve_side:
 				break
 			white = False
 			continuous_white = 0
 			continuous_white_counts = []
 			for i in range(0,len(transpose_rotated_mask[sleeve_check])):				# Calculate continuous white by checking pixel value
-				if white == False and transpose_rotated_mask[sleeve_check][i] != 0:
+				if white == False and transpose_rotated_mask[sleeve_check][i] != 0:		# Black to white
 					first.append(i)
 					continuous_white = 1
 					white = True
-				elif white == True and transpose_rotated_mask[sleeve_check][i] != 0:
+				elif white == True and transpose_rotated_mask[sleeve_check][i] != 0:	# White to white
 					continuous_white += 1
 					white = True
-				elif white == True and transpose_rotated_mask[sleeve_check][i] == 0:
+				elif white == True and transpose_rotated_mask[sleeve_check][i] == 0:	# White to white
 					continuous_white_counts.append(continuous_white)
 					last.append(i)
 					white = False
-			if len(continuous_white_counts) > 0:
+			if len(continuous_white_counts) > 0:										# If white areas found
 				max_index = np.argmax(continuous_white_counts)
 				if count_for_dif - body_width_x_dif > 0:
-					body_width_first.append(first[max_index])
+					body_width_first.append(first[max_index])							# Storing first & last values of several pixel lines before
 					body_width_last.append(last[max_index])
-					# print("for actual width %d" %len(body_width_first))
 				temp_count = continuous_white_counts[max_index]
-				# print("***** count %d" %temp_count)
-				# print("pre %d" %temp_width_pre)
-				if temp_count > temp_width_pre+dif:
+				if temp_count > temp_width_pre+dif:										# Sleeve detected
 					body_width_x = sleeve_check+step
 					break
 				else:
 					temp_width_pre = temp_count
-		else:
+		else:																			# Same as previous, but changing the scaning direction
 			sleeve_check += step
 			if sleeve_check >= sleeve_side:
 				break
@@ -269,23 +266,23 @@ def tshirtMeasuring(imgSrc):
 				else:
 					temp_width_pre = temp_count
 	if len(continuous_white_counts) > 0:
-		pixel_body_width = continuous_white_counts[max_index]
-		pixel_body_width2 = last[max_index] - first[max_index]
+		pixel_body_width = continuous_white_counts[max_index]							# Body width in pixels
+		# pixel_body_width2 = last[max_index] - first[max_index]							# Body width in pixels
 
 		# print("pixelBodyWidth = %d" %pixel_body_width)
-		# cv2.line(rotated_frame, (body_width_x,first[max_index]), (body_width_x,last[max_index]), (255,0,0), 3)			# Draw height calculating line on image
+		# cv2.line(rotated_frame, (body_width_x,first[max_index]), (body_width_x,last[max_index]), (255,0,0), 3)			# Draw body width calculating line on image
 		# font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		# cv2.putText(rotated_frame, '%.1f pixel' %pixel_body_width, (body_width_x-100,first[max_index]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display height value on image
+		# cv2.putText(rotated_frame, '%.1f pixel' %pixel_body_width, (body_width_x-100,first[max_index]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display body width value on image
 
 		if len(body_width_first)>0 and len(body_width_last)>0:
 			pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
 			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
-				cv2.line(rotated_frame, ((body_width_x + body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x + body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)			# Draw height calculating line on image
+				cv2.line(rotated_frame, ((body_width_x + body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x + body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)	# Draw body width calculating line on image
 			else:
-				cv2.line(rotated_frame, ((body_width_x - body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x - body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)			# Draw height calculating line on image
+				cv2.line(rotated_frame, ((body_width_x - body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x - body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			cv2.putText(rotated_frame, '%.1f mm' %getmmDistance(pixel_body_width_actual), (body_width_x-150,body_width_first[len(body_width_first)-1]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display height value on image
+			cv2.putText(rotated_frame, '%.1f mm' %getmmDistance(pixel_body_width_actual), (body_width_x-150,body_width_first[len(body_width_first)-1]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display body width value on image
 
 
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
