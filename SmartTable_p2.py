@@ -304,8 +304,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			# output = tshirtMeasuring(frame)						# Process live video
-			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			output = tshirtMeasuring(frame)						# Process live video
+			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
