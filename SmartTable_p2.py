@@ -83,6 +83,8 @@ def tshirtMeasuring(imgSrc):
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
 	# cv2.imshow("Test4", rotated_mask)
+	dummy = np.full(rotated_frame.shape, 255, np.uint8)
+	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))
 
 
 	# *************************************************************
@@ -290,9 +292,10 @@ def tshirtMeasuring(imgSrc):
 
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))				# Rotate actual image
+	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (frame.shape[1],frame.shape[0]))				# Rotate actual image
 	# rotated_frame = cv2.bitwise_or(rotated_frame, cv2.subtract(frame, rotated_frame))
-	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_frame))
-	cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)												# Adding missing parts
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))
+	# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)												# Adding missing parts
 	return addTextOnFrame(rotated_frame)
 
 
@@ -306,8 +309,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			# output = tshirtMeasuring(frame)						# Process live video
-			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			output = tshirtMeasuring(frame)						# Process live video
+			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
