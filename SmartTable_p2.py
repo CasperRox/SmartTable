@@ -21,17 +21,22 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 
 def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
 	(height, width) = imgSrc.shape[:2]
+	frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
+	rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix[0,2] += int((height/2)-width/2)
+	# rotation_matrix[1,2] += int((width/2)-height/2)
+	imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(imgTemp.shape[1],30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (imgSrc.shape[1]-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*1.5)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.5),int(height*1.5)))
 	return imgSrc
 
 
 def tshirtMeasuring(imgSrc):
 	frame = imgSrc.copy()														# Backup original image
-	# cv2.imshow("Original", imgSrc)
+	cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
@@ -83,8 +88,8 @@ def tshirtMeasuring(imgSrc):
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
 	# cv2.imshow("Test4", rotated_mask)
-	dummy = np.full(rotated_frame.shape, 255, np.uint8)
-	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))
+	dummy = np.full(rotated_frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
+	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))				# Rotate dummy to get exact position
 
 
 	# *************************************************************
@@ -124,6 +129,7 @@ def tshirtMeasuring(imgSrc):
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
 		cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)										# Adding missing parts
+		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))									# Fill missing parts of final output
 		return addTextOnFrame(rotated_frame)
 
 	transpose_rotated_mask = np.transpose(rotated_mask)		# Easy to consider row wise
@@ -293,8 +299,7 @@ def tshirtMeasuring(imgSrc):
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))				# Rotate actual image
 	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (frame.shape[1],frame.shape[0]))				# Rotate actual image
-	# rotated_frame = cv2.bitwise_or(rotated_frame, cv2.subtract(frame, rotated_frame))
-	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))									# Fill missing parts of final output
 	# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)												# Adding missing parts
 	return addTextOnFrame(rotated_frame)
 
@@ -309,8 +314,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			output = tshirtMeasuring(frame)						# Process live video
-			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			# output = tshirtMeasuring(frame)						# Process live video
+			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
