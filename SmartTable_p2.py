@@ -39,8 +39,8 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
-	rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	frame = cv2.warpAffine(frame, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# frame = cv2.warpAffine(frame, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
 	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
