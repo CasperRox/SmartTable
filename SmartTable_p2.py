@@ -64,7 +64,7 @@ def tshirtMeasuring(imgSrc):
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if ((height*width*.25)>areaTshirt) or ((height*width*.7)<areaTshirt):		# If contour is too small or too big, ignore it
+	if ((height*width*.25)>areaTshirt) or ((height*width*.55)<areaTshirt):		# If contour is too small or too big, ignore it
 		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
