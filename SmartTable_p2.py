@@ -39,10 +39,11 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
-	rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotation_matrix[0,2] += int((height/2)-width/2)
-	rotation_matrix[1,2] += int((width/2)-height/2)
-	frame = cv2.warpAffine(frame, rotation_matrix, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotation_matrix1[0,2] += int((height/2)-width/2)
+	rotation_matrix1[1,2] += int((width/2)-height/2)
+	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	(height, width) = frame.shape[:2]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
 	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
@@ -83,7 +84,7 @@ def tshirtMeasuring(imgSrc):
 	# cv2.drawContours(frame,[box],0,(0,0,255),3)
 	# print(box)
 
-	frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
+	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (ellipse[2]-90), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
