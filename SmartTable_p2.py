@@ -21,24 +21,26 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 
 def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
 	(height, width) = imgSrc.shape[:2]
-	frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
-	rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
+	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix[0,2] += int((height/2)-width/2)
 	# rotation_matrix[1,2] += int((width/2)-height/2)
-	imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	imgTemp = imgSrc.copy()
-	cv2.rectangle(imgTemp,(0,0),(imgTemp.shape[1],30),(0,0,0),-1)
+	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Press 'q' to Exit", (imgSrc.shape[1]-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.5),int(height*1.5)))
 	return imgSrc
 
 
 def tshirtMeasuring(imgSrc):
 	frame = imgSrc.copy()														# Backup original image
-	cv2.imshow("Original", imgSrc)
+	# cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
+	rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	frame = cv2.warpAffine(frame, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
 	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
@@ -194,7 +196,7 @@ def tshirtMeasuring(imgSrc):
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (body_sweap_x,first), (body_sweap_x,last), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_sweap)/10), (body_sweap_x-100,first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body sweap value on image
+		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_sweap)/10), (body_sweap_x-50,first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body sweap value on image
 
 
 	# *************************************************************
@@ -293,7 +295,7 @@ def tshirtMeasuring(imgSrc):
 			else:
 				cv2.line(rotated_frame, ((body_width_x - body_width_x_dif),body_width_first[len(body_width_first)-1]), ((body_width_x - body_width_x_dif),body_width_last[len(body_width_last)-1]), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_x-150,body_width_first[len(body_width_first)-1]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display body width value on image
+			cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_x-50,body_width_first[len(body_width_first)-1]-10), font, 1, (255,0,0), 2, cv2.LINE_AA)			# Display body width value on image
 
 
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -314,8 +316,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			# output = tshirtMeasuring(frame)						# Process live video
-			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			output = tshirtMeasuring(frame)						# Process live video
+			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
