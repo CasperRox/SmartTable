@@ -30,7 +30,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.5),int(height*1.5)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	return imgSrc
 
 
@@ -133,7 +133,7 @@ def tshirtMeasuring(imgSrc):
 	if mid_width_array_x<sleeve_check_length or (width-sleeve_check_length)<mid_width_array_x or sleeve_check_length<0:		# If this false width calculation is useless
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
-		cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)										# Adding missing parts
+		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)										# Adding missing parts
 		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))									# Fill missing parts of final output
 		return addTextOnFrame(rotated_frame)
 
