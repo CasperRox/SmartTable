@@ -22,10 +22,10 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
 	(height, width) = imgSrc.shape[:2]
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
-	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix[0,2] += int((height/2)-width/2)
 	# rotation_matrix[1,2] += int((width/2)-height/2)
-	# imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
@@ -39,7 +39,7 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
-	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)			# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotation_matrix1[0,2] += int((height/2)-width/2)
 	rotation_matrix1[1,2] += int((width/2)-height/2)
 	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
@@ -52,7 +52,7 @@ def tshirtMeasuring(imgSrc):
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
 	# kernel = np.ones((5,5),np.uint8)
-	# binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)	# dilation then erosion
+	# binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)				# dilation then erosion
 	binary = cv2.dilate(binary, None, iterations=2)								# Dilation - make bigger white area
 	binary = cv2.erode(binary, None, iterations=2)								# Erosion - make smaller white area
 	# cv2.imshow("Test2", binary)
@@ -133,8 +133,9 @@ def tshirtMeasuring(imgSrc):
 	if mid_width_array_x<sleeve_check_length or (width-sleeve_check_length)<mid_width_array_x or sleeve_check_length<0:		# If this false width calculation is useless
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
+		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
+		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))							# Fill missing parts of final output
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)										# Adding missing parts
-		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))									# Fill missing parts of final output
 		return addTextOnFrame(rotated_frame)
 
 	transpose_rotated_mask = np.transpose(rotated_mask)		# Easy to consider row wise
