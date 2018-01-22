@@ -130,7 +130,7 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (mid_width_array_x,0), (mid_width_array_x,480), (255,0,0), 3)													# Middle line
 	# cv2.line(rotated_frame, (mid_width_array_x-sleeve_check_length,0), (mid_width_array_x-sleeve_check_length,480), (255,255,0), 3)		# Sleeve check line
 	# cv2.line(rotated_frame, (mid_width_array_x+sleeve_check_length,0), (mid_width_array_x+sleeve_check_length,480), (255,255,0), 3)		# Sleeve check line
-	if mid_width_array_x<sleeve_check_length or (width-sleeve_check_length)<mid_width_array_x or sleeve_check_length<0:		# If this false width calculation is useless
+	if mid_width_array_x<=sleeve_check_length or (width-sleeve_check_length)<=mid_width_array_x or sleeve_check_length<=0:		# If this false width calculation is useless
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
 		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
