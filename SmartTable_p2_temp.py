@@ -30,7 +30,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	return imgSrc
 
 
@@ -71,7 +71,7 @@ def tshirtMeasuring(imgSrc):
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
-	# cv2.imshow("Test3", mask)
+	cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:																# If ellipse detection false, all other calculations are useless
@@ -92,9 +92,11 @@ def tshirtMeasuring(imgSrc):
 	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (height,width))
-	# cv2.imshow("Test4", rotated_mask)
+	cv2.imshow("Test4", rotated_mask)
+	cv2.imshow("Test4.1", rotated_frame)
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (height,width))				# Rotate dummy to get exact position
+	cv2.imshow("Test4.2", rotated_dummy)
 
 
 	# *************************************************************
@@ -116,7 +118,7 @@ def tshirtMeasuring(imgSrc):
 			last = i-1			# last white pixel
 			white = False
 	pixel_height = last - first
-	# print("pixelHeight = %d" %pixel_height)
+	print("pixelHeight = %d" %pixel_height)
 	cv2.line(rotated_frame, (first,height_array_y), (last,height_array_y), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (first,height_array_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
@@ -132,9 +134,9 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (mid_width_array_x+sleeve_check_length,0), (mid_width_array_x+sleeve_check_length,480), (255,255,0), 3)		# Sleeve check line
 	if mid_width_array_x<=sleeve_check_length or (width-sleeve_check_length)<=mid_width_array_x or sleeve_check_length<=0:		# If this false width calculation is useless
 		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-(ellipse[2]-90)), 1)						# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
+		# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
 		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (frame.shape[1],frame.shape[0]))		# Rotate actual image
-		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))							# Fill missing parts of final output
+		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))							# Fill missing parts of final output
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)										# Adding missing parts
 		return addTextOnFrame(rotated_frame)
 
@@ -311,7 +313,7 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
 	# cap.set(cv2.CAP_PROP_SETTINGS, 1)
 	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 
@@ -320,8 +322,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			output = tshirtMeasuring(frame)						# Process live video
-			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			# output = tshirtMeasuring(frame)						# Process live video
+			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
