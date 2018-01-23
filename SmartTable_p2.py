@@ -163,7 +163,7 @@ def tshirtMeasuring(imgSrc):
 	while True:			# Loop to get the body sweap pixel line
 		if rotated == False:
 			non_sleeve_side += step 													# Checking ending side
-			if non_sleeve_side > last:
+			if non_sleeve_side >= last-step:
 				break
 			temp_count = np.count_nonzero(transpose_rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre:												# Compare pixel counts
@@ -175,7 +175,7 @@ def tshirtMeasuring(imgSrc):
 				temp_width_pre = temp_count 											# Update previous pixel count
 		else:
 			non_sleeve_side -= step 													# Checking starting side
-			if non_sleeve_side < first:
+			if non_sleeve_side <= first+step:
 				break
 			temp_count = np.count_nonzero(transpose_rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre: 											# Compare pixel counts
