@@ -30,7 +30,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	return imgSrc
 
 
@@ -62,7 +62,18 @@ def tshirtMeasuring(imgSrc):
 	if len(cnts) == 0:			# If no contours detected skip further process
 		return addTextOnFrame(frame)
 
+	rotation_matrix2 = cv2.getRotationMatrix2D((width/2, height/2), 10, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	binary2 = cv2.warpAffine(binary.copy(), rotation_matrix2, (width,height))
+	cnts2 = cv2.findContours(binary2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
+	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:3]				# Sort contours area wise from bigger to smaller
+	cv2.drawContours(binary2, cnts2, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	cv2.imshow("Test5", binary2)
+
+
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
+
+	print(cv2.matchShapes(cnts[0],cnts2[2],1,0.0))
+
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
 	if ((height*width*.25)>areaTshirt) or ((height*width*.55)<areaTshirt):		# If contour is too small or too big, ignore it
@@ -311,8 +322,8 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	cap = cv2.VideoCapture(1)
-	# cap.set(cv2.CAP_PROP_SETTINGS, 1)
+	cap = cv2.VideoCapture(0)
+	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 
 	while(True):
@@ -320,8 +331,8 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			output = tshirtMeasuring(frame)						# Process live video
-			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			# output = tshirtMeasuring(frame)						# Process live video
+			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
