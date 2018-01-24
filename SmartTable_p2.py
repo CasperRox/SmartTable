@@ -89,12 +89,12 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
-	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
-	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (height,width))
+	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
 	# cv2.imshow("Test4", rotated_mask)
-	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
-	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (height,width))				# Rotate dummy to get exact position
+	dummy = np.full(rotated_frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
+	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))				# Rotate dummy to get exact position
 
 
 	# *************************************************************
