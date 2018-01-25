@@ -62,17 +62,26 @@ def tshirtMeasuring(imgSrc):
 	if len(cnts) == 0:			# If no contours detected skip further process
 		return addTextOnFrame(frame)
 
-	rotation_matrix2 = cv2.getRotationMatrix2D((width/2, height/2), 10, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	binary2 = cv2.warpAffine(binary.copy(), rotation_matrix2, (width,height))
+
+	test_img = cv2.imread("E:\MachineLearning\Images\TShirt\img9790.jpg")
+	# rotation_matrix2 = cv2.getRotationMatrix2D((width/2, height/2), 10, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# binary2 = cv2.warpAffine(binary.copy(), rotation_matrix2, (width,height))
+	gray2 = cv2.cvtColor(test_img.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
+	median2 = cv2.medianBlur(gray2, 11)											# Median filtering(second parameter can only be an odd number)
+	thresh2 = 200
+	binary2 = cv2.threshold(median2, thresh2, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
+	binary2 = cv2.dilate(binary2, None, iterations=2)								# Dilation - make bigger white area
+	binary2 = cv2.erode(binary2, None, iterations=2)								# Erosion - make smaller white area
 	cnts2 = cv2.findContours(binary2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
-	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:3]				# Sort contours area wise from bigger to smaller
-	cv2.drawContours(binary2, cnts2, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
-	cv2.imshow("Test5", binary2)
+	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:2]				# Sort contours area wise from bigger to smaller
+	cv2.drawContours(test_img, cnts2, 1, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	cv2.imshow("Test5", test_img)
 
 
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
 
-	print(cv2.matchShapes(cnts[0],cnts2[2],1,0.0))
+	print(cv2.matchShapes(cnts[0],cnts2[1],1,0.0))
+
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
