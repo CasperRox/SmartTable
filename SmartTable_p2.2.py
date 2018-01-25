@@ -73,14 +73,14 @@ def tshirtMeasuring(imgSrc):
 	binary2 = cv2.dilate(binary2, None, iterations=2)								# Dilation - make bigger white area
 	binary2 = cv2.erode(binary2, None, iterations=2)								# Erosion - make smaller white area
 	cnts2 = cv2.findContours(binary2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
-	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:2]				# Sort contours area wise from bigger to smaller
-	cv2.drawContours(test_img, cnts2, 1, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:3]				# Sort contours area wise from bigger to smaller
+	cv2.drawContours(test_img, cnts2, 2, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
 	cv2.imshow("Test5", test_img)
 
 
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
 
-	print(cv2.matchShapes(cnts[0],cnts2[1],1,0.0))
+	print(cv2.matchShapes(cnts[0],cnts2[2],1,0.0))
 
 
 	areaTshirt = cv2.contourArea(cnts[0])
@@ -144,6 +144,8 @@ def tshirtMeasuring(imgSrc):
 			white = False
 	pixel_height = last - first
 	# print("pixelHeight = %d" %pixel_height)
+	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
+		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,first), (height_array_x,last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x-50,first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image

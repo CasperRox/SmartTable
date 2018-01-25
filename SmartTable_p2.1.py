@@ -124,7 +124,7 @@ def tshirtMeasuring(imgSrc):
 			white = False
 	pixel_height = last - first
 	# print("pixelHeight = %d" %pixel_height)
-	if pixel_height <= 0:
+	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,first), (height_array_x,last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
