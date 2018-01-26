@@ -63,24 +63,24 @@ def tshirtMeasuring(imgSrc):
 		return addTextOnFrame(frame)
 
 
-	test_img = cv2.imread("E:\MachineLearning\Images\TShirt\img9790.jpg")
-	# rotation_matrix2 = cv2.getRotationMatrix2D((width/2, height/2), 10, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# binary2 = cv2.warpAffine(binary.copy(), rotation_matrix2, (width,height))
-	gray2 = cv2.cvtColor(test_img.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
-	median2 = cv2.medianBlur(gray2, 11)											# Median filtering(second parameter can only be an odd number)
-	thresh2 = 200
-	binary2 = cv2.threshold(median2, thresh2, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
-	binary2 = cv2.dilate(binary2, None, iterations=2)								# Dilation - make bigger white area
-	binary2 = cv2.erode(binary2, None, iterations=2)								# Erosion - make smaller white area
-	cnts2 = cv2.findContours(binary2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
-	cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:3]				# Sort contours area wise from bigger to smaller
-	cv2.drawContours(test_img, cnts2, 2, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
-	cv2.imshow("Test5", test_img)
+	# test_img = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
+	# # rotation_matrix2 = cv2.getRotationMatrix2D((width/2, height/2), 10, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# # binary2 = cv2.warpAffine(binary.copy(), rotation_matrix2, (width,height))
+	# gray2 = cv2.cvtColor(test_img.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
+	# median2 = cv2.medianBlur(gray2, 11)											# Median filtering(second parameter can only be an odd number)
+	# thresh2 = 200
+	# binary2 = cv2.threshold(median2, thresh2, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
+	# binary2 = cv2.dilate(binary2, None, iterations=2)								# Dilation - make bigger white area
+	# binary2 = cv2.erode(binary2, None, iterations=2)								# Erosion - make smaller white area
+	# cnts2 = cv2.findContours(binary2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
+	# cnts2 = sorted(cnts2, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
+	# cv2.drawContours(test_img, cnts2, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	# cv2.imshow("Test5", test_img)
 
 
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:1]				# Sort contours area wise from bigger to smaller
 
-	print(cv2.matchShapes(cnts[0],cnts2[2],1,0.0))
+	# print(cv2.matchShapes(cnts[0],cnts2[0],1,0.0))
 
 
 	areaTshirt = cv2.contourArea(cnts[0])
@@ -92,7 +92,7 @@ def tshirtMeasuring(imgSrc):
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
-	# cv2.imshow("Test3", mask)
+	cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
@@ -130,25 +130,25 @@ def tshirtMeasuring(imgSrc):
 	height_array_x = int(ellipse[0][0])
 	# print(transpose_rotated_mask[height_array_x])
 	white = False
-	first = 0
-	last = 0
+	body_height_first = 0
+	body_height_last = 0
 	if height_array_x<=0 or width<=height_array_x:								# If center of ellipse is at out of frame, further calculations are useless
 		return addTextOnFrame(frame)
 
 	for i in range(0,len(transpose_rotated_mask[height_array_x])):				# Calculate pixel height by checking pixel value
 		if white == False and transpose_rotated_mask[height_array_x][i] != 0:
-			first = i 															# first white pixel
+			body_height_first = i 												# first white pixel
 			white = True
 		elif white == True and transpose_rotated_mask[height_array_x][i] == 0:
-			last = i-1															# last white pixel
+			body_height_last = i-1												# last white pixel
 			white = False
-	pixel_height = last - first
+	pixel_height = body_height_last - body_height_first
 	# print("pixelHeight = %d" %pixel_height)
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
 		return addTextOnFrame(frame)
-	cv2.line(rotated_frame, (height_array_x,first), (height_array_x,last), (255,0,0), 3)	# Draw height calculating line on image
+	cv2.line(rotated_frame, (height_array_x,body_height_first), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x-50,first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x-50,body_height_first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -191,7 +191,7 @@ def tshirtMeasuring(imgSrc):
 	while True:																	# Loop to get the body sweap pixel line
 		if rotated == False:
 			non_sleeve_side += step 											# Checking ending side
-			if non_sleeve_side >= last-step:
+			if non_sleeve_side >= body_height_last-step:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre:										# Compare pixel counts
@@ -203,7 +203,7 @@ def tshirtMeasuring(imgSrc):
 				temp_width_pre = temp_count 									# Update previous pixel count
 		else:
 			non_sleeve_side -= step 											# Checking starting side
-			if non_sleeve_side <= first+step:
+			if non_sleeve_side <= body_height_first+step:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre: 									# Compare pixel counts
@@ -213,6 +213,7 @@ def tshirtMeasuring(imgSrc):
 					break
 			else:
 				temp_width_pre = temp_count 									# Update previous pixel count
+
 	if 0 < body_sweap_y and body_sweap_y < height:
 		white = False
 		first = 0
@@ -309,6 +310,7 @@ def tshirtMeasuring(imgSrc):
 					break
 				else:
 					temp_width_pre = temp_count
+	
 	if len(continuous_white_counts) > 0:
 		pixel_body_width = continuous_white_counts[max_index]					# Body width in pixels
 		# pixel_body_width2 = last[max_index] - first[max_index]				# Body width in pixels
@@ -329,6 +331,33 @@ def tshirtMeasuring(imgSrc):
 	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
 	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 	# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)					# Adding missing parts
+	# return addTextOnFrame(rotated_frame)
+
+
+	# *************************************************************
+	# **********************Back Neck Width************************
+	# *************************************************************
+	print(height_array_x)
+	step = 5
+	if rotated:
+		neck_check_y = body_width_last
+		temp_count_pre = np.count_nonzero(rotated_mask[neck_check_y])
+		for i in range(body_height_last,height):
+			neck_check_y += step
+			temp_count = np.count_nonzero(rotated_mask[neck_check_y])
+			if temp_count == 0:
+				temp_count2 = np.count_nonzero(rotated_mask[neck_check_y+step])
+				if temp_count2 == 0:
+					back_neck_y = neck_check_y-step
+					break
+			else:
+				temp_count_pre = temp_count
+				
+		print(body_height_last)
+	else:
+		print(body_height_first)
+
+
 	return addTextOnFrame(rotated_frame)
 
 
