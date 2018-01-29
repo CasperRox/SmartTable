@@ -31,6 +31,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -92,7 +93,7 @@ def tshirtMeasuring(imgSrc):
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
-	cv2.imshow("Test3", mask)
+	# cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
@@ -337,25 +338,26 @@ def tshirtMeasuring(imgSrc):
 	# *************************************************************
 	# **********************Back Neck Width************************
 	# *************************************************************
-	print(height_array_x)
-	step = 5
-	if rotated:
-		neck_check_y = body_width_last
-		temp_count_pre = np.count_nonzero(rotated_mask[neck_check_y])
-		for i in range(body_height_last,height):
-			neck_check_y += step
-			temp_count = np.count_nonzero(rotated_mask[neck_check_y])
-			if temp_count == 0:
-				temp_count2 = np.count_nonzero(rotated_mask[neck_check_y+step])
-				if temp_count2 == 0:
-					back_neck_y = neck_check_y-step
-					break
-			else:
-				temp_count_pre = temp_count
-				
-		print(body_height_last)
-	else:
-		print(body_height_first)
+	# print(height_array_x)
+	# if 
+	# step = 5
+	# if rotated:
+	# 	neck_check_y = body_height_last
+	# 	temp_count_pre = np.count_nonzero(rotated_mask[neck_check_y])
+	# 	for i in range(body_height_last,height):
+	# 		neck_check_y += step
+	# 		temp_count = np.count_nonzero(rotated_mask[neck_check_y])
+	# 		if temp_count == 0:
+	# 			temp_count2 = np.count_nonzero(rotated_mask[neck_check_y+step])
+	# 			if temp_count2 == 0:
+	# 				back_neck_y = neck_check_y-step
+	# 				break
+	# 		else:
+	# 			temp_count_pre = temp_count
+
+	# 	print(body_height_last)
+	# else:
+	# 	print(body_height_first)
 
 
 	return addTextOnFrame(rotated_frame)
@@ -363,6 +365,7 @@ def tshirtMeasuring(imgSrc):
 
 def getMeasurements():
 	cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture("E:\SmartTable\\test\WIN_20180129_082848.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 

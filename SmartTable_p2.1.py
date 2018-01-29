@@ -316,10 +316,6 @@ def getMeasurements():
 	cap = cv2.VideoCapture(1)
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	# fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	# fourcc = cv2.VideoWriter_fourcc('M','J','P','G')
-	# fourcc = cv2.VideoWriter_fourcc('D','I','V','X')
-	# out = cv2.VideoWriter('output.avi', fourcc, 10.0, (640,480))
 
 	while(True):
 		# Capture frame-by-frame
@@ -328,7 +324,6 @@ def getMeasurements():
 			# print("New frame")
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
-			# out.write(output)
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -336,7 +331,6 @@ def getMeasurements():
 
 	# When everything done, release the capture
 	cap.release()
-	# out.release()
 	cv2.destroyAllWindows()
 
 getMeasurements()
