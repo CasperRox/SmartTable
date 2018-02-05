@@ -31,7 +31,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -342,28 +342,29 @@ def tshirtMeasuring(imgSrc):
 
 	print(height_array_x)
 	print(pixel_height)
-	back_neck_x1 = pixel_height
-	back_neck_x2 = pixel_height
+	back_neck_x1 = height_array_x
+	back_neck_x2 = height_array_x
 	step = 1
-	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[pixel_height])
+	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])
 	temp_count_pre_2 = temp_count_pre_1
 	for i in range(1,pixel_body_width_actual/2):
-		temp_count_1 = np.count_nonzero(transpose_rotated_mask[pixel_height+(i*step)])
+		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])
 		if temp_count_1 < temp_count_pre_1:
-			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[pixel_height+(i*step)+step])
+			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
 			if temp_count_1_1 < temp_count_1:
-				temp_count_2 = np.count_nonzero(transpose_rotated_mask[pixel_height-(i*step)])
+				temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
 				if temp_count_2 < temp_count_pre_2:
-					temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[pixel_height-(i*step)-step])
+					temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
 					if (temp_count_2_1<temp_count_2) and abs(temp_count_2-temp_count_1)<5:
-						back_neck_x1 = pixel_height + (i*step)
-						back_neck_x2 = pixel_height - (i*step)
+						back_neck_x1 = height_array_x + (i*step)
+						back_neck_x2 = height_array_x - (i*step)
 						break
 				else:
 					temp_count_pre_2 = temp_count_2
 		else:
 			temp_count_pre_1 = temp_count_1
-	
+	print(back_neck_x1)
+	print(back_neck_x2)
 
 
 	# if 
@@ -391,18 +392,18 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	# cap = cv2.VideoCapture(0)
-	cap = cv2.VideoCapture("E:\SmartTable\\test\WIN_20180129_082848.MP4")
+	cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture("E:\SmartTable\\test\WIN_20180129_082848.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
-	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
+	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 
 	while(True):
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			output = tshirtMeasuring(frame)						# Process live video
-			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			# output = tshirtMeasuring(frame)						# Process live video
+			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
