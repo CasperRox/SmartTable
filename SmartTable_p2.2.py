@@ -31,7 +31,8 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
+	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -249,6 +250,7 @@ def tshirtMeasuring(imgSrc):
 	max_index = 0																# Index of region which have max no. of white pixels
 	first = []																	# Starting points of each white ragion
 	last = []																	# Ending points of each white region
+	pixel_body_width_actual = 0
 	while True:
 		count_for_dif += 1														# No. of cycles in the loop
 		if rotated == False:
@@ -327,10 +329,10 @@ def tshirtMeasuring(imgSrc):
 			cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
-	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
-	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
-	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 	# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)					# Adding missing parts
 	# return addTextOnFrame(rotated_frame)
 
@@ -341,30 +343,53 @@ def tshirtMeasuring(imgSrc):
 	############################################## First identify x positions and then y position
 
 	print(height_array_x)
-	print(pixel_height)
+	# print(pixel_height)
 	back_neck_x1 = height_array_x
 	back_neck_x2 = height_array_x
-	step = 1
+	step = 5
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])
 	temp_count_pre_2 = temp_count_pre_1
-	for i in range(1,pixel_body_width_actual/2):
+	# for i in range(1,int(pixel_body_width_actual/2)):
+	# 	temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])
+	# 	if temp_count_1 < temp_count_pre_1:
+	# 		temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
+	# 		if temp_count_1_1 < temp_count_1:
+	# 			temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
+	# 			if temp_count_2 < temp_count_pre_2:
+	# 				temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
+	# 				if (temp_count_2_1<temp_count_2) and abs(temp_count_2-temp_count_1)<100:
+	# 					back_neck_x1 = height_array_x + (i*step)
+	# 					back_neck_x2 = height_array_x - (i*step)
+	# 					break
+	# 			else:
+	# 				temp_count_pre_2 = temp_count_2
+	# 	else:
+	# 		temp_count_pre_1 = temp_count_1
+	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])
 		if temp_count_1 < temp_count_pre_1:
 			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
 			if temp_count_1_1 < temp_count_1:
-				temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
-				if temp_count_2 < temp_count_pre_2:
-					temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
-					if (temp_count_2_1<temp_count_2) and abs(temp_count_2-temp_count_1)<5:
-						back_neck_x1 = height_array_x + (i*step)
-						back_neck_x2 = height_array_x - (i*step)
-						break
-				else:
-					temp_count_pre_2 = temp_count_2
+				back_neck_x1 = height_array_x + (i*step)
+				break
 		else:
 			temp_count_pre_1 = temp_count_1
-	print(back_neck_x1)
-	print(back_neck_x2)
+
+	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
+		temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
+		if temp_count_2 < temp_count_pre_2:
+			temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
+			if (temp_count_2_1<temp_count_2): # and abs(temp_count_2-temp_count_1)<100:
+				back_neck_x2 = height_array_x - (i*step)
+				break
+		else:
+			temp_count_pre_2 = temp_count_2
+
+	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9:
+		print(back_neck_x1)
+		print(back_neck_x2)
+		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
+		cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 
 
 	# if 
@@ -388,22 +413,27 @@ def tshirtMeasuring(imgSrc):
 	# 	print(body_height_first)
 
 
+	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 	return addTextOnFrame(rotated_frame)
 
 
 def getMeasurements():
-	cap = cv2.VideoCapture(0)
-	# cap = cv2.VideoCapture("E:\SmartTable\\test\WIN_20180129_082848.MP4")
+	# cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture("test\WIN_20180129_082848.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
-	original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
+	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
+	original = cv2.imread("test\WIN_20180126_152758.JPG")
 
 	while(True):
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
-			# print("New frame")
-			# output = tshirtMeasuring(frame)						# Process live video
-			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			print("New frame")
+			output = tshirtMeasuring(frame)						# Process live video
+			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
