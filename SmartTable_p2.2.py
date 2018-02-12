@@ -87,7 +87,7 @@ def tshirtMeasuring(imgSrc):
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if ((height*width*.25)>areaTshirt) or ((height*width*.55)<areaTshirt):		# If contour is too small or too big, ignore it
+	if ((height*width*.25)>areaTshirt) or ((height*width*.95)<areaTshirt):		# If contour is too small or too big, ignore it
 		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -404,12 +404,14 @@ def tshirtMeasuring(imgSrc):
 				break
 
 	else:
-		for i in range(body_height_last,height):
-			if rotated_mask[back_neck_x1,i] == 0:
+		for i in range(body_height_last,width):
+			# if rotated_mask[back_neck_x1,i] == 0:
+			if rotated_mask[i,back_neck_x1] != 0:
 				back_neck_y1 = i-1
 				break
-		for i in range(body_height_last,height):
-			if rotated_mask[back_neck_x2,i] == 0:
+		for i in range(body_height_last,width):
+			# if rotated_mask[back_neck_x2,i] == 0:
+			if rotated_mask[i,back_neck_x2] != 0:
 				back_neck_y2 = i-1
 				break
 
