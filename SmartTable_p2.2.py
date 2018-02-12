@@ -41,6 +41,10 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Original", imgSrc)
 
 	(height, width) = frame.shape[:2]
+	rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+
+	(height, width) = frame.shape[:2]
 	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotation_matrix1[0,2] += int((height/2)-width/2)
 	rotation_matrix1[1,2] += int((width/2)-height/2)
@@ -404,12 +408,12 @@ def tshirtMeasuring(imgSrc):
 				break
 
 	else:
-		for i in range(body_height_last,width):
+		for i in range(body_height_last,height):
 			# if rotated_mask[back_neck_x1,i] == 0:
 			if rotated_mask[i,back_neck_x1] == 0:
 				back_neck_y1 = i-1
 				break
-		for i in range(body_height_last,width):
+		for i in range(body_height_last,height):
 			# if rotated_mask[back_neck_x2,i] == 0:
 			if rotated_mask[i,back_neck_x2] == 0:
 				back_neck_y2 = i-1
