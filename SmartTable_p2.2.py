@@ -40,9 +40,9 @@ def tshirtMeasuring(imgSrc):
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
-	(height, width) = frame.shape[:2]
-	rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# (height, width) = frame.shape[:2]
+	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
 	(height, width) = frame.shape[:2]
 	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -50,6 +50,7 @@ def tshirtMeasuring(imgSrc):
 	rotation_matrix1[1,2] += int((width/2)-height/2)
 	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
+	print("height ", height, "width ", width)
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
 	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
@@ -346,13 +347,12 @@ def tshirtMeasuring(imgSrc):
 	# *************************************************************
 	############################################## First identify x positions and then y position
 
-	print(height_array_x)
-	# print(pixel_height)
+	print("height_array_x ", height_array_x)
 	back_neck_x1 = height_array_x
 	back_neck_x2 = height_array_x
 	back_neck_y1 = 0
 	back_neck_y2 = 0
-	step = 5
+	step = int(width*0.005)
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])
 	temp_count_pre_2 = temp_count_pre_1
 	# for i in range(1,int(pixel_body_width_actual/2)):
@@ -371,6 +371,7 @@ def tshirtMeasuring(imgSrc):
 	# 				temp_count_pre_2 = temp_count_2
 	# 	else:
 	# 		temp_count_pre_1 = temp_count_1
+	print("pixel_body_width_actual ", pixel_body_width_actual)
 	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])
 		if temp_count_1 < temp_count_pre_1:
@@ -393,18 +394,14 @@ def tshirtMeasuring(imgSrc):
 
 	if rotated == False:
 		for i in range(0,body_height_first):
-			# if rotated_mask[back_neck_x1,i] != 0:
-			# if transpose_rotated_mask[i,back_neck_x1] != 0:
+			# if transpose_rotated_mask[back_neck_x1,i] != 0:
 			if rotated_mask[i,back_neck_x1] != 0:
 				back_neck_y1 = i
-				print("************ %d", back_neck_y1)
 				break
 		for i in range(0,body_height_first):
-			# if rotated_mask[back_neck_x2,i] != 0:
-			# if transpose_rotated_mask[i,back_neck_x2] != 0:
+			# if transpose_rotated_mask[back_neck_x2,i] != 0:
 			if rotated_mask[i,back_neck_x2] != 0:
 				back_neck_y2 = i
-				print("############ %d", back_neck_y2)
 				break
 
 	else:
@@ -419,12 +416,18 @@ def tshirtMeasuring(imgSrc):
 				back_neck_y2 = i-1
 				break
 
-	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.1:
-		print(back_neck_x1)
-		print(back_neck_x2)
+	print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
+	print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
+	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.01:
+		print("******x1 ", back_neck_x1)
+		print("******x2 ", back_neck_x2)
+		print("******y1 ", back_neck_y1)
+		print("******y2 ", back_neck_y2)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
+		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
@@ -456,7 +459,7 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	# cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture(1)
 	cap = cv2.VideoCapture("test\WIN_20180129_082848.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
@@ -466,7 +469,7 @@ def getMeasurements():
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
-			print("New frame")
+			# print("New frame")
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
