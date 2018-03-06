@@ -4,7 +4,7 @@ import math
 
 
 def getmmDistance(pixel):														# Calibration to get mm from pixel
-    mm = ((pixel - 3.3709) / 0.7489)
+    mm = ((pixel - 2.7463) / 0.559)
     if mm > 0:
         return mm
     else:
@@ -12,7 +12,7 @@ def getmmDistance(pixel):														# Calibration to get mm from pixel
 
 
 def getPixelDistance(mm):														# Calibration to get pixel from mm
-    pixel = (0.7489 * mm) + 3.3709
+    pixel = (0.559 * mm) + 2.7463
     if pixel > 0:
         return pixel
     else:
