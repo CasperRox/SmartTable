@@ -30,9 +30,9 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -45,7 +45,8 @@ def tshirtMeasuring(imgSrc):
 	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
 	(height, width) = frame.shape[:2]
-	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	rotation_matrix1[0,2] += int((height/2)-width/2)
 	rotation_matrix1[1,2] += int((width/2)-height/2)
 	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
@@ -408,7 +409,7 @@ def tshirtMeasuring(imgSrc):
 				break
 
 	temp_img = cv2.resize(rotated_mask, (int(width*0.2),int(height*0.2)))
-	cv2.imshow("test6", temp_img)
+	# cv2.imshow("test6", temp_img)
 	print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
 	print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
 	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.01:
@@ -452,8 +453,8 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	# cap = cv2.VideoCapture(0)
-	cap = cv2.VideoCapture("test\WIN_20180129_082848.MP4")
+	cap = cv2.VideoCapture(1)
+	# cap = cv2.VideoCapture("test\WIN_20180129_082848.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 	original = cv2.imread("test\WIN_20180126_152758.JPG")
