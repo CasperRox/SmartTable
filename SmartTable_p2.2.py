@@ -30,9 +30,9 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -467,7 +467,7 @@ def getMeasurements():
 		if ret:
 			# print("New frame")
 			(height, width) = frame.shape[:2]
-			frame = frame[0:height, int(150/640*width):int(590/640*width)]
+			frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
 			output = tshirtMeasuring(frame)						# Process live video
