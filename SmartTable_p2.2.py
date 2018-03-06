@@ -30,9 +30,9 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -52,6 +52,8 @@ def tshirtMeasuring(imgSrc):
 	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
 	print("height ", height, "width ", width)
+	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
+	# frame = frame[150:590, 0:480]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
 	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
@@ -93,7 +95,7 @@ def tshirtMeasuring(imgSrc):
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if ((height*width*.25)>areaTshirt) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
+	if (areaTshirt<(height*width*.25)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
 		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -464,6 +466,10 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
+			(height, width) = frame.shape[:2]
+			frame = frame[0:height, int(150/640*width):int(590/640*width)]
+			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
+			# frame = frame[150:590, 0:480]
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
