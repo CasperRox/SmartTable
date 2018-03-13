@@ -125,10 +125,14 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
-	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+
+	# rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	rotated_mask = mask
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
-	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+	rotated_frame = frame
 	# cv2.imshow("Test4", rotated_mask)
+
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
 
@@ -170,10 +174,12 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (0,mid_width_array_y-sleeve_check_length), (640,mid_width_array_y-sleeve_check_length), (255,255,0), 3)		# Sleeve check line
 	# cv2.line(rotated_frame, (0,mid_width_array_y+sleeve_check_length), (640,mid_width_array_y+sleeve_check_length), (255,255,0), 3)		# Sleeve check line
 	if mid_width_array_y<=sleeve_check_length or (height-sleeve_check_length)<=mid_width_array_y or sleeve_check_length<=0:		# If this false width calculation is useless
-		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
-		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
-		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+
+		# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+		# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
+		# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
+		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
 		return addTextOnFrame(rotated_frame)
 
@@ -447,10 +453,11 @@ def tshirtMeasuring(imgSrc):
 	# 	print(body_height_first)
 
 
-	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
-	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
-	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+
 	return addTextOnFrame(rotated_frame)
 
 
