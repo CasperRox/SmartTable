@@ -162,7 +162,7 @@ def tshirtMeasuring(imgSrc):
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x-50,body_height_first-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -429,7 +429,7 @@ def tshirtMeasuring(imgSrc):
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
