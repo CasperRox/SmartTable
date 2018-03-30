@@ -160,9 +160,9 @@ def tshirtMeasuring(imgSrc):
 	# print("pixelHeight = %d" %pixel_height)
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
 		return addTextOnFrame(frame)
-	cv2.line(rotated_frame, (height_array_x,body_height_first), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
+	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height-12)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
