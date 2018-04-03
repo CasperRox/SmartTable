@@ -210,9 +210,9 @@ def tshirtMeasuring(imgSrc):
 			if non_sleeve_side >= body_height_last-step:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
-			if temp_count < temp_width_pre:										# Compare pixel counts
+			if temp_count < temp_width_pre-5:										# Compare pixel counts
 				temp_count2 = np.count_nonzero(rotated_mask[non_sleeve_side+step])
-				if temp_count2 < temp_count:									# Compare next line also to verify
+				if temp_count2 < temp_count-5:									# Compare next line also to verify
 					body_sweap_y = non_sleeve_side-step
 					break
 			else:
@@ -222,9 +222,9 @@ def tshirtMeasuring(imgSrc):
 			if non_sleeve_side <= body_height_first+step:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
-			if temp_count < temp_width_pre: 									# Compare pixel counts
+			if temp_count < temp_width_pre-5: 									# Compare pixel counts
 				temp_count2 = np.count_nonzero(rotated_mask[non_sleeve_side-step])
-				if temp_count2 < temp_count:									# Compare next line also to verify
+				if temp_count2 < temp_count-5:									# Compare next line also to verify
 					body_sweap_y = non_sleeve_side+step
 					break
 			else:
@@ -463,7 +463,7 @@ def tshirtMeasuring(imgSrc):
 
 def getMeasurements():
 	cap = cv2.VideoCapture(1)
-	# cap = cv2.VideoCapture("test\WIN_20180129_082848.MP4")
+	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 	original = cv2.imread("test\WIN_20180126_152758.JPG")
