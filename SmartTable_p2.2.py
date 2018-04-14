@@ -30,9 +30,9 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
 	return imgSrc
 
 
@@ -51,7 +51,7 @@ def tshirtMeasuring(imgSrc):
 	rotation_matrix1[1,2] += int((width/2)-height/2)
 	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
-	print("height ", height, "width ", width)
+	# print("height ", height, "width ", width)
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 	# frame = frame[150:590, 0:480]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
@@ -356,7 +356,7 @@ def tshirtMeasuring(imgSrc):
 	# *************************************************************
 	############################################## First identify x positions and then y position
 
-	print("height_array_x ", height_array_x)
+	# print("height_array_x ", height_array_x)
 	back_neck_x1 = height_array_x 												# Initializing to the center of neck
 	back_neck_x2 = height_array_x
 	back_neck_y1 = 0 															# Initializing to zero
@@ -364,11 +364,11 @@ def tshirtMeasuring(imgSrc):
 	step = int(width*0.005)														# Neck checking step size changes according to camera frame size
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])	# To store previous value to compare with white pixel count
 	temp_count_pre_2 = temp_count_pre_1
-	print("pixel_body_width_actual ", pixel_body_width_actual)
+	# print("pixel_body_width_actual ", pixel_body_width_actual)
 
 	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])	# White pixel count to compare
-		print("test 1 ", temp_count_1)
+		# print("test 1 ", temp_count_1)
 		if temp_count_1 < temp_count_pre_1:
 			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
 			if temp_count_1_1 < temp_count_1:
@@ -379,7 +379,7 @@ def tshirtMeasuring(imgSrc):
 
 	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
 		temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
-		print("test 2 ", temp_count_2)
+		# print("test 2 ", temp_count_2)
 		if temp_count_2 < temp_count_pre_2:
 			temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
 			if (temp_count_2_1<temp_count_2): # and abs(temp_count_2-temp_count_1)<100:
@@ -389,7 +389,7 @@ def tshirtMeasuring(imgSrc):
 			temp_count_pre_2 = temp_count_2
 
 	if rotated == False:
-		print("body_height_first ", body_height_first)
+		# print("body_height_first ", body_height_first)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		# for i in range(0,body_height_first):
 		for i in range(0,int(width*0.5)):
@@ -418,13 +418,13 @@ def tshirtMeasuring(imgSrc):
 
 	temp_img = cv2.resize(rotated_mask, (int(width*0.2),int(height*0.2)))
 	# cv2.imshow("test6", temp_img)
-	print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
-	print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
+	# print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
+	# print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
 	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.01:
-		print("******x1 ", back_neck_x1)
-		print("******x2 ", back_neck_x2)
-		print("******y1 ", back_neck_y1)
-		print("******y2 ", back_neck_y2)
+		# print("******x1 ", back_neck_x1)
+		# print("******x2 ", back_neck_x2)
+		# print("******y1 ", back_neck_y1)
+		# print("******y2 ", back_neck_y2)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
@@ -462,8 +462,8 @@ def tshirtMeasuring(imgSrc):
 
 
 def getMeasurements():
-	cap = cv2.VideoCapture(1)
-	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	# cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 	original = cv2.imread("test\WIN_20180126_152758.JPG")
