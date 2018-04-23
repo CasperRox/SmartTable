@@ -162,7 +162,7 @@ def tshirtMeasuring(imgSrc):
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_height-12)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	cv2.putText(rotated_frame, '%.1f cm / 72cm' %(getmmDistance(pixel_height-12)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -245,7 +245,7 @@ def tshirtMeasuring(imgSrc):
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_sweap)/10), (first,body_sweap_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display body sweap value on image
+		cv2.putText(rotated_frame, '%.1f cm / 42cm' %(getmmDistance(pixel_body_sweap)/10), (first,body_sweap_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display body sweap value on image
 
 
 	# *************************************************************
@@ -340,7 +340,7 @@ def tshirtMeasuring(imgSrc):
 			else:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+			cv2.putText(rotated_frame, '%.1f cm / 40cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -429,7 +429,7 @@ def tshirtMeasuring(imgSrc):
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+		cv2.putText(rotated_frame, '%.1f cm / 16cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
