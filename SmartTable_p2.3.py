@@ -474,6 +474,7 @@ def getMeasurements():
 		if ret:
 			# print("New frame")
 			(height, width) = frame.shape[:2]
+			print("height ", height, "width ", width)
 			frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
