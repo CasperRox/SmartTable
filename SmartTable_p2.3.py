@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import math
+import pymysql.cursors
 
 
 def getmmDistance(pixel):														# Calibration to get mm from pixel
@@ -36,7 +37,28 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	return imgSrc
 
 
+def getDatabaseValues():
+	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+	connection = pymysql.connect(host='localhost',
+		user='root',
+		password='RDB123',
+		db='nmc',
+		charset='utf8mb4',
+		cursorclass=pymysql.cursors.DictCursor)
+	try:
+		with connection.cursor() as cursor:
+			sql = "SELECT `*` FROM `PolyTop`"
+			cursor.execute(sql)
+			result = cursor.fetchall()
+			print(result[0]['BodyHeight'])
+			targetBodyHeight = result[0]['BodyHeight']
+		connection.commit()
+	finally:
+		connection.close()
+
+
 def tshirtMeasuring(imgSrc):
+	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -162,7 +184,7 @@ def tshirtMeasuring(imgSrc):
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm / 72cm' %(getmmDistance(pixel_height-12)/10), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_height-12)/10, targetBodyHeight), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -474,7 +496,7 @@ def getMeasurements():
 		if ret:
 			# print("New frame")
 			(height, width) = frame.shape[:2]
-			print("height ", height, "width ", width)
+			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
@@ -489,4 +511,12 @@ def getMeasurements():
 	cap.release()
 	cv2.destroyAllWindows()
 
+# ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
+
+targetBodyHeight = 0
+targetBodyWidth = 0
+targetBodySweap = 0
+targetBackNeckWidth = 0
+
+getDatabaseValues()
 getMeasurements()
