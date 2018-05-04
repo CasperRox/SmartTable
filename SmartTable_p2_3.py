@@ -50,7 +50,7 @@ def getDatabaseValues():
 			sql = "SELECT `*` FROM `PolyTop`"
 			cursor.execute(sql)
 			result = cursor.fetchall()
-			print(result[0]['BodyHeight'])
+			# print(result[0]['BodyHeight'])
 			targetBodyHeight = result[0]['BodyHeight']
 		connection.commit()
 	finally:
@@ -519,4 +519,14 @@ targetBodySweap = 0
 targetBackNeckWidth = 0
 
 getDatabaseValues()
-getMeasurements()
+# getMeasurements()
+
+if __name__ == "__main__":
+	getMeasurements()
+	testing()
+
+
+def testing():
+	print("Testing")
+	# cap.release()
+	cv2.destroyAllWindows()
