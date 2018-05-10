@@ -27,6 +27,7 @@ def vp_start_gui():
     root = Tk()
     top = Smart_Table (root)
     SmartTable_GUI_support.init(root, top)
+    root.after(100, SmartTable_p2_3.loopTest)
     root.mainloop()
 
 w = None
@@ -44,8 +45,21 @@ def destroy_Smart_Table():
     w.destroy()
     w = None
 
+# def on_enter(event):
+#     # print the key that was pressed
+#     # print (event.char)
+#     widget = event.widget
+#     print ("search " + widget.get())
+#     Smart_Table.txtSize.focus()
 
 class Smart_Table:
+    def on_enter(self, event):
+        # print the key that was pressed
+        # print (event.char)
+        widget = event.widget
+        print ("search " + widget.get())
+        self.txtSize.focus()
+
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
            top is the toplevel containing window.'''
@@ -60,7 +74,6 @@ class Smart_Table:
         top.configure(background="#d9d9d9")
         top.configure(highlightbackground="#d9d9d9")
         top.configure(highlightcolor="black")
-
 
 
         self.frameData = Frame(top)
@@ -96,7 +109,7 @@ class Smart_Table:
         self.lblSize.configure(text='''Size''')
 
         self.lblBodyHeight = Label(self.frameData)
-        self.lblBodyHeight.place(relx=0.04, rely=0.38, height=21, width=84)
+        self.lblBodyHeight.place(relx=0.06, rely=0.38, height=21, width=84)
         self.lblBodyHeight.configure(activebackground="#f9f9f9")
         self.lblBodyHeight.configure(activeforeground="black")
         self.lblBodyHeight.configure(background="#d9d9d9")
@@ -150,6 +163,13 @@ class Smart_Table:
         self.txtStyleNo.configure(insertbackground="black")
         self.txtStyleNo.configure(selectbackground="#c4c4c4")
         self.txtStyleNo.configure(selectforeground="black")
+
+        self.txtStyleNo.focus()
+        # self.txtStyleNo.bind("<Key>", click)
+        self.txtStyleNo.bind("<Return>", self.on_enter)
+        self.txtStyleNo.bind("<Tab>", self.on_enter)
+
+        # self.txtStyleNo.bind("<Return>", lambda event: self.txtSize.focus())
 
         self.txtSize = Entry(self.frameData)
         self.txtSize.place(relx=0.48, rely=0.23,height=20, relwidth=0.46)
@@ -223,10 +243,10 @@ class Smart_Table:
         self.frameRun.configure(width=355)
 
         self.btnRun = Button(self.frameRun)
-        self.btnRun.place(relx=0.2, rely=0.13, height=54, width=62)
-        self.btnRun.configure(activebackground="#d9d9d9")
+        self.btnRun.place(relx=0.2, rely=0.13, height=54, width=64)
+        self.btnRun.configure(activebackground="#008000")
         self.btnRun.configure(activeforeground="#000000")
-        self.btnRun.configure(background="#d9d9d9")
+        self.btnRun.configure(background="#00FF00")
         self.btnRun.configure(cursor="hand2")
         self.btnRun.configure(disabledforeground="#a3a3a3")
         self.btnRun.configure(foreground="#000000")
@@ -238,10 +258,10 @@ class Smart_Table:
         self.btnRun.configure(command=SmartTable_p2_3.getMeasurements)
 
         self.btnStop = Button(self.frameRun)
-        self.btnStop.place(relx=0.59, rely=0.13, height=54, width=65)
-        self.btnStop.configure(activebackground="#d9d9d9")
+        self.btnStop.place(relx=0.59, rely=0.13, height=54, width=64)
+        self.btnStop.configure(activebackground="red")
         self.btnStop.configure(activeforeground="#000000")
-        self.btnStop.configure(background="#d9d9d9")
+        self.btnStop.configure(background="#FF4040")
         self.btnStop.configure(cursor="hand2")
         self.btnStop.configure(disabledforeground="#a3a3a3")
         self.btnStop.configure(foreground="#000000")
@@ -253,12 +273,7 @@ class Smart_Table:
         self.btnStop.configure(command=SmartTable_p2_3.testing)
 
 
-
-
-
-
 if __name__ == '__main__':
     vp_start_gui()
-
 
 

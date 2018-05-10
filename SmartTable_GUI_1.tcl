@@ -128,7 +128,8 @@ proc vTclWindow.top37 {base} {
         -background white -disabledforeground {#a3a3a3} -font TkFixedFont \
         -foreground {#000000} -highlightbackground {#d9d9d9} \
         -highlightcolor black -insertbackground black \
-        -selectbackground {#c4c4c4} -selectforeground black 
+        -selectbackground {#c4c4c4} -selectforeground black \
+        -textvariable Enter 
     vTcl:DefineAlias "$site_3_0.ent50" "txtStyleNo" vTcl:WidgetProc "Toplevel1" 1
     entry $site_3_0.ent51 \
         -background white -disabledforeground {#a3a3a3} -font TkFixedFont \

@@ -37,20 +37,46 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	return imgSrc
 
 
+def initDatabase():
+	connection = pymysql.connect(host='localhost',
+								user='root',
+								password='password',
+								charset='utf8mb4',
+								cursorclass=pymysql.cursors.DictCursor)
+	try:
+		with connection.cursor() as cursor:
+			cursor.execute("create database if not exists nmc")
+			cursor.execute("use nmc")
+			cursor.execute("""
+			create table if not exists PolyTop (
+				Style varchar(100) not null, 
+				Size varchar(10) not null, 
+				BodyHeight float(4,1) not null, 
+				BodyWidth float(4,1) not null, 
+				BodySweap float(4,1) not null, 
+				BackNeckWidth float(4,1) not null, 
+				primary key(Style, Size)
+			);
+			""")
+		connection.commit()
+	finally:
+		connection.close()
+
+
 def getDatabaseValues():
 	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
 	connection = pymysql.connect(host='localhost',
-		user='root',
-		password='RDB123',
-		db='nmc',
-		charset='utf8mb4',
-		cursorclass=pymysql.cursors.DictCursor)
+								user='root',
+								password='password',
+								db='nmc',
+								charset='utf8mb4',
+								cursorclass=pymysql.cursors.DictCursor)
 	try:
 		with connection.cursor() as cursor:
 			sql = "SELECT `*` FROM `PolyTop`"
 			cursor.execute(sql)
 			result = cursor.fetchall()
-			# print(result[0]['BodyHeight'])
+			print(result[0]['BodyHeight'])
 			targetBodyHeight = result[0]['BodyHeight']
 		connection.commit()
 	finally:
@@ -267,7 +293,7 @@ def tshirtMeasuring(imgSrc):
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm / 42cm' %(getmmDistance(pixel_body_sweap)/10), (first,body_sweap_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display body sweap value on image
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_body_sweap)/10, targetBodySweap), (first,body_sweap_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display body sweap value on image
 
 
 	# *************************************************************
@@ -362,7 +388,7 @@ def tshirtMeasuring(imgSrc):
 			else:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			cv2.putText(rotated_frame, '%.1f cm / 40cm' %(getmmDistance(pixel_body_width_actual)/10), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_body_width_actual)/10, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -451,7 +477,7 @@ def tshirtMeasuring(imgSrc):
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm / 16cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
@@ -518,8 +544,9 @@ targetBodyWidth = 0
 targetBodySweap = 0
 targetBackNeckWidth = 0
 
-getDatabaseValues()
-# getMeasurements()
+initDatabase()
+# getDatabaseValues()
+# # getMeasurements()
 
 if __name__ == "__main__":
 	getMeasurements()
@@ -530,3 +557,6 @@ def testing():
 	print("Testing")
 	# cap.release()
 	cv2.destroyAllWindows()
+
+def loopTest():
+	print("Loop Test")
