@@ -8,6 +8,7 @@
 import sys
 import SmartTable_GUI_support
 import SmartTable_p2_3
+import pymysql.cursors
 
 try:
     from Tkinter import *
@@ -45,20 +46,60 @@ def destroy_Smart_Table():
     w.destroy()
     w = None
 
-# def on_enter(event):
-#     # print the key that was pressed
-#     # print (event.char)
-#     widget = event.widget
-#     print ("search " + widget.get())
-#     Smart_Table.txtSize.focus()
 
 class Smart_Table:
     def on_enter(self, event):
-        # print the key that was pressed
         # print (event.char)
         widget = event.widget
-        print ("search " + widget.get())
-        self.txtSize.focus()
+        # print ("search " + widget.get())
+        if widget == self.txtStyleNo:
+            self.txtSize.focus()
+        elif widget == self.txtSize:
+            self.txtBodyHeight.focus()
+        elif widget == self.txtBodyHeight:
+            self.txtBodyWidth.focus()
+        elif widget == self.txtBodyWidth:
+            self.txtBodySweap.focus()
+        elif widget == self.txtBodySweap:
+            self.txtBackNeckWidth.focus()
+        elif widget == self.txtBackNeckWidth:
+            self.btnRun.focus()
+
+
+    def loadData(self, event):
+        styleNo = self.txtStyleNo.get()
+        size = self.txtSize.get()
+        connection = pymysql.connect(host='localhost',
+        	                        user='root',
+        	                        password='password',
+        	                        charset='utf8mb4',
+        	                        cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("use nmc")
+                sql = "SELECT * FROM PolyTop where Style=%s and Size=%s"
+                cursor.execute(sql, (styleNo, size))
+                result = cursor.fetchall()
+                # print (result)
+                if len(result) > 0:
+                    self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
+                    self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
+                    self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+                    self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
+                    self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
+                    self.txtBodySweap.insert(0,result[0]['BodySweap'])
+                    self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+                    self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
+                else:
+                    self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
+                    self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+                    self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
+                    self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+            connection.commit()
+
+        finally:
+            connection.close()
+
 
     def __init__(self, top=None):
         '''This class configures and populates the toplevel window.
@@ -167,7 +208,7 @@ class Smart_Table:
         self.txtStyleNo.focus()
         # self.txtStyleNo.bind("<Key>", click)
         self.txtStyleNo.bind("<Return>", self.on_enter)
-        self.txtStyleNo.bind("<Tab>", self.on_enter)
+        # self.txtStyleNo.bind("<Tab>", self.on_enter)
 
         # self.txtStyleNo.bind("<Return>", lambda event: self.txtSize.focus())
 
@@ -183,6 +224,10 @@ class Smart_Table:
         self.txtSize.configure(selectbackground="#c4c4c4")
         self.txtSize.configure(selectforeground="black")
 
+        self.txtSize.bind("<Return>", self.on_enter)
+        self.txtSize.bind("<Return>", self.loadData)
+        self.txtSize.bind("<Tab>", self.loadData)
+
         self.txtBodyHeight = Entry(self.frameData)
         self.txtBodyHeight.place(relx=0.48, rely=0.38,height=20, relwidth=0.46)
         self.txtBodyHeight.configure(background="white")
@@ -194,6 +239,9 @@ class Smart_Table:
         self.txtBodyHeight.configure(insertbackground="black")
         self.txtBodyHeight.configure(selectbackground="#c4c4c4")
         self.txtBodyHeight.configure(selectforeground="black")
+
+        self.txtBodyHeight.bind("<Return>", self.on_enter)
+        self.txtBodyHeight.bind("<Button-1>", self.loadData)
 
         self.txtBodyWidth = Entry(self.frameData)
         self.txtBodyWidth.place(relx=0.48, rely=0.53,height=20, relwidth=0.46)
@@ -207,6 +255,9 @@ class Smart_Table:
         self.txtBodyWidth.configure(selectbackground="#c4c4c4")
         self.txtBodyWidth.configure(selectforeground="black")
 
+        self.txtBodyWidth.bind("<Return>", self.on_enter)
+        self.txtBodyWidth.bind("<Button-1>", self.loadData)
+
         self.txtBodySweap = Entry(self.frameData)
         self.txtBodySweap.place(relx=0.48, rely=0.68,height=20, relwidth=0.46)
         self.txtBodySweap.configure(background="white")
@@ -218,6 +269,9 @@ class Smart_Table:
         self.txtBodySweap.configure(insertbackground="black")
         self.txtBodySweap.configure(selectbackground="#c4c4c4")
         self.txtBodySweap.configure(selectforeground="black")
+
+        self.txtBodySweap.bind("<Return>", self.on_enter)
+        self.txtBodySweap.bind("<Button-1>", self.loadData)
 
         self.txtBackNeckWidth = Entry(self.frameData)
         self.txtBackNeckWidth.place(relx=0.48, rely=0.83, height=20
@@ -231,6 +285,9 @@ class Smart_Table:
         self.txtBackNeckWidth.configure(insertbackground="black")
         self.txtBackNeckWidth.configure(selectbackground="#c4c4c4")
         self.txtBackNeckWidth.configure(selectforeground="black")
+
+        self.txtBackNeckWidth.bind("<Return>", self.on_enter)
+        self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
 
         self.frameRun = Frame(top)
         self.frameRun.place(relx=0.03, rely=0.77, relheight=0.2, relwidth=0.94)
