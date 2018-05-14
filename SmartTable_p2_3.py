@@ -33,7 +33,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.5),int(height*0.5)))
+	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 
 
@@ -509,7 +509,13 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-def getMeasurements():
+def getMeasurements(bH, bW, bS, bNW):
+	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+	targetBodyHeight = float(bH)
+	targetBodyWidth = float(bW)
+	targetBodySweap = float(bS)
+	targetBackNeckWidth = float(bNW)
+
 	# cap = cv2.VideoCapture(1)
 	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)

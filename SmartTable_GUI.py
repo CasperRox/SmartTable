@@ -48,6 +48,7 @@ def destroy_Smart_Table():
 
 
 class Smart_Table:
+
     def on_enter(self, event):
         # print (event.char)
         widget = event.widget
@@ -56,6 +57,7 @@ class Smart_Table:
             self.txtSize.focus()
         elif widget == self.txtSize:
             self.txtBodyHeight.focus()
+            self.loadData(event)
         elif widget == self.txtBodyHeight:
             self.txtBodyWidth.focus()
         elif widget == self.txtBodyWidth:
@@ -67,13 +69,14 @@ class Smart_Table:
 
 
     def loadData(self, event):
+        widget = event.widget
         styleNo = self.txtStyleNo.get()
         size = self.txtSize.get()
         connection = pymysql.connect(host='localhost',
-        	                        user='root',
-        	                        password='password',
-        	                        charset='utf8mb4',
-        	                        cursorclass=pymysql.cursors.DictCursor)
+                                    user='root',
+                                    password='password',
+                                    charset='utf8mb4',
+                                    cursorclass=pymysql.cursors.DictCursor)
         try:
             with connection.cursor() as cursor:
                 cursor.execute("use nmc")
@@ -90,11 +93,42 @@ class Smart_Table:
                     self.txtBodySweap.insert(0,result[0]['BodySweap'])
                     self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
                     self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
-                else:
+                elif widget == self.txtBodyHeight or self.txtSize:
                     self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
                     self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
                     self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
                     self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+            connection.commit()
+
+        finally:
+            connection.close()
+
+
+    def runMeasuring(self):
+        bH = self.txtBodyHeight.get()
+        bW = self.txtBodyWidth.get()
+        bS = self.txtBodySweap.get()
+        bNW = self.txtBackNeckWidth.get()
+
+        SmartTable_p2_3.getMeasurements(bH, bW, bS, bNW)
+
+        connection = pymysql.connect(host='localhost',
+                                    user='root',
+                                    password='password',
+                                    charset='utf8mb4',
+                                    cursorclass=pymysql.cursors.DictCursor)
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("use nmc")
+                # print(float(self.txtBodyHeight.get()))
+                sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s)"
+                cursor.execute(sql, (self.txtStyleNo.get(), 
+                                    self.txtSize.get(), 
+                                    float(bH), 
+                                    float(bW), 
+                                    float(bS), 
+                                    float(bNW)
+                                ))
             connection.commit()
 
         finally:
@@ -208,8 +242,6 @@ class Smart_Table:
         self.txtStyleNo.focus()
         # self.txtStyleNo.bind("<Key>", click)
         self.txtStyleNo.bind("<Return>", self.on_enter)
-        # self.txtStyleNo.bind("<Tab>", self.on_enter)
-
         # self.txtStyleNo.bind("<Return>", lambda event: self.txtSize.focus())
 
         self.txtSize = Entry(self.frameData)
@@ -225,7 +257,7 @@ class Smart_Table:
         self.txtSize.configure(selectforeground="black")
 
         self.txtSize.bind("<Return>", self.on_enter)
-        self.txtSize.bind("<Return>", self.loadData)
+        # self.txtSize.bind("<Return>", self.loadData)
         self.txtSize.bind("<Tab>", self.loadData)
 
         self.txtBodyHeight = Entry(self.frameData)
@@ -312,7 +344,8 @@ class Smart_Table:
         self.btnRun.configure(pady="0")
         self.btnRun.configure(state=NORMAL)
         self.btnRun.configure(text='''Run''')
-        self.btnRun.configure(command=SmartTable_p2_3.getMeasurements)
+        # self.btnRun.configure(command=SmartTable_p2_3.getMeasurements)
+        self.btnRun.configure(command=self.runMeasuring)
 
         self.btnStop = Button(self.frameRun)
         self.btnStop.place(relx=0.59, rely=0.13, height=54, width=64)
