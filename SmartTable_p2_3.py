@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import math
-import pymysql.cursors
+# import pymysql.cursors
 
 
 def getmmDistance(pixel):														# Calibration to get mm from pixel
@@ -21,6 +21,7 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 
 
 def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
+	global styleNo, size
 	(height, width) = imgSrc.shape[:2]
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
 	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -30,6 +31,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
+	cv2.putText(imgSrc, "Style No: %s          Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
@@ -37,50 +39,50 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	return imgSrc
 
 
-def initDatabase():
-	connection = pymysql.connect(host='localhost',
-								user='root',
-								password='password',
-								charset='utf8mb4',
-								cursorclass=pymysql.cursors.DictCursor)
-	try:
-		with connection.cursor() as cursor:
-			cursor.execute("create database if not exists nmc")
-			cursor.execute("use nmc")
-			cursor.execute("""
-			create table if not exists PolyTop (
-				Style varchar(100) not null, 
-				Size varchar(10) not null, 
-				BodyHeight float(4,1) not null, 
-				BodyWidth float(4,1) not null, 
-				BodySweap float(4,1) not null, 
-				BackNeckWidth float(4,1) not null, 
-				primary key(Style, Size)
-			);
-			""")
-		connection.commit()
-	finally:
-		connection.close()
+# def initDatabase():
+# 	connection = pymysql.connect(host='localhost',
+# 								user='root',
+# 								password='password',
+# 								charset='utf8mb4',
+# 								cursorclass=pymysql.cursors.DictCursor)
+# 	try:
+# 		with connection.cursor() as cursor:
+# 			cursor.execute("create database if not exists nmc")
+# 			cursor.execute("use nmc")
+# 			cursor.execute("""
+# 			create table if not exists PolyTop (
+# 				Style varchar(100) not null, 
+# 				Size varchar(10) not null, 
+# 				BodyHeight float(4,1) not null, 
+# 				BodyWidth float(4,1) not null, 
+# 				BodySweap float(4,1) not null, 
+# 				BackNeckWidth float(4,1) not null, 
+# 				primary key(Style, Size)
+# 			);
+# 			""")
+# 		connection.commit()
+# 	finally:
+# 		connection.close()
 
 
-def getDatabaseValues():
-	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
-	connection = pymysql.connect(host='localhost',
-								user='root',
-								password='password',
-								db='nmc',
-								charset='utf8mb4',
-								cursorclass=pymysql.cursors.DictCursor)
-	try:
-		with connection.cursor() as cursor:
-			sql = "SELECT `*` FROM `PolyTop`"
-			cursor.execute(sql)
-			result = cursor.fetchall()
-			print(result[0]['BodyHeight'])
-			targetBodyHeight = result[0]['BodyHeight']
-		connection.commit()
-	finally:
-		connection.close()
+# def getDatabaseValues():
+# 	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+# 	connection = pymysql.connect(host='localhost',
+# 								user='root',
+# 								password='password',
+# 								db='nmc',
+# 								charset='utf8mb4',
+# 								cursorclass=pymysql.cursors.DictCursor)
+# 	try:
+# 		with connection.cursor() as cursor:
+# 			sql = "SELECT `*` FROM `PolyTop`"
+# 			cursor.execute(sql)
+# 			result = cursor.fetchall()
+# 			print(result[0]['BodyHeight'])
+# 			targetBodyHeight = result[0]['BodyHeight']
+# 		connection.commit()
+# 	finally:
+# 		connection.close()
 
 
 def valueColor(value, comparator):
@@ -306,7 +308,7 @@ def tshirtMeasuring(imgSrc):
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		valueSweap = getmmDistance(pixel_body_sweap)/10
+		valueSweap = (getmmDistance(pixel_body_sweap)/10) + 1
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
 					font, 1, valueColor(valueSweap, targetBodySweap), 2, cv2.LINE_AA)	# Display body sweap value on image
 
@@ -403,7 +405,7 @@ def tshirtMeasuring(imgSrc):
 			else:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			valueWidth = getmmDistance(pixel_body_width_actual)/10
+			valueWidth = (getmmDistance(pixel_body_width_actual)/10) + 1
 			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
 						font, 1, valueColor(valueWidth, targetBodyWidth), 2, cv2.LINE_AA)		# Display body width value on image
 
@@ -528,8 +530,10 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-def getMeasurements(bH, bW, bS, bNW):
-	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+def getMeasurements(sN, sz, bH, bW, bS, bNW):
+	global styleNo, size, targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+	styleNo = sN
+	size = sz
 	targetBodyHeight = float(bH)
 	targetBodyWidth = float(bW)
 	targetBodySweap = float(bS)
@@ -564,6 +568,8 @@ def getMeasurements(bH, bW, bS, bNW):
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
 
+styleNo = None
+size = None
 targetBodyHeight = 0
 targetBodyWidth = 0
 targetBodySweap = 0

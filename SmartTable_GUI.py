@@ -132,12 +132,14 @@ class Smart_Table:
 
 
 	def runMeasuring(self):
+		sN = self.txtStyleNo.get()
+		sz = self.txtSize.get()
 		bH = self.txtBodyHeight.get()
 		bW = self.txtBodyWidth.get()
 		bS = self.txtBodySweap.get()
 		bNW = self.txtBackNeckWidth.get()
 
-		SmartTable_p2_3.getMeasurements(bH, bW, bS, bNW)
+		SmartTable_p2_3.getMeasurements(sN, sz, bH, bW, bS, bNW)
 
 		connection = pymysql.connect(host='localhost',
 									user='root',
@@ -149,13 +151,7 @@ class Smart_Table:
 				cursor.execute("use nmc")
 				# print(float(self.txtBodyHeight.get()))
 				sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s)"
-				cursor.execute(sql, (self.txtStyleNo.get(), 
-									self.txtSize.get(), 
-									float(bH), 
-									float(bW), 
-									float(bS), 
-									float(bNW)
-				))
+				cursor.execute(sql, (sN, sz, float(bH), float(bW), float(bS), float(bNW)))
 			connection.commit()
 
 		finally:
