@@ -83,6 +83,17 @@ def getDatabaseValues():
 		connection.close()
 
 
+def valueColor(value, comparator):
+	color = (0,0,0)
+	if abs(comparator - value) <= 0.5:
+		color = (0,255,0)
+	elif abs(comparator - value) <= 1.0:
+		color = (0,255,255)
+	else:
+		color = (0,0,255)
+	return color
+
+
 def tshirtMeasuring(imgSrc):
 	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
 	frame = imgSrc.copy()														# Backup original image
@@ -210,7 +221,9 @@ def tshirtMeasuring(imgSrc):
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_height-12)/10, targetBodyHeight), (height_array_x+10,body_height_first+100), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display height value on image
+	valueHeight = getmmDistance(pixel_height-12)/10
+	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
+				font, 1, valueColor(valueHeight, targetBodyHeight), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -293,7 +306,9 @@ def tshirtMeasuring(imgSrc):
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_body_sweap)/10, targetBodySweap), (first,body_sweap_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)	# Display body sweap value on image
+		valueSweap = getmmDistance(pixel_body_sweap)/10
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
+					font, 1, valueColor(valueSweap, targetBodySweap), 2, cv2.LINE_AA)	# Display body sweap value on image
 
 
 	# *************************************************************
@@ -388,7 +403,9 @@ def tshirtMeasuring(imgSrc):
 			else:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(pixel_body_width_actual)/10, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+			valueWidth = getmmDistance(pixel_body_width_actual)/10
+			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
+						font, 1, valueColor(valueWidth, targetBodyWidth), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -477,7 +494,9 @@ def tshirtMeasuring(imgSrc):
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(getmmDistance(abs(back_neck_x2-back_neck_x1))/10, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20), font, 1, (255,0,0), 2, cv2.LINE_AA)		# Display body width value on image
+		valueBackNeck = getmmDistance(abs(back_neck_x2-back_neck_x1))/10
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20),
+					font, 1, valueColor(valueBackNeck, targetBackNeckWidth), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
@@ -550,7 +569,7 @@ targetBodyWidth = 0
 targetBodySweap = 0
 targetBackNeckWidth = 0
 
-initDatabase()
+# initDatabase()
 # getDatabaseValues()
 # # getMeasurements()
 
