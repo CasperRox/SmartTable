@@ -60,16 +60,20 @@ def initDatabase():
 			cursor.execute("use nmc")
 			cursor.execute("""
 			create table if not exists PolyTop (
-				Style varchar(100) not null, 
-				Size varchar(10) not null, 
-				BodyHeight float(4,1) not null, 
-				BodyWidth float(4,1) not null, 
-				BodySweap float(4,1) not null, 
-				BackNeckWidth float(4,1) not null, 
+				Style varchar(100) not null,
+				Size varchar(10) not null,
+				BodyHeight float(4,1) not null,
+				BodyHeightTol float(2,1) not null,
+				BodyWidth float(4,1) not null,
+				BodyWidthTol float(2,1) not null,
+				BodySweap float(4,1) not null,
+				BodySweapTol float(2,1) not null,
+				BackNeckWidth float(4,1) not null,
+				BackNeckWidthTol float(2,1) not null,
 				primary key(Style, Size)
 			);
 			""")
-			print("Database initialized")
+			# print("Database initialized")
 		connection.commit()
 	finally:
 		connection.close()
@@ -77,7 +81,7 @@ def initDatabase():
 
 class Smart_Table:
 
-	def on_enter(self, event):
+	def onEnter(self, event):
 		# print (event.char)
 		widget = event.widget
 		# print ("search " + widget.get())
@@ -87,12 +91,20 @@ class Smart_Table:
 			self.txtBodyHeight.focus()
 			self.loadData(event)
 		elif widget == self.txtBodyHeight:
+			self.txtBodyHeightTolerance.focus()
+		elif widget == self.txtBodyHeightTolerance:
 			self.txtBodyWidth.focus()
 		elif widget == self.txtBodyWidth:
+			self.txtBodyWidthTolerance.focus()
+		elif widget == self.txtBodyWidthTolerance:
 			self.txtBodySweap.focus()
 		elif widget == self.txtBodySweap:
+			self.txtBodySweapTolerance.focus()
+		elif widget == self.txtBodySweapTolerance:
 			self.txtBackNeckWidth.focus()
 		elif widget == self.txtBackNeckWidth:
+			self.txtBackNeckWidthTolerance.focus()
+		elif widget == self.txtBackNeckWidthTolerance:
 			self.btnRun.focus()
 
 
@@ -115,17 +127,29 @@ class Smart_Table:
 				if len(result) > 0:
 					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
 					self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
+					self.txtBodyHeightTolerance.delete(0,len(self.txtBodyHeightTolerance.get()))
+					self.txtBodyHeightTolerance.insert(0,result[0]['BodyHeightTol'])
 					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
 					self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
+					self.txtBodyWidthTolerance.delete(0,len(self.txtBodyWidthTolerance.get()))
+					self.txtBodyWidthTolerance.insert(0,result[0]['BodyWidthTol'])
 					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
 					self.txtBodySweap.insert(0,result[0]['BodySweap'])
+					self.txtBodySweapTolerance.delete(0,len(self.txtBodySweapTolerance.get()))
+					self.txtBodySweapTolerance.insert(0,result[0]['BodySweapTol'])
 					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
 					self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
-				elif widget == self.txtBodyHeight or self.txtSize:
+					self.txtBackNeckWidthTolerance.delete(0,len(self.txtBackNeckWidthTolerance.get()))
+					self.txtBackNeckWidthTolerance.insert(0,result[0]['BackNeckWidthTol'])
+				elif widget == self.txtBodyHeight or widget == self.txtSize:
 					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
+					self.txtBodyHeightTolerance.delete(0,len(self.txtBodyHeightTolerance.get()))
 					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+					self.txtBodyWidthTolerance.delete(0,len(self.txtBodyWidthTolerance.get()))
 					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
+					self.txtBodySweapTolerance.delete(0,len(self.txtBodySweapTolerance.get()))
 					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+					self.txtBackNeckWidthTolerance.delete(0,len(self.txtBackNeckWidthTolerance.get()))
 			connection.commit()
 
 		finally:
@@ -136,11 +160,15 @@ class Smart_Table:
 		sN = self.txtStyleNo.get()
 		sz = self.txtSize.get()
 		bH = self.txtBodyHeight.get()
+		bHT = self.txtBodyHeightTolerance.get()
 		bW = self.txtBodyWidth.get()
+		bWT = self.txtBodyWidthTolerance.get()
 		bS = self.txtBodySweap.get()
+		bST = self.txtBodySweapTolerance.get()
 		bNW = self.txtBackNeckWidth.get()
+		bNWT = self.txtBackNeckWidthTolerance.get()
 
-		SmartTable_p2_3.getMeasurements(sN, sz, bH, bW, bS, bNW)
+		SmartTable_p2_3.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT)
 
 		connection = pymysql.connect(host='localhost',
 									user='root',
@@ -151,8 +179,9 @@ class Smart_Table:
 			with connection.cursor() as cursor:
 				cursor.execute("use nmc")
 				# print(float(self.txtBodyHeight.get()))
-				sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s)"
-				cursor.execute(sql, (sN, sz, float(bH), float(bW), float(bS), float(bNW)))
+				sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+				cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT), 
+									float(bS), float(bST), float(bNW), float(bNWT)))
 			connection.commit()
 
 		finally:
@@ -168,15 +197,17 @@ class Smart_Table:
 		_ana1color = '#d9d9d9' # X11 color: 'gray85' 
 		_ana2color = '#d9d9d9' # X11 color: 'gray85' 
 
-		top.geometry("377x379+417+148")
+		# top.geometry("377x379+417+148")
+		top.geometry("377x500+417+148")
 		top.title("Smart Table")
+		# top.iconbitmap("MAS-KREEDA-NMC.ico")
 		top.configure(background="#d9d9d9")
 		top.configure(highlightbackground="#d9d9d9")
 		top.configure(highlightcolor="black")
 
 
 		self.frameData = Frame(top)
-		self.frameData.place(relx=0.03, rely=0.03, relheight=0.7, relwidth=0.94)
+		self.frameData.place(relx=0.03, rely=0.025, relheight=0.75, relwidth=0.94)
 		self.frameData.configure(relief=GROOVE)
 		self.frameData.configure(borderwidth="2")
 		self.frameData.configure(relief=GROOVE)
@@ -186,7 +217,7 @@ class Smart_Table:
 		self.frameData.configure(width=355)
 
 		self.lblStyleNo = Label(self.frameData)
-		self.lblStyleNo.place(relx=0.06, rely=0.08, height=21, width=53)
+		self.lblStyleNo.place(relx=0.06, rely=0.07, height=21, width=53)
 		self.lblStyleNo.configure(activebackground="#f9f9f9")
 		self.lblStyleNo.configure(activeforeground="black")
 		self.lblStyleNo.configure(background="#d9d9d9")
@@ -197,7 +228,7 @@ class Smart_Table:
 		self.lblStyleNo.configure(text='''Style No.''')
 
 		self.lblSize = Label(self.frameData)
-		self.lblSize.place(relx=0.06, rely=0.23, height=21, width=26)
+		self.lblSize.place(relx=0.06, rely=0.21, height=21, width=26)
 		self.lblSize.configure(activebackground="#f9f9f9")
 		self.lblSize.configure(activeforeground="black")
 		self.lblSize.configure(background="#d9d9d9")
@@ -207,8 +238,19 @@ class Smart_Table:
 		self.lblSize.configure(highlightcolor="black")
 		self.lblSize.configure(text='''Size''')
 
+		self.lblTolerance = Label(self.frameData)
+		self.lblTolerance.place(relx=0.71, rely=0.37, height=21, width=84)
+		self.lblTolerance.configure(activebackground="#f9f9f9")
+		self.lblTolerance.configure(activeforeground="black")
+		self.lblTolerance.configure(background="#d9d9d9")
+		self.lblTolerance.configure(disabledforeground="#a3a3a3")
+		self.lblTolerance.configure(foreground="#000000")
+		self.lblTolerance.configure(highlightbackground="#d9d9d9")
+		self.lblTolerance.configure(highlightcolor="black")
+		self.lblTolerance.configure(text='''Tolerance (cm)''')
+
 		self.lblBodyHeight = Label(self.frameData)
-		self.lblBodyHeight.place(relx=0.045, rely=0.38, height=21, width=84)
+		self.lblBodyHeight.place(relx=0.055, rely=0.46, height=21, width=94)
 		self.lblBodyHeight.configure(activebackground="#f9f9f9")
 		self.lblBodyHeight.configure(activeforeground="black")
 		self.lblBodyHeight.configure(background="#d9d9d9")
@@ -216,10 +258,10 @@ class Smart_Table:
 		self.lblBodyHeight.configure(foreground="#000000")
 		self.lblBodyHeight.configure(highlightbackground="#d9d9d9")
 		self.lblBodyHeight.configure(highlightcolor="black")
-		self.lblBodyHeight.configure(text='''Body Height''')
+		self.lblBodyHeight.configure(text='''Body Length (cm)''')
 
 		self.lblBodyWidth = Label(self.frameData)
-		self.lblBodyWidth.place(relx=0.06, rely=0.53, height=21, width=68)
+		self.lblBodyWidth.place(relx=0.06, rely=0.60, height=21, width=88)
 		self.lblBodyWidth.configure(activebackground="#f9f9f9")
 		self.lblBodyWidth.configure(activeforeground="black")
 		self.lblBodyWidth.configure(background="#d9d9d9")
@@ -227,10 +269,10 @@ class Smart_Table:
 		self.lblBodyWidth.configure(foreground="#000000")
 		self.lblBodyWidth.configure(highlightbackground="#d9d9d9")
 		self.lblBodyWidth.configure(highlightcolor="black")
-		self.lblBodyWidth.configure(text='''Body Width''')
+		self.lblBodyWidth.configure(text='''Body Width (cm)''')
 
 		self.lblBodySweap = Label(self.frameData)
-		self.lblBodySweap.place(relx=0.06, rely=0.68, height=21, width=70)
+		self.lblBodySweap.place(relx=0.06, rely=0.74, height=21, width=90)
 		self.lblBodySweap.configure(activebackground="#f9f9f9")
 		self.lblBodySweap.configure(activeforeground="black")
 		self.lblBodySweap.configure(background="#d9d9d9")
@@ -238,10 +280,10 @@ class Smart_Table:
 		self.lblBodySweap.configure(foreground="#000000")
 		self.lblBodySweap.configure(highlightbackground="#d9d9d9")
 		self.lblBodySweap.configure(highlightcolor="black")
-		self.lblBodySweap.configure(text='''Body Sweap''')
+		self.lblBodySweap.configure(text='''Body Sweep (cm)''')
 
 		self.lblBackNeckWidth = Label(self.frameData)
-		self.lblBackNeckWidth.place(relx=0.06, rely=0.83, height=21, width=96)
+		self.lblBackNeckWidth.place(relx=0.06, rely=0.88, height=21, width=116)
 		self.lblBackNeckWidth.configure(activebackground="#f9f9f9")
 		self.lblBackNeckWidth.configure(activeforeground="black")
 		self.lblBackNeckWidth.configure(background="#d9d9d9")
@@ -249,10 +291,10 @@ class Smart_Table:
 		self.lblBackNeckWidth.configure(foreground="#000000")
 		self.lblBackNeckWidth.configure(highlightbackground="#d9d9d9")
 		self.lblBackNeckWidth.configure(highlightcolor="black")
-		self.lblBackNeckWidth.configure(text='''Back Neck Width''')
+		self.lblBackNeckWidth.configure(text='''Back Neck Width (cm)''')
 
 		self.txtStyleNo = Entry(self.frameData)
-		self.txtStyleNo.place(relx=0.48, rely=0.08,height=20, relwidth=0.46)
+		self.txtStyleNo.place(relx=0.48, rely=0.07,height=20, relwidth=0.46)
 		self.txtStyleNo.configure(background="white")
 		self.txtStyleNo.configure(disabledforeground="#a3a3a3")
 		self.txtStyleNo.configure(font="TkFixedFont")
@@ -265,11 +307,11 @@ class Smart_Table:
 
 		self.txtStyleNo.focus()
 		# self.txtStyleNo.bind("<Key>", click)
-		self.txtStyleNo.bind("<Return>", self.on_enter)
+		self.txtStyleNo.bind("<Return>", self.onEnter)
 		# self.txtStyleNo.bind("<Return>", lambda event: self.txtSize.focus())
 
 		self.txtSize = Entry(self.frameData)
-		self.txtSize.place(relx=0.48, rely=0.23,height=20, relwidth=0.46)
+		self.txtSize.place(relx=0.48, rely=0.21,height=20, relwidth=0.46)
 		self.txtSize.configure(background="white")
 		self.txtSize.configure(disabledforeground="#a3a3a3")
 		self.txtSize.configure(font="TkFixedFont")
@@ -280,12 +322,12 @@ class Smart_Table:
 		self.txtSize.configure(selectbackground="#c4c4c4")
 		self.txtSize.configure(selectforeground="black")
 
-		self.txtSize.bind("<Return>", self.on_enter)
+		self.txtSize.bind("<Return>", self.onEnter)
 		# self.txtSize.bind("<Return>", self.loadData)
 		self.txtSize.bind("<Tab>", self.loadData)
 
 		self.txtBodyHeight = Entry(self.frameData)
-		self.txtBodyHeight.place(relx=0.48, rely=0.38,height=20, relwidth=0.46)
+		self.txtBodyHeight.place(relx=0.48, rely=0.46,height=20, relwidth=0.2)
 		self.txtBodyHeight.configure(background="white")
 		self.txtBodyHeight.configure(disabledforeground="#a3a3a3")
 		self.txtBodyHeight.configure(font="TkFixedFont")
@@ -296,11 +338,26 @@ class Smart_Table:
 		self.txtBodyHeight.configure(selectbackground="#c4c4c4")
 		self.txtBodyHeight.configure(selectforeground="black")
 
-		self.txtBodyHeight.bind("<Return>", self.on_enter)
+		self.txtBodyHeight.bind("<Return>", self.onEnter)
 		self.txtBodyHeight.bind("<Button-1>", self.loadData)
 
+		self.txtBodyHeightTolerance = Entry(self.frameData)
+		self.txtBodyHeightTolerance.place(relx=0.73, rely=0.46,height=20, relwidth=0.2)
+		self.txtBodyHeightTolerance.configure(background="white")
+		self.txtBodyHeightTolerance.configure(disabledforeground="#a3a3a3")
+		self.txtBodyHeightTolerance.configure(font="TkFixedFont")
+		self.txtBodyHeightTolerance.configure(foreground="#000000")
+		self.txtBodyHeightTolerance.configure(highlightbackground="#d9d9d9")
+		self.txtBodyHeightTolerance.configure(highlightcolor="black")
+		self.txtBodyHeightTolerance.configure(insertbackground="black")
+		self.txtBodyHeightTolerance.configure(selectbackground="#c4c4c4")
+		self.txtBodyHeightTolerance.configure(selectforeground="black")
+
+		self.txtBodyHeightTolerance.bind("<Return>", self.onEnter)
+		self.txtBodyHeightTolerance.bind("<Button-1>", self.loadData)
+
 		self.txtBodyWidth = Entry(self.frameData)
-		self.txtBodyWidth.place(relx=0.48, rely=0.53,height=20, relwidth=0.46)
+		self.txtBodyWidth.place(relx=0.48, rely=0.60,height=20, relwidth=0.2)
 		self.txtBodyWidth.configure(background="white")
 		self.txtBodyWidth.configure(disabledforeground="#a3a3a3")
 		self.txtBodyWidth.configure(font="TkFixedFont")
@@ -311,11 +368,26 @@ class Smart_Table:
 		self.txtBodyWidth.configure(selectbackground="#c4c4c4")
 		self.txtBodyWidth.configure(selectforeground="black")
 
-		self.txtBodyWidth.bind("<Return>", self.on_enter)
+		self.txtBodyWidth.bind("<Return>", self.onEnter)
 		self.txtBodyWidth.bind("<Button-1>", self.loadData)
 
+		self.txtBodyWidthTolerance = Entry(self.frameData)
+		self.txtBodyWidthTolerance.place(relx=0.73, rely=0.60,height=20, relwidth=0.2)
+		self.txtBodyWidthTolerance.configure(background="white")
+		self.txtBodyWidthTolerance.configure(disabledforeground="#a3a3a3")
+		self.txtBodyWidthTolerance.configure(font="TkFixedFont")
+		self.txtBodyWidthTolerance.configure(foreground="#000000")
+		self.txtBodyWidthTolerance.configure(highlightbackground="#d9d9d9")
+		self.txtBodyWidthTolerance.configure(highlightcolor="black")
+		self.txtBodyWidthTolerance.configure(insertbackground="black")
+		self.txtBodyWidthTolerance.configure(selectbackground="#c4c4c4")
+		self.txtBodyWidthTolerance.configure(selectforeground="black")
+
+		self.txtBodyWidthTolerance.bind("<Return>", self.onEnter)
+		self.txtBodyWidthTolerance.bind("<Button-1>", self.loadData)
+
 		self.txtBodySweap = Entry(self.frameData)
-		self.txtBodySweap.place(relx=0.48, rely=0.68,height=20, relwidth=0.46)
+		self.txtBodySweap.place(relx=0.48, rely=0.74,height=20, relwidth=0.2)
 		self.txtBodySweap.configure(background="white")
 		self.txtBodySweap.configure(disabledforeground="#a3a3a3")
 		self.txtBodySweap.configure(font="TkFixedFont")
@@ -326,12 +398,27 @@ class Smart_Table:
 		self.txtBodySweap.configure(selectbackground="#c4c4c4")
 		self.txtBodySweap.configure(selectforeground="black")
 
-		self.txtBodySweap.bind("<Return>", self.on_enter)
+		self.txtBodySweap.bind("<Return>", self.onEnter)
 		self.txtBodySweap.bind("<Button-1>", self.loadData)
 
+		self.txtBodySweapTolerance = Entry(self.frameData)
+		self.txtBodySweapTolerance.place(relx=0.73, rely=0.74,height=20, relwidth=0.2)
+		self.txtBodySweapTolerance.configure(background="white")
+		self.txtBodySweapTolerance.configure(disabledforeground="#a3a3a3")
+		self.txtBodySweapTolerance.configure(font="TkFixedFont")
+		self.txtBodySweapTolerance.configure(foreground="#000000")
+		self.txtBodySweapTolerance.configure(highlightbackground="#d9d9d9")
+		self.txtBodySweapTolerance.configure(highlightcolor="black")
+		self.txtBodySweapTolerance.configure(insertbackground="black")
+		self.txtBodySweapTolerance.configure(selectbackground="#c4c4c4")
+		self.txtBodySweapTolerance.configure(selectforeground="black")
+
+		self.txtBodySweapTolerance.bind("<Return>", self.onEnter)
+		self.txtBodySweapTolerance.bind("<Button-1>", self.loadData)
+
 		self.txtBackNeckWidth = Entry(self.frameData)
-		self.txtBackNeckWidth.place(relx=0.48, rely=0.83, height=20
-		        , relwidth=0.46)
+		self.txtBackNeckWidth.place(relx=0.48, rely=0.88, height=20
+		        , relwidth=0.2)
 		self.txtBackNeckWidth.configure(background="white")
 		self.txtBackNeckWidth.configure(disabledforeground="#a3a3a3")
 		self.txtBackNeckWidth.configure(font="TkFixedFont")
@@ -342,11 +429,27 @@ class Smart_Table:
 		self.txtBackNeckWidth.configure(selectbackground="#c4c4c4")
 		self.txtBackNeckWidth.configure(selectforeground="black")
 
-		self.txtBackNeckWidth.bind("<Return>", self.on_enter)
+		self.txtBackNeckWidth.bind("<Return>", self.onEnter)
 		self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
 
+		self.txtBackNeckWidthTolerance = Entry(self.frameData)
+		self.txtBackNeckWidthTolerance.place(relx=0.73, rely=0.88, height=20
+		        , relwidth=0.2)
+		self.txtBackNeckWidthTolerance.configure(background="white")
+		self.txtBackNeckWidthTolerance.configure(disabledforeground="#a3a3a3")
+		self.txtBackNeckWidthTolerance.configure(font="TkFixedFont")
+		self.txtBackNeckWidthTolerance.configure(foreground="#000000")
+		self.txtBackNeckWidthTolerance.configure(highlightbackground="#d9d9d9")
+		self.txtBackNeckWidthTolerance.configure(highlightcolor="black")
+		self.txtBackNeckWidthTolerance.configure(insertbackground="black")
+		self.txtBackNeckWidthTolerance.configure(selectbackground="#c4c4c4")
+		self.txtBackNeckWidthTolerance.configure(selectforeground="black")
+
+		self.txtBackNeckWidthTolerance.bind("<Return>", self.onEnter)
+		self.txtBackNeckWidthTolerance.bind("<Button-1>", self.loadData)
+
 		self.frameRun = Frame(top)
-		self.frameRun.place(relx=0.03, rely=0.77, relheight=0.2, relwidth=0.94)
+		self.frameRun.place(relx=0.03, rely=0.8, relheight=0.18, relwidth=0.94)
 		self.frameRun.configure(relief=GROOVE)
 		self.frameRun.configure(borderwidth="2")
 		self.frameRun.configure(relief=GROOVE)
@@ -357,7 +460,7 @@ class Smart_Table:
 
 		self.btnRun = Button(self.frameRun)
 		# self.btnRun.place(relx=0.2, rely=0.13, height=54, width=64)
-		self.btnRun.place(relx=0.07, rely=0.13, height=54, width=300)
+		self.btnRun.place(relx=0.07, rely=0.2, height=54, width=300)
 		self.btnRun.configure(activebackground="#008000")
 		self.btnRun.configure(activeforeground="#000000")
 		self.btnRun.configure(background="#00FF00")
@@ -368,6 +471,7 @@ class Smart_Table:
 		self.btnRun.configure(highlightcolor="#000000")
 		self.btnRun.configure(pady="0")
 		self.btnRun.configure(state=NORMAL)
+		self.btnRun.configure(font=('Courier', 30, 'bold'))
 		self.btnRun.configure(text='''Run''')
 		# self.btnRun.configure(command=SmartTable_p2_3.getMeasurements)
 		self.btnRun.configure(command=self.runMeasuring)

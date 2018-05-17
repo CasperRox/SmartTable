@@ -31,11 +31,11 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Style No: %s          Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 
 
@@ -85,19 +85,18 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 # 		connection.close()
 
 
-def valueColor(value, comparator):
+def valueColor(value, comparator, tolerance):
 	color = (0,0,0)
-	if abs(comparator - value) <= 0.5:
+	if abs(comparator - value) <= tolerance:
 		color = (0,255,0)
-	elif abs(comparator - value) <= 1.0:
-		color = (0,255,255)
 	else:
 		color = (0,0,255)
 	return color
 
 
 def tshirtMeasuring(imgSrc):
-	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -225,7 +224,7 @@ def tshirtMeasuring(imgSrc):
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	valueHeight = getmmDistance(pixel_height-12)/10
 	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
-				font, 1, valueColor(valueHeight, targetBodyHeight), 2, cv2.LINE_AA)	# Display height value on image
+				font, 1, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 2, cv2.LINE_AA)	# Display height value on image
 
 
 	# *************************************************************
@@ -310,7 +309,7 @@ def tshirtMeasuring(imgSrc):
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueSweap = (getmmDistance(pixel_body_sweap)/10) + 1
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
-					font, 1, valueColor(valueSweap, targetBodySweap), 2, cv2.LINE_AA)	# Display body sweap value on image
+					font, 1, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 2, cv2.LINE_AA)	# Display body sweap value on image
 
 
 	# *************************************************************
@@ -407,7 +406,7 @@ def tshirtMeasuring(imgSrc):
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10) + 1
 			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
-						font, 1, valueColor(valueWidth, targetBodyWidth), 2, cv2.LINE_AA)		# Display body width value on image
+						font, 1, valueColor(valueWidth, targetBodyWidth, targetBodyWidthTol), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -498,7 +497,7 @@ def tshirtMeasuring(imgSrc):
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueBackNeck = getmmDistance(abs(back_neck_x2-back_neck_x1))/10
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20),
-					font, 1, valueColor(valueBackNeck, targetBackNeckWidth), 2, cv2.LINE_AA)		# Display body width value on image
+					font, 1, valueColor(valueBackNeck, targetBackNeckWidth, targetBackNeckWidthTol), 2, cv2.LINE_AA)		# Display body width value on image
 
 
 	# if 
@@ -530,20 +529,25 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-def getMeasurements(sN, sz, bH, bW, bS, bNW):
-	global styleNo, size, targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
+def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
 	styleNo = sN
 	size = sz
 	targetBodyHeight = float(bH)
+	targetBodyHeightTol = float(bHT)
 	targetBodyWidth = float(bW)
+	targetBodyWidthTol = float(bWT)
 	targetBodySweap = float(bS)
+	targetBodySweapTol = float(bST)
 	targetBackNeckWidth = float(bNW)
+	targetBackNeckWidthTol = float(bNWT)
 
-	# cap = cv2.VideoCapture(1)
-	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	cap = cv2.VideoCapture(1)
+	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	original = cv2.imread("test\WIN_20180126_152758.JPG")
+	# original = cv2.imread("test\WIN_20180126_152758.JPG")
 
 	while(True):
 		# Capture frame-by-frame
@@ -571,9 +575,13 @@ def getMeasurements(sN, sz, bH, bW, bS, bNW):
 styleNo = None
 size = None
 targetBodyHeight = 0
+targetBodyHeightTol = 0
 targetBodyWidth = 0
+targetBodyWidthTol = 0
 targetBodySweap = 0
+targetBodySweapTol = 0
 targetBackNeckWidth = 0
+targetBackNeckWidthTol = 0
 
 # initDatabase()
 # getDatabaseValues()
@@ -581,13 +589,13 @@ targetBackNeckWidth = 0
 
 if __name__ == "__main__":
 	getMeasurements()
-	testing()
+	# testing()
 
 
-def testing():
-	print("Testing")
-	# cap.release()
-	cv2.destroyAllWindows()
+# def testing():
+# 	print("Testing")
+# 	# cap.release()
+# 	cv2.destroyAllWindows()
 
 def loopTest():
 	print("Loop Test")
