@@ -141,7 +141,8 @@ proc vTclWindow.top37 {base} {
         -background white -disabledforeground {#a3a3a3} -font TkFixedFont \
         -foreground {#000000} -highlightbackground {#d9d9d9} \
         -highlightcolor black -insertbackground black \
-        -selectbackground {#c4c4c4} -selectforeground black 
+        -selectbackground {#c4c4c4} -selectforeground black -validate key \
+        -validatecommand {(vcmd, '%S')} 
     vTcl:DefineAlias "$site_3_0.ent52" "txtBodyHeight" vTcl:WidgetProc "Toplevel1" 1
     entry $site_3_0.ent53 \
         -background white -disabledforeground {#a3a3a3} -font TkFixedFont \

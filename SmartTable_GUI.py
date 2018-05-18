@@ -14,6 +14,8 @@ try:
 	from Tkinter import *
 except ImportError:
 	from tkinter import *
+	from tkinter import messagebox
+	# import tkinter.ttk as ttk
 
 try:
 	import ttk
@@ -29,7 +31,7 @@ def vp_start_gui():
 	top = Smart_Table (root)
 	SmartTable_GUI_support.init(root, top)
 	root.resizable(0,0)
-	root.after(100, SmartTable_p2_3.loopTest)
+	# root.after(100, SmartTable_p2_3.loopTest)
 	root.mainloop()
 
 w = None
@@ -91,20 +93,20 @@ class Smart_Table:
 			self.txtBodyHeight.focus()
 			self.loadData(event)
 		elif widget == self.txtBodyHeight:
-			self.txtBodyHeightTolerance.focus()
-		elif widget == self.txtBodyHeightTolerance:
+			self.txtBodyHeightTol.focus()
+		elif widget == self.txtBodyHeightTol:
 			self.txtBodyWidth.focus()
 		elif widget == self.txtBodyWidth:
-			self.txtBodyWidthTolerance.focus()
-		elif widget == self.txtBodyWidthTolerance:
+			self.txtBodyWidthTol.focus()
+		elif widget == self.txtBodyWidthTol:
 			self.txtBodySweap.focus()
 		elif widget == self.txtBodySweap:
-			self.txtBodySweapTolerance.focus()
-		elif widget == self.txtBodySweapTolerance:
+			self.txtBodySweapTol.focus()
+		elif widget == self.txtBodySweapTol:
 			self.txtBackNeckWidth.focus()
 		elif widget == self.txtBackNeckWidth:
-			self.txtBackNeckWidthTolerance.focus()
-		elif widget == self.txtBackNeckWidthTolerance:
+			self.txtBackNeckWidthTol.focus()
+		elif widget == self.txtBackNeckWidthTol:
 			self.btnRun.focus()
 
 
@@ -127,29 +129,30 @@ class Smart_Table:
 				if len(result) > 0:
 					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
 					self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
-					self.txtBodyHeightTolerance.delete(0,len(self.txtBodyHeightTolerance.get()))
-					self.txtBodyHeightTolerance.insert(0,result[0]['BodyHeightTol'])
+					self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
+					self.txtBodyHeightTol.insert(0,result[0]['BodyHeightTol'])
 					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
 					self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
-					self.txtBodyWidthTolerance.delete(0,len(self.txtBodyWidthTolerance.get()))
-					self.txtBodyWidthTolerance.insert(0,result[0]['BodyWidthTol'])
+					self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
+					self.txtBodyWidthTol.insert(0,result[0]['BodyWidthTol'])
 					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
 					self.txtBodySweap.insert(0,result[0]['BodySweap'])
-					self.txtBodySweapTolerance.delete(0,len(self.txtBodySweapTolerance.get()))
-					self.txtBodySweapTolerance.insert(0,result[0]['BodySweapTol'])
+					self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
+					self.txtBodySweapTol.insert(0,result[0]['BodySweapTol'])
 					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
 					self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
-					self.txtBackNeckWidthTolerance.delete(0,len(self.txtBackNeckWidthTolerance.get()))
-					self.txtBackNeckWidthTolerance.insert(0,result[0]['BackNeckWidthTol'])
-				elif widget == self.txtBodyHeight or widget == self.txtSize:
+					self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
+					self.txtBackNeckWidthTol.insert(0,result[0]['BackNeckWidthTol'])
+				# elif widget == self.txtBodyHeight or widget == self.txtSize:
+				elif widget == self.txtSize:
 					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
-					self.txtBodyHeightTolerance.delete(0,len(self.txtBodyHeightTolerance.get()))
+					self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
 					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-					self.txtBodyWidthTolerance.delete(0,len(self.txtBodyWidthTolerance.get()))
+					self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
 					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
-					self.txtBodySweapTolerance.delete(0,len(self.txtBodySweapTolerance.get()))
+					self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
 					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-					self.txtBackNeckWidthTolerance.delete(0,len(self.txtBackNeckWidthTolerance.get()))
+					self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
 			connection.commit()
 
 		finally:
@@ -160,33 +163,87 @@ class Smart_Table:
 		sN = self.txtStyleNo.get()
 		sz = self.txtSize.get()
 		bH = self.txtBodyHeight.get()
-		bHT = self.txtBodyHeightTolerance.get()
+		bHT = self.txtBodyHeightTol.get()
 		bW = self.txtBodyWidth.get()
-		bWT = self.txtBodyWidthTolerance.get()
+		bWT = self.txtBodyWidthTol.get()
 		bS = self.txtBodySweap.get()
-		bST = self.txtBodySweapTolerance.get()
+		bST = self.txtBodySweapTol.get()
 		bNW = self.txtBackNeckWidth.get()
-		bNWT = self.txtBackNeckWidthTolerance.get()
+		bNWT = self.txtBackNeckWidthTol.get()
 
-		SmartTable_p2_3.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT)
+		if not sN:
+			self.txtStyleNo.focus()
+			messagebox.showerror("Input Error", "Please enter valid Style Number")
+		elif not sz:
+			self.txtSize.focus()
+			messagebox.showerror("Input Error", "Please enter valid Size")
+		elif not bH:
+			self.txtBodyHeight.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Length Value")
+		elif not bHT:
+			self.txtBodyHeightTol.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+		elif not bW:
+			self.txtBodyWidth.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Width Value")
+		elif not bWT:
+			self.txtBodyWidthTol.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+		elif not bS:
+			self.txtBodySweap.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
+		elif not bST:
+			self.txtBodySweapTol.focus()
+			messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
+		elif not bNW:
+			self.txtBackNeckWidth.focus()
+			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
+		elif not bNWT:
+			self.txtBackNeckWidthTol.focus()
+			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
+		# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
+		# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
+		else:
+			self.btnRun.configure(state = "disabled")
+			self.btnRun.pack_forget()
+			SmartTable_p2_3.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT)
+			self.btnRun.configure(state = "normal")
 
-		connection = pymysql.connect(host='localhost',
-									user='root',
-									password='password',
-									charset='utf8mb4',
-									cursorclass=pymysql.cursors.DictCursor)
+			connection = pymysql.connect(host='localhost',
+										user='root',
+										password='password',
+										charset='utf8mb4',
+										cursorclass=pymysql.cursors.DictCursor)
+			try:
+				with connection.cursor() as cursor:
+					cursor.execute("use nmc")
+					# print(float(self.txtBodyHeight.get()))
+					sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+					cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT),
+										float(bS), float(bST), float(bNW), float(bNWT)))
+				connection.commit()
+
+			finally:
+				connection.close()
+
+
+	def validateFloat(self, value, preValue, action):
 		try:
-			with connection.cursor() as cursor:
-				cursor.execute("use nmc")
-				# print(float(self.txtBodyHeight.get()))
-				sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-				cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT), 
-									float(bS), float(bST), float(bNW), float(bNWT)))
-			connection.commit()
-
-		finally:
-			connection.close()
-
+			if '0' == action:
+				# print("YYY")
+				return True
+			elif '.' == value:
+				finalValue = preValue + value
+				# print("YY")
+				float(finalValue)
+				return True
+			else:
+				# print("Y")
+				float(value)
+				return True
+		except ValueError:
+			# print("N")
+			return False
 
 	def __init__(self, top=None):
 		'''This class configures and populates the toplevel window.
@@ -195,7 +252,13 @@ class Smart_Table:
 		_fgcolor = '#000000'  # X11 color: 'black'
 		_compcolor = '#d9d9d9' # X11 color: 'gray85'
 		_ana1color = '#d9d9d9' # X11 color: 'gray85' 
-		_ana2color = '#d9d9d9' # X11 color: 'gray85' 
+		_ana2color = '#d9d9d9' # X11 color: 'gray85'
+
+		# self.theme = ttk.Style()
+		# print(self.theme.theme_names())
+		# # self.theme.theme_use('clam')
+		# print(self.theme.theme_use())
+
 
 		# top.geometry("377x379+417+148")
 		top.geometry("377x500+417+148")
@@ -238,16 +301,16 @@ class Smart_Table:
 		self.lblSize.configure(highlightcolor="black")
 		self.lblSize.configure(text='''Size''')
 
-		self.lblTolerance = Label(self.frameData)
-		self.lblTolerance.place(relx=0.71, rely=0.37, height=21, width=84)
-		self.lblTolerance.configure(activebackground="#f9f9f9")
-		self.lblTolerance.configure(activeforeground="black")
-		self.lblTolerance.configure(background="#d9d9d9")
-		self.lblTolerance.configure(disabledforeground="#a3a3a3")
-		self.lblTolerance.configure(foreground="#000000")
-		self.lblTolerance.configure(highlightbackground="#d9d9d9")
-		self.lblTolerance.configure(highlightcolor="black")
-		self.lblTolerance.configure(text='''Tolerance (cm)''')
+		self.lblTol = Label(self.frameData)
+		self.lblTol.place(relx=0.71, rely=0.37, height=21, width=84)
+		self.lblTol.configure(activebackground="#f9f9f9")
+		self.lblTol.configure(activeforeground="black")
+		self.lblTol.configure(background="#d9d9d9")
+		self.lblTol.configure(disabledforeground="#a3a3a3")
+		self.lblTol.configure(foreground="#000000")
+		self.lblTol.configure(highlightbackground="#d9d9d9")
+		self.lblTol.configure(highlightcolor="black")
+		self.lblTol.configure(text='''Tolerance (cm)''')
 
 		self.lblBodyHeight = Label(self.frameData)
 		self.lblBodyHeight.place(relx=0.055, rely=0.46, height=21, width=94)
@@ -337,24 +400,30 @@ class Smart_Table:
 		self.txtBodyHeight.configure(insertbackground="black")
 		self.txtBodyHeight.configure(selectbackground="#c4c4c4")
 		self.txtBodyHeight.configure(selectforeground="black")
+		validateSupport = self.txtBodyHeight.register(self.validateFloat)
+		self.txtBodyHeight.configure(validate="key")
+		self.txtBodyHeight.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBodyHeight.bind("<Return>", self.onEnter)
 		self.txtBodyHeight.bind("<Button-1>", self.loadData)
 
-		self.txtBodyHeightTolerance = Entry(self.frameData)
-		self.txtBodyHeightTolerance.place(relx=0.73, rely=0.46,height=20, relwidth=0.2)
-		self.txtBodyHeightTolerance.configure(background="white")
-		self.txtBodyHeightTolerance.configure(disabledforeground="#a3a3a3")
-		self.txtBodyHeightTolerance.configure(font="TkFixedFont")
-		self.txtBodyHeightTolerance.configure(foreground="#000000")
-		self.txtBodyHeightTolerance.configure(highlightbackground="#d9d9d9")
-		self.txtBodyHeightTolerance.configure(highlightcolor="black")
-		self.txtBodyHeightTolerance.configure(insertbackground="black")
-		self.txtBodyHeightTolerance.configure(selectbackground="#c4c4c4")
-		self.txtBodyHeightTolerance.configure(selectforeground="black")
+		self.txtBodyHeightTol = Entry(self.frameData)
+		self.txtBodyHeightTol.place(relx=0.73, rely=0.46,height=20, relwidth=0.2)
+		self.txtBodyHeightTol.configure(background="white")
+		self.txtBodyHeightTol.configure(disabledforeground="#a3a3a3")
+		self.txtBodyHeightTol.configure(font="TkFixedFont")
+		self.txtBodyHeightTol.configure(foreground="#000000")
+		self.txtBodyHeightTol.configure(highlightbackground="#d9d9d9")
+		self.txtBodyHeightTol.configure(highlightcolor="black")
+		self.txtBodyHeightTol.configure(insertbackground="black")
+		self.txtBodyHeightTol.configure(selectbackground="#c4c4c4")
+		self.txtBodyHeightTol.configure(selectforeground="black")
+		validateSupport = self.txtBodyHeightTol.register(self.validateFloat)
+		self.txtBodyHeightTol.configure(validate="key")
+		self.txtBodyHeightTol.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
-		self.txtBodyHeightTolerance.bind("<Return>", self.onEnter)
-		self.txtBodyHeightTolerance.bind("<Button-1>", self.loadData)
+		self.txtBodyHeightTol.bind("<Return>", self.onEnter)
+		self.txtBodyHeightTol.bind("<Button-1>", self.loadData)
 
 		self.txtBodyWidth = Entry(self.frameData)
 		self.txtBodyWidth.place(relx=0.48, rely=0.60,height=20, relwidth=0.2)
@@ -367,24 +436,30 @@ class Smart_Table:
 		self.txtBodyWidth.configure(insertbackground="black")
 		self.txtBodyWidth.configure(selectbackground="#c4c4c4")
 		self.txtBodyWidth.configure(selectforeground="black")
+		validateSupport = self.txtBodyWidth.register(self.validateFloat)
+		self.txtBodyWidth.configure(validate="key")
+		self.txtBodyWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBodyWidth.bind("<Return>", self.onEnter)
 		self.txtBodyWidth.bind("<Button-1>", self.loadData)
 
-		self.txtBodyWidthTolerance = Entry(self.frameData)
-		self.txtBodyWidthTolerance.place(relx=0.73, rely=0.60,height=20, relwidth=0.2)
-		self.txtBodyWidthTolerance.configure(background="white")
-		self.txtBodyWidthTolerance.configure(disabledforeground="#a3a3a3")
-		self.txtBodyWidthTolerance.configure(font="TkFixedFont")
-		self.txtBodyWidthTolerance.configure(foreground="#000000")
-		self.txtBodyWidthTolerance.configure(highlightbackground="#d9d9d9")
-		self.txtBodyWidthTolerance.configure(highlightcolor="black")
-		self.txtBodyWidthTolerance.configure(insertbackground="black")
-		self.txtBodyWidthTolerance.configure(selectbackground="#c4c4c4")
-		self.txtBodyWidthTolerance.configure(selectforeground="black")
+		self.txtBodyWidthTol = Entry(self.frameData)
+		self.txtBodyWidthTol.place(relx=0.73, rely=0.60,height=20, relwidth=0.2)
+		self.txtBodyWidthTol.configure(background="white")
+		self.txtBodyWidthTol.configure(disabledforeground="#a3a3a3")
+		self.txtBodyWidthTol.configure(font="TkFixedFont")
+		self.txtBodyWidthTol.configure(foreground="#000000")
+		self.txtBodyWidthTol.configure(highlightbackground="#d9d9d9")
+		self.txtBodyWidthTol.configure(highlightcolor="black")
+		self.txtBodyWidthTol.configure(insertbackground="black")
+		self.txtBodyWidthTol.configure(selectbackground="#c4c4c4")
+		self.txtBodyWidthTol.configure(selectforeground="black")
+		validateSupport = self.txtBodyWidthTol.register(self.validateFloat)
+		self.txtBodyWidthTol.configure(validate="key")
+		self.txtBodyWidthTol.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
-		self.txtBodyWidthTolerance.bind("<Return>", self.onEnter)
-		self.txtBodyWidthTolerance.bind("<Button-1>", self.loadData)
+		self.txtBodyWidthTol.bind("<Return>", self.onEnter)
+		self.txtBodyWidthTol.bind("<Button-1>", self.loadData)
 
 		self.txtBodySweap = Entry(self.frameData)
 		self.txtBodySweap.place(relx=0.48, rely=0.74,height=20, relwidth=0.2)
@@ -397,24 +472,30 @@ class Smart_Table:
 		self.txtBodySweap.configure(insertbackground="black")
 		self.txtBodySweap.configure(selectbackground="#c4c4c4")
 		self.txtBodySweap.configure(selectforeground="black")
+		validateSupport = self.txtBodySweap.register(self.validateFloat)
+		self.txtBodySweap.configure(validate="key")
+		self.txtBodySweap.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBodySweap.bind("<Return>", self.onEnter)
 		self.txtBodySweap.bind("<Button-1>", self.loadData)
 
-		self.txtBodySweapTolerance = Entry(self.frameData)
-		self.txtBodySweapTolerance.place(relx=0.73, rely=0.74,height=20, relwidth=0.2)
-		self.txtBodySweapTolerance.configure(background="white")
-		self.txtBodySweapTolerance.configure(disabledforeground="#a3a3a3")
-		self.txtBodySweapTolerance.configure(font="TkFixedFont")
-		self.txtBodySweapTolerance.configure(foreground="#000000")
-		self.txtBodySweapTolerance.configure(highlightbackground="#d9d9d9")
-		self.txtBodySweapTolerance.configure(highlightcolor="black")
-		self.txtBodySweapTolerance.configure(insertbackground="black")
-		self.txtBodySweapTolerance.configure(selectbackground="#c4c4c4")
-		self.txtBodySweapTolerance.configure(selectforeground="black")
+		self.txtBodySweapTol = Entry(self.frameData)
+		self.txtBodySweapTol.place(relx=0.73, rely=0.74,height=20, relwidth=0.2)
+		self.txtBodySweapTol.configure(background="white")
+		self.txtBodySweapTol.configure(disabledforeground="#a3a3a3")
+		self.txtBodySweapTol.configure(font="TkFixedFont")
+		self.txtBodySweapTol.configure(foreground="#000000")
+		self.txtBodySweapTol.configure(highlightbackground="#d9d9d9")
+		self.txtBodySweapTol.configure(highlightcolor="black")
+		self.txtBodySweapTol.configure(insertbackground="black")
+		self.txtBodySweapTol.configure(selectbackground="#c4c4c4")
+		self.txtBodySweapTol.configure(selectforeground="black")
+		validateSupport = self.txtBodySweapTol.register(self.validateFloat)
+		self.txtBodySweapTol.configure(validate="key")
+		self.txtBodySweapTol.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
-		self.txtBodySweapTolerance.bind("<Return>", self.onEnter)
-		self.txtBodySweapTolerance.bind("<Button-1>", self.loadData)
+		self.txtBodySweapTol.bind("<Return>", self.onEnter)
+		self.txtBodySweapTol.bind("<Button-1>", self.loadData)
 
 		self.txtBackNeckWidth = Entry(self.frameData)
 		self.txtBackNeckWidth.place(relx=0.48, rely=0.88, height=20
@@ -428,25 +509,31 @@ class Smart_Table:
 		self.txtBackNeckWidth.configure(insertbackground="black")
 		self.txtBackNeckWidth.configure(selectbackground="#c4c4c4")
 		self.txtBackNeckWidth.configure(selectforeground="black")
+		validateSupport = self.txtBackNeckWidth.register(self.validateFloat)
+		self.txtBackNeckWidth.configure(validate="key")
+		self.txtBackNeckWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBackNeckWidth.bind("<Return>", self.onEnter)
 		self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
 
-		self.txtBackNeckWidthTolerance = Entry(self.frameData)
-		self.txtBackNeckWidthTolerance.place(relx=0.73, rely=0.88, height=20
+		self.txtBackNeckWidthTol = Entry(self.frameData)
+		self.txtBackNeckWidthTol.place(relx=0.73, rely=0.88, height=20
 		        , relwidth=0.2)
-		self.txtBackNeckWidthTolerance.configure(background="white")
-		self.txtBackNeckWidthTolerance.configure(disabledforeground="#a3a3a3")
-		self.txtBackNeckWidthTolerance.configure(font="TkFixedFont")
-		self.txtBackNeckWidthTolerance.configure(foreground="#000000")
-		self.txtBackNeckWidthTolerance.configure(highlightbackground="#d9d9d9")
-		self.txtBackNeckWidthTolerance.configure(highlightcolor="black")
-		self.txtBackNeckWidthTolerance.configure(insertbackground="black")
-		self.txtBackNeckWidthTolerance.configure(selectbackground="#c4c4c4")
-		self.txtBackNeckWidthTolerance.configure(selectforeground="black")
+		self.txtBackNeckWidthTol.configure(background="white")
+		self.txtBackNeckWidthTol.configure(disabledforeground="#a3a3a3")
+		self.txtBackNeckWidthTol.configure(font="TkFixedFont")
+		self.txtBackNeckWidthTol.configure(foreground="#000000")
+		self.txtBackNeckWidthTol.configure(highlightbackground="#d9d9d9")
+		self.txtBackNeckWidthTol.configure(highlightcolor="black")
+		self.txtBackNeckWidthTol.configure(insertbackground="black")
+		self.txtBackNeckWidthTol.configure(selectbackground="#c4c4c4")
+		self.txtBackNeckWidthTol.configure(selectforeground="black")
+		validateSupport = self.txtBackNeckWidthTol.register(self.validateFloat)
+		self.txtBackNeckWidthTol.configure(validate="key")
+		self.txtBackNeckWidthTol.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
-		self.txtBackNeckWidthTolerance.bind("<Return>", self.onEnter)
-		self.txtBackNeckWidthTolerance.bind("<Button-1>", self.loadData)
+		self.txtBackNeckWidthTol.bind("<Return>", self.onEnter)
+		self.txtBackNeckWidthTol.bind("<Button-1>", self.loadData)
 
 		self.frameRun = Frame(top)
 		self.frameRun.place(relx=0.03, rely=0.8, relheight=0.18, relwidth=0.94)
@@ -464,13 +551,14 @@ class Smart_Table:
 		self.btnRun.configure(activebackground="#008000")
 		self.btnRun.configure(activeforeground="#000000")
 		self.btnRun.configure(background="#00FF00")
+		# self.btnRun.configure(background="#d9d9d9")
 		self.btnRun.configure(cursor="hand2")
-		self.btnRun.configure(disabledforeground="#a3a3a3")
+		self.btnRun.configure(disabledforeground="#000000")
 		self.btnRun.configure(foreground="#000000")
 		self.btnRun.configure(highlightbackground="#000000")
 		self.btnRun.configure(highlightcolor="#000000")
 		self.btnRun.configure(pady="0")
-		self.btnRun.configure(state=NORMAL)
+		self.btnRun.configure(state="normal")
 		self.btnRun.configure(font=('Courier', 30, 'bold'))
 		self.btnRun.configure(text='''Run''')
 		# self.btnRun.configure(command=SmartTable_p2_3.getMeasurements)
