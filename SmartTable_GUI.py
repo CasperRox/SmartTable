@@ -218,8 +218,15 @@ class Smart_Table:
 				with connection.cursor() as cursor:
 					cursor.execute("use nmc")
 					# print(float(self.txtBodyHeight.get()))
-					sql = "INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+					sql = (
+						"INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+						"ON DUPLICATE KEY UPDATE "
+						"BodyHeight = %s, BodyHeightTol = %s, BodyWidth = %s, BodyWidthTol = %s, "
+						"BodySweap = %s, BodySweapTol = %s, BackNeckWidth = %s, BackNeckWidthTol = %s"
+					)
 					cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT),
+										float(bS), float(bST), float(bNW), float(bNWT),
+										float(bH), float(bHT), float(bW), float(bWT),
 										float(bS), float(bST), float(bNW), float(bNWT)))
 				connection.commit()
 
