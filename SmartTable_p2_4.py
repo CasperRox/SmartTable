@@ -95,7 +95,7 @@ def valueColor(value, comparator, tolerance):
 
 
 def tshirtMeasuring(imgSrc):
-	print("New")
+	# print("New")
 	global preRotatedFrame, preRotatedMask, preAreaTshirt
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
@@ -132,7 +132,6 @@ def tshirtMeasuring(imgSrc):
 
 	cnts = cv2.findContours(binary.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
 	if len(cnts) == 0:			# If no contours detected skip further process
-		print("Skipped no cnts")
 		return addTextOnFrame(frame)
 
 
@@ -157,9 +156,8 @@ def tshirtMeasuring(imgSrc):
 
 
 	areaTshirt = cv2.contourArea(cnts[0])
-	print("area %.2f" %areaTshirt)
+	# print("area %.2f" %areaTshirt)
 	if (areaTshirt<(height*width*.25)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
-		print("Skipped wrong area")
 		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -170,7 +168,6 @@ def tshirtMeasuring(imgSrc):
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
-		print("Skipped no eclipse")
 		return addTextOnFrame(frame)
 
 	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
@@ -192,30 +189,24 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
 
 	# rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
-	rotated_mask = mask
+	rotated_mask = mask.copy()
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
-	rotated_frame = frame
+	rotated_frame = frame.copy()
 	# cv2.imshow("Test4", rotated_mask)
 
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
 
-	cv2.imshow("PreTest_1", preRotatedFrame)
-
 	if abs(areaTshirt - preAreaTshirt) < (height*width*.01):
-		print("dddddddddddddddddddddd")
-		rotated_frame = preRotatedFrame
-		rotated_mask = preRotatedMask
-		cv2.imshow("PreTest", preRotatedFrame)
+		rotated_frame = preRotatedFrame.copy()
+		rotated_mask = preRotatedMask.copy()
+		return addTextOnFrame(preRotatedFrame.copy())
 	else:
-		print("ssssssssssssssssssssss")
-		preRotatedFrame = rotated_frame
-		preRotatedMask = rotated_mask
-		# cv2.imshow("PreTest", preRotatedFrame)
+		preRotatedFrame = rotated_frame.copy()
+		preRotatedMask = rotated_mask.copy()
 		preAreaTshirt = areaTshirt
-	cv2.imshow("Pre", preRotatedFrame)
-	print("areaPre %.2f" %preAreaTshirt)
+	# print("areaPre %.2f" %preAreaTshirt)
 
 	# cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
 
@@ -419,12 +410,19 @@ def tshirtMeasuring(imgSrc):
 		# pixel_body_width2 = last[max_index] - first[max_index]				# Body width in pixels
 
 		if len(body_width_first)>0 and len(body_width_last)>0:
-			pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
+			# pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
+			pixel_body_width_actual = body_width_last[len(body_width_last)-1-body_width_y_dif] - body_width_first[len(body_width_first)-1-body_width_y_dif]
 			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif)),
+					# (body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y+body_width_y_dif)),
+					(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			else:
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)), (body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)),
+				# 	(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y-body_width_y_dif)),
+					(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10) + 1
 			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
@@ -548,31 +546,30 @@ def tshirtMeasuring(imgSrc):
 	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
 	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
+	preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
-def getMeasurements():
-	global preRotatedFrame
-	# global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	# global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	# styleNo = sN
-	# size = sz
-	# targetBodyHeight = float(bH)
-	# targetBodyHeightTol = float(bHT)
-	# targetBodyWidth = float(bW)
-	# targetBodyWidthTol = float(bWT)
-	# targetBodySweap = float(bS)
-	# targetBodySweapTol = float(bST)
-	# targetBackNeckWidth = float(bNW)
-	# targetBackNeckWidthTol = float(bNWT)
+# def getMeasurements():
+def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	styleNo = sN
+	size = sz
+	targetBodyHeight = float(bH)
+	targetBodyHeightTol = float(bHT)
+	targetBodyWidth = float(bW)
+	targetBodyWidthTol = float(bWT)
+	targetBodySweap = float(bS)
+	targetBodySweapTol = float(bST)
+	targetBackNeckWidth = float(bNW)
+	targetBackNeckWidthTol = float(bNWT)
 
 	# cap = cv2.VideoCapture(1)
 	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	original = cv2.imread("test\WIN_20180126_152758.JPG")
-	preRotatedFrame = original.copy()
+	# original = cv2.imread("test\WIN_20180126_152758.JPG")
 
 	while(True):
 		# Capture frame-by-frame
