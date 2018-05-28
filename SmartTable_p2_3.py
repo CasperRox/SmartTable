@@ -34,7 +34,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
 	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 

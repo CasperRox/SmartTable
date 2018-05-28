@@ -37,6 +37,7 @@ proc vTcl:project:info {} {
         set runvisible 1
     }
     set site_3_0 $base.fra38
+    set site_4_0 $site_3_0.can38
     set site_3_0 $base.fra56
     namespace eval ::widgets_bindings {
         set tagslist _TopLevel
@@ -162,6 +163,18 @@ proc vTclWindow.top37 {base} {
         -highlightcolor black -insertbackground black \
         -selectbackground {#c4c4c4} -selectforeground black 
     vTcl:DefineAlias "$site_3_0.ent55" "txtBackNeckWidth" vTcl:WidgetProc "Toplevel1" 1
+    canvas $site_3_0.can38 \
+        -background {#d9d9d9} -borderwidth 2 -closeenough 1.0 -height 263 \
+        -insertbackground black -relief ridge -selectbackground {#c4c4c4} \
+        -selectforeground black -width 353 
+    vTcl:DefineAlias "$site_3_0.can38" "Canvas1" vTcl:WidgetProc "Toplevel1" 1
+    set site_4_0 $site_3_0.can38
+    label $site_4_0.lab39 \
+        -background {#d9d9d9} -disabledforeground {#a3a3a3} \
+        -foreground {#000000} -text Label 
+    vTcl:DefineAlias "$site_4_0.lab39" "Label1" vTcl:WidgetProc "Toplevel1" 1
+    place $site_4_0.lab39 \
+        -in $site_4_0 -x 50 -y 120 -anchor nw -bordermode ignore 
     place $site_3_0.lab39 \
         -in $site_3_0 -x 20 -y 20 -anchor nw -bordermode ignore 
     place $site_3_0.lab40 \
@@ -189,6 +202,9 @@ proc vTclWindow.top37 {base} {
         -in $site_3_0 -x 170 -y 180 -anchor nw -bordermode ignore 
     place $site_3_0.ent55 \
         -in $site_3_0 -x 170 -y 220 -anchor nw -bordermode ignore 
+    place $site_3_0.can38 \
+        -in $site_3_0 -x 0 -y 0 -width 353 -relwidth 0 -height 263 \
+        -relheight 0 -anchor nw -bordermode ignore 
     frame $top.fra56 \
         -borderwidth 2 -relief groove -background {#d9d9d9} -height 75 \
         -highlightbackground {#d9d9d9} -highlightcolor black -width 355 
