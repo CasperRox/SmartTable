@@ -35,6 +35,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
 	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 
@@ -97,6 +98,7 @@ def valueColor(value, comparator, tolerance):
 def tshirtMeasuring(imgSrc):
 	# print("New")
 	global preRotatedFrame, preRotatedMask, preAreaTshirt
+	global preHeight, preSweap, preWidth, preBackNeck
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
 	frame = imgSrc.copy()														# Backup original image
@@ -198,14 +200,14 @@ def tshirtMeasuring(imgSrc):
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
 
-	if abs(areaTshirt - preAreaTshirt) < (height*width*.01):
-		rotated_frame = preRotatedFrame.copy()
-		rotated_mask = preRotatedMask.copy()
-		return addTextOnFrame(preRotatedFrame.copy())
-	else:
-		preRotatedFrame = rotated_frame.copy()
-		preRotatedMask = rotated_mask.copy()
-		preAreaTshirt = areaTshirt
+	# if abs(areaTshirt - preAreaTshirt) < (height*width*.01):
+	# 	rotated_frame = preRotatedFrame.copy()
+	# 	rotated_mask = preRotatedMask.copy()
+	# 	return addTextOnFrame(preRotatedFrame.copy())
+	# else:
+	# 	preRotatedFrame = rotated_frame.copy()
+	# 	preRotatedMask = rotated_mask.copy()
+	# 	preAreaTshirt = areaTshirt
 	# print("areaPre %.2f" %preAreaTshirt)
 
 	# cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -236,6 +238,10 @@ def tshirtMeasuring(imgSrc):
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	valueHeight = getmmDistance(pixel_height-12)/10
+	if abs(preHeight - valueHeight) < 1:
+		valueHeight = preHeight
+	else:
+		preHeight = valueHeight
 	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
 				font, 0.5, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 1, cv2.LINE_AA)	# Display height value on image
 
@@ -321,6 +327,10 @@ def tshirtMeasuring(imgSrc):
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueSweap = (getmmDistance(pixel_body_sweap)/10) + 1
+		if abs(preSweap - valueSweap) < 1:
+			valueSweap = preSweap
+		else:
+			preSweap = valueSweap
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
 					font, 0.5, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 1, cv2.LINE_AA)	# Display body sweap value on image
 
@@ -425,6 +435,10 @@ def tshirtMeasuring(imgSrc):
 					(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10) + 1
+			if abs(preWidth - valueWidth) < 1:
+				valueWidth = preWidth
+			else:
+				preWidth = valueWidth
 			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
 						font, 0.5, valueColor(valueWidth, targetBodyWidth, targetBodyWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
 
@@ -516,6 +530,10 @@ def tshirtMeasuring(imgSrc):
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueBackNeck = getmmDistance(abs(back_neck_x2-back_neck_x1))/10
+		if abs(preBackNeck - valueBackNeck) < 1:
+			valueBackNeck = preBackNeck
+		else:
+			preBackNeck = valueBackNeck
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20),
 					font, 0.5, valueColor(valueBackNeck, targetBackNeckWidth, targetBackNeckWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
 
@@ -546,7 +564,7 @@ def tshirtMeasuring(imgSrc):
 	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
 	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
-	preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
+	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
 	return addTextOnFrame(rotated_frame)
 
 
@@ -597,6 +615,10 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 preRotatedFrame = None
 preRotatedMask = None
 preAreaTshirt = 0
+preHeight = 0
+preSweap = 0
+preWidth = 0
+preBackNeck = 0
 
 styleNo = None
 size = None
