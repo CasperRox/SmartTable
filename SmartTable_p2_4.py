@@ -35,8 +35,8 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 
 
@@ -420,19 +420,19 @@ def tshirtMeasuring(imgSrc):
 		# pixel_body_width2 = last[max_index] - first[max_index]				# Body width in pixels
 
 		if len(body_width_first)>0 and len(body_width_last)>0:
-			# pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
-			pixel_body_width_actual = body_width_last[len(body_width_last)-1-body_width_y_dif] - body_width_first[len(body_width_first)-1-body_width_y_dif]
+			pixel_body_width_actual = body_width_last[len(body_width_last)-1] - body_width_first[len(body_width_first)-1]
+			# pixel_body_width_actual = body_width_last[len(body_width_last)-1-body_width_y_dif] - body_width_first[len(body_width_first)-1-body_width_y_dif]
 			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
-				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif)),
-					# (body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y+body_width_y_dif)),
-					(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif)),
+					(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y+body_width_y_dif)),
+				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			else:
-				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)),
-				# 	(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y-body_width_y_dif)),
-					(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)),
+					(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y-body_width_y_dif)),
+				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10) + 1
 			if abs(preWidth - valueWidth) < 1:
@@ -583,8 +583,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 	targetBackNeckWidth = float(bNW)
 	targetBackNeckWidthTol = float(bNWT)
 
-	# cap = cv2.VideoCapture(1)
-	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	cap = cv2.VideoCapture(1)
+	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
