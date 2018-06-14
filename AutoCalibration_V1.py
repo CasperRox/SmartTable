@@ -34,9 +34,9 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
 	return imgSrc
 
 
@@ -568,39 +568,43 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
-	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	styleNo = sN
-	size = sz
-	targetBodyHeight = float(bH)
-	targetBodyHeightTol = float(bHT)
-	targetBodyWidth = float(bW)
-	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
-	targetBackNeckWidth = float(bNW)
-	targetBackNeckWidthTol = float(bNWT)
+def getMeasurements():
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	styleNo = sN
+# 	size = sz
+# 	targetBodyHeight = float(bH)
+# 	targetBodyHeightTol = float(bHT)
+# 	targetBodyWidth = float(bW)
+# 	targetBodyWidthTol = float(bWT)
+# 	targetBodySweap = float(bS)
+# 	targetBodySweapTol = float(bST)
+# 	targetBackNeckWidth = float(bNW)
+# 	targetBackNeckWidthTol = float(bNWT)
 
 	# cap = cv2.VideoCapture(1)
 	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	# original = cv2.imread("test\WIN_20180126_152758.JPG")
+	original = cv2.imread("Calibration_image_2.jpg")
+	(height, width) = original.shape[:2]
+	# print("height ", height, "width ", width)
 
-	while(True):
+	# while(True):
+	for i in range(0,100):
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			(height, width) = frame.shape[:2]
+			# (height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
-			output = tshirtMeasuring(frame)						# Process live video
-			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
+			# output = tshirtMeasuring(frame)						# Process live video
+			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -609,6 +613,11 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 	# When everything done, release the capture
 	cap.release()
 	cv2.destroyAllWindows()
+
+
+def getUserInputs():
+	print("----- Please Enter Actual Measurements of Model -----")
+
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
 
@@ -636,6 +645,7 @@ targetBackNeckWidthTol = 0
 # getMeasurements()
 
 if __name__ == "__main__":
+	getUserInputs()
 	getMeasurements()
 	# testing()
 
