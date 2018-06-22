@@ -256,6 +256,8 @@ def tshirtMeasuring(imgSrc):
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
+	cv2.circle(rotated_frame,(height_array_x,body_height_first+12), 5, (0,0,255), -1)
+	cv2.circle(rotated_frame,(height_array_x,body_height_last), 5, (0,0,255), -1)
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	valueHeight = getmmDistance(pixel_height)/10
 	if abs(preHeight - valueHeight) < 1:
@@ -348,6 +350,8 @@ def tshirtMeasuring(imgSrc):
 		pixel_body_sweap = last - first
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
 		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
+		cv2.circle(rotated_frame,(first,body_sweap_y), 5, (0,0,255), -1)
+		cv2.circle(rotated_frame,(last,body_sweap_y), 5, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueSweap = (getmmDistance(pixel_body_sweap)/10)
 		if abs(preSweap - valueSweap) < 1:
@@ -450,15 +454,19 @@ def tshirtMeasuring(imgSrc):
 			# pixel_body_width_actual = body_width_last[len(body_width_last)-1-body_width_y_dif] - body_width_first[len(body_width_first)-1-body_width_y_dif]
 			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif)),
-					(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif*step)),
+					(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), (255,0,0), 3)	# Draw body width calculating line on image
 				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y+body_width_y_dif)),
 				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif*step)), 5, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), 5, (0,0,255), -1)
 			else:
-				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif)),
-					(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif*step)),
+					(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), (255,0,0), 3)	# Draw body width calculating line on image
 				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y-body_width_y_dif)),
 				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
+				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif*step)), 5, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), 5, (0,0,255), -1)
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10)
 			if abs(preWidth - valueWidth) < 1:
@@ -557,6 +565,8 @@ def tshirtMeasuring(imgSrc):
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
+		cv2.circle(rotated_frame,(back_neck_x1,back_neck_y1), 5, (0,0,255), -1)
+		cv2.circle(rotated_frame,(back_neck_x2,back_neck_y2), 5, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		pixel_back_neck = abs(back_neck_x2-back_neck_x1)
 		valueBackNeck = getmmDistance(pixel_back_neck)/10

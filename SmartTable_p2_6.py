@@ -58,10 +58,11 @@ def valueColor(value, comparator, tolerance):
 
 def tshirtMeasuring(imgSrc):
 	# print("New")
-	global preRotatedFrame, preRotatedMask, preAreaTshirt
+	global preRotatedFrame, preRotatedMask, preAreaTshirt, preRotationAngle
 	global preHeight, preSweap, preWidth, preBackNeck
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global firstFrame, rotation_matrix
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -140,23 +141,101 @@ def tshirtMeasuring(imgSrc):
 	# cv2.drawContours(frame,[box],0,(0,0,255),3)
 	# print(box)
 
-	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
-	rotation_angle = 0
-	if ellipse[2] <= 90:
+	frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
+
+	if firstFrame == True:
 		rotation_angle = ellipse[2]
-	else:
-		rotation_angle = ellipse[2] + 180
-	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
+		preRotationAngle = rotation_angle
+		if rotation_angle > 90:
+			rotation_angle += 180
+		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+		rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
+		rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
+		rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+		rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+		preRotatedMask = rotated_mask
+		preRotatedFrame = rotated_frame
+		cv2.imshow("Test4", rotated_mask)
+
+	if firstFrame == False:
+		rotation_angle = ellipse[2]
+		angleVariationLimit = 10
+		if rotation_angle < angleVariationLimit:
+			if abs(preRotationAngle-rotation_angle)<angleVariationLimit or rotation_angle<preRotationAngle-170:
+				rotation_angle = preRotationAngle
+				rotated_mask = preRotatedMask
+				rotated_frame = preRotatedFrame
+			else:
+				preRotationAngle = rotation_angle
+				if rotation_angle > 90:
+					rotation_angle += 180
+				rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+				rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
+				rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
+				rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+				rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+				preRotatedMask = rotated_mask
+				preRotatedFrame = rotated_frame
+		elif (180-rotation_angle) < angleVariationLimit:
+			if abs(preRotationAngle-rotation_angle)<angleVariationLimit or rotation_angle>preRotationAngle+170:
+				rotation_angle = preRotationAngle
+				rotated_mask = preRotatedMask
+				rotated_frame = preRotatedFrame
+			else:
+				preRotationAngle = rotation_angle
+				if rotation_angle > 90:
+					rotation_angle += 180
+				rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+				rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
+				rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
+				rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+				rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+				preRotatedMask = rotated_mask
+				preRotatedFrame = rotated_frame
+		elif abs(preRotationAngle - rotation_angle) < angleVariationLimit:
+			rotation_angle = preRotationAngle
+			rotated_mask = preRotatedMask
+			rotated_frame = preRotatedFrame
+		else:
+			preRotationAngle = rotation_angle
+			if rotation_angle > 90:
+				rotation_angle += 180
+			rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+			rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
+			rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
+			rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+			rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
+			preRotatedMask = rotated_mask
+			preRotatedFrame = rotated_frame
+
+	print("now", rotation_angle)
+	print("pre", preRotationAngle)
+	# if rotation_angle > 90:
+	# 	rotation_angle += 180
+	# # rotation_angle = 0
+	# # if ellipse[2] <= 90:
+	# # 	rotation_angle = ellipse[2]
+	# # else:
+	# # 	rotation_angle = ellipse[2] + 180
+	print("ddddddd", ellipse[2])
+	print("mmmmm", rotation_angle)
+	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# # rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
 
 	# rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
-	rotated_mask = mask.copy()
-	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
+	# # rotated_mask = mask.copy()
+	# # rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
-	rotated_frame = frame.copy()
+	# # rotated_frame = frame.copy()
 	# cv2.imshow("Test4", rotated_mask)
+
+	firstFrame = False
+	if rotated_mask is None:
+		print("testttttttt")
+		return addTextOnFrame(frame)
+	cv2.imshow("Test4", rotated_mask)
 
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
@@ -192,9 +271,15 @@ def tshirtMeasuring(imgSrc):
 		elif white == True and transpose_rotated_mask[height_array_x][i] == 0:
 			body_height_last = i-1												# last white pixel
 			white = False
+		else:
+			body_height_last = len(transpose_rotated_mask[height_array_x]) - 1
 	pixel_height = body_height_last - body_height_first - 12
-	# print("pixelHeight = %d" %pixel_height)
+	print("first = %d" %body_height_first)
+	print("last = %d" %body_height_last)
+	print("pixelHeight = %d" %pixel_height)
+	print(getmmDistance(pixel_height)/10)
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
+		print("testtttttttiiiiiiiiiiiii")
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
 	cv2.circle(rotated_frame,(height_array_x,body_height_first+12), 5, (0,0,255), -1)
@@ -219,10 +304,10 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (0,mid_width_array_y+sleeve_check_length), (640,mid_width_array_y+sleeve_check_length), (255,255,0), 3)		# Sleeve check line
 	if mid_width_array_y<=sleeve_check_length or (height-sleeve_check_length)<=mid_width_array_y or sleeve_check_length<=0:		# If this false width calculation is useless
 
-		# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-		# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
 
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
 		return addTextOnFrame(rotated_frame)
@@ -532,29 +617,30 @@ def tshirtMeasuring(imgSrc):
 	# 	print(body_height_first)
 
 
-	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
 	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
+	# firstFrame = False
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
-	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	styleNo = sN
-	size = sz
-	targetBodyHeight = float(bH)
-	targetBodyHeightTol = float(bHT)
-	targetBodyWidth = float(bW)
-	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
-	targetBackNeckWidth = float(bNW)
-	targetBackNeckWidthTol = float(bNWT)
+def getMeasurements():
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	styleNo = sN
+# 	size = sz
+# 	targetBodyHeight = float(bH)
+# 	targetBodyHeightTol = float(bHT)
+# 	targetBodyWidth = float(bW)
+# 	targetBodyWidthTol = float(bWT)
+# 	targetBodySweap = float(bS)
+# 	targetBodySweapTol = float(bST)
+# 	targetBackNeckWidth = float(bNW)
+# 	targetBackNeckWidthTol = float(bNWT)
 
 	loadCalibrationData()
 
@@ -599,6 +685,7 @@ def loadCalibrationData():
 preRotatedFrame = None
 preRotatedMask = None
 preAreaTshirt = 0
+preRotationAngle = 0
 preHeight = 0
 preSweap = 0
 preWidth = 0
@@ -617,6 +704,9 @@ targetBackNeckWidthTol = 0
 
 calibrationSlope = 1
 calibrationIntersect = 0
+
+firstFrame = True
+rotation_matrix = None
 
 # initDatabase()
 # getDatabaseValues()
