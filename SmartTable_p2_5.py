@@ -38,10 +38,11 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
 
 
@@ -69,12 +70,12 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
-	(height, width) = frame.shape[:2]
-	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotation_matrix1[0,2] += int((height/2)-width/2)
-	rotation_matrix1[1,2] += int((width/2)-height/2)
-	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# (height, width) = frame.shape[:2]
+	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# # rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix1[0,2] += int((height/2)-width/2)
+	# rotation_matrix1[1,2] += int((width/2)-height/2)
+	# frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
 	# print("height ", height, "width ", width)
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
@@ -307,8 +308,8 @@ def tshirtMeasuring(imgSrc):
 	temp_width_pre = np.count_nonzero(rotated_mask[mid_width_array_y])			# To compare with
 	sleeve_check = mid_width_array_y 											# Sleeve checking pixel line
 	step = 5 																	# Sleeve checking step size
-	# body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
-	body_width_y_dif = int(getPixelDistance(50)/step)							# Pixel distance from sleeve joint to body width
+	body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
+	# body_width_y_dif = int(getPixelDistance(200)/step)							# Pixel distance from sleeve joint to body width
 	body_width_first = [] 														# To store white area starting points
 	body_width_last = [] 														# To store white area ending points
 	count_for_dif = 0
@@ -558,8 +559,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 
 	loadCalibrationData()
 
-	# cap = cv2.VideoCapture(0)
-	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
@@ -571,8 +572,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
-			frame = frame[0:height, int(150/640*width):int(615/640*width)]
-			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
+			frame = frame[0:height, int(85/640*width):int(620/640*width)]
+			# frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[150:590, 0:480]
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video

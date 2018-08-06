@@ -118,8 +118,14 @@ def tshirtMeasuring(imgSrc):
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
 	global toBeBodyHeight, toBeBodyWidth, toBeBodySweap, toBeBackNeckWidth, calibrationSlope, calibrationIntersect
 
+	pixel_height = 0
+	pixel_body_width_actual = 0
+	pixel_body_sweap = 0
+	pixel_back_neck = 0
+
 	calibrationPixelArray = np.array([])
-	calibrationValueArray = np.array([toBeBodyHeight, toBeBodySweap, toBeBodyWidth, toBeBackNeckWidth])
+	calibrationValueArray = np.array([])
+	# calibrationValueArray = np.array([toBeBodyHeight, toBeBodySweap, toBeBodyWidth, toBeBackNeckWidth])
 
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
@@ -128,12 +134,12 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
-	(height, width) = frame.shape[:2]
-	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotation_matrix1[0,2] += int((height/2)-width/2)
-	rotation_matrix1[1,2] += int((width/2)-height/2)
-	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# (height, width) = frame.shape[:2]
+	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# # rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix1[0,2] += int((height/2)-width/2)
+	# rotation_matrix1[1,2] += int((width/2)-height/2)
+	# frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
 	# print("height ", height, "width ", width)
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
@@ -269,6 +275,7 @@ def tshirtMeasuring(imgSrc):
 	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, toBeBodyHeight), (height_array_x+10,body_height_first+100), 
 				font, 0.5, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 1, cv2.LINE_AA)	# Display height value on image
 	calibrationPixelArray = np.append(calibrationPixelArray, pixel_height)
+	calibrationValueArray = np.append(calibrationValueArray, toBeBodyHeight)
 
 
 	# *************************************************************
@@ -363,6 +370,7 @@ def tshirtMeasuring(imgSrc):
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, toBeBodySweap), (first,body_sweap_y-10),
 					font, 0.5, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 1, cv2.LINE_AA)	# Display body sweap value on image
 		calibrationPixelArray = np.append(calibrationPixelArray, pixel_body_sweap)
+		calibrationValueArray = np.append(calibrationValueArray, toBeBodySweap)
 
 
 	# *************************************************************
@@ -478,6 +486,7 @@ def tshirtMeasuring(imgSrc):
 			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, toBeBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
 						font, 0.5, valueColor(valueWidth, targetBodyWidth, targetBodyWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
 			calibrationPixelArray = np.append(calibrationPixelArray, pixel_body_width_actual)
+			calibrationValueArray = np.append(calibrationValueArray, toBeBodyWidth)
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -579,6 +588,7 @@ def tshirtMeasuring(imgSrc):
 		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, toBeBackNeckWidth), (back_neck_x1,back_neck_y1+20),
 					font, 0.5, valueColor(valueBackNeck, targetBackNeckWidth, targetBackNeckWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
 		calibrationPixelArray = np.append(calibrationPixelArray, pixel_back_neck)
+		calibrationValueArray = np.append(calibrationValueArray, toBeBackNeckWidth)
 		# print(calibrationPixelArray)
 
 		calibrationSlope, calibrationIntersect = bestFitLine(calibrationValueArray*10, calibrationPixelArray)
@@ -654,14 +664,14 @@ def getMeasurements():
 		ret, frame = cap.read()
 		if ret:
 			# print("New frame")
-			# (height, width) = frame.shape[:2]
+			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
 			original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
-			# output = tshirtMeasuring(frame)						# Process live video
-			output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
+			output = tshirtMeasuring(frame)						# Process live video
+			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -679,10 +689,14 @@ def getUserInputs():
 	# toBeBodyWidth = float(input("Body Width (cm)		: "))
 	# toBeBodySweap = float(input("Body Sweep (cm)		: "))
 	# toBeBackNeckWidth = float(input("Back Neck Width (cm)	: "))
-	toBeBodyHeight = 63.1
-	toBeBodyWidth = 41.4
-	toBeBodySweap = 39.2
-	toBeBackNeckWidth = 14.6
+	# toBeBodyHeight = 63.1
+	# toBeBodyWidth = 41.4
+	# toBeBodySweap = 39.2
+	# toBeBackNeckWidth = 14.6
+	toBeBodyHeight = 71.6
+	toBeBodyWidth = 51.8
+	toBeBodySweap = 50.5
+	toBeBackNeckWidth = 17
 
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
