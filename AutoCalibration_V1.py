@@ -666,7 +666,7 @@ def getMeasurements():
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
-			frame = frame[0:height, int(150/640*width):int(615/640*width)]
+			frame = frame[0:height, int(85/640*width):int(620/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
 			original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
@@ -693,9 +693,13 @@ def getUserInputs():
 	# toBeBodyWidth = 41.4
 	# toBeBodySweap = 39.2
 	# toBeBackNeckWidth = 14.6
-	toBeBodyHeight = 71.6
-	toBeBodyWidth = 51.8
-	toBeBodySweap = 50.5
+	# toBeBodyHeight = 71.6
+	# toBeBodyWidth = 51.8
+	# toBeBodySweap = 50.5
+	# toBeBackNeckWidth = 17
+	toBeBodyHeight = 67
+	toBeBodyWidth = 47.2
+	toBeBodySweap = 47
 	toBeBackNeckWidth = 17
 
 
