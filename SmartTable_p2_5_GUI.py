@@ -170,6 +170,7 @@ class Smart_Table:
 		bST = self.txtBodySweapTol.get()
 		bNW = self.txtBackNeckWidth.get()
 		bNWT = self.txtBackNeckWidthTol.get()
+		whiteMode = self.onoff.get()
 
 		if not sN:
 			self.txtStyleNo.focus()
@@ -206,7 +207,7 @@ class Smart_Table:
 		else:
 			self.btnRun.configure(state = "disabled")
 			self.btnRun.pack_forget()
-			SmartTable_p2_5.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT)
+			SmartTable_p2_5.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
 			self.btnRun.configure(state = "normal")
 
 			connection = pymysql.connect(host='localhost',
@@ -252,6 +253,17 @@ class Smart_Table:
 			# print("N")
 			return False
 
+
+	def whiteGarmentModeOnOff(self):
+		# status = self.lblWhiteGarmentStatus.cget("textvariable")
+		status = self.onoff.get()
+		# print(status)
+		if "ON" == status:
+			self.onoff.set("OFF")
+		elif "OFF" == status:
+			self.onoff.set("ON")
+
+
 	def __init__(self, top=None):
 		'''This class configures and populates the toplevel window.
 		   top is the toplevel containing window.'''
@@ -270,9 +282,9 @@ class Smart_Table:
 
 
 		# top.geometry("377x379+417+148")
-		top.geometry("377x500+417+148")
+		top.geometry("377x550+417+100")
 		top.title("Smart Table")
-		top.iconbitmap("MASKreedaNMC_1.ico")
+		top.iconbitmap("MASKreedaNMC.ico")
 		# top.configure(background="#d9d9d9")
 		top.configure(background=_bgcolor)
 		# top.configure(image="MASKreedaNMC_Set.jpg")
@@ -300,7 +312,7 @@ class Smart_Table:
 		# self.lblBG.configure(image=photo)
 
 		self.cnvsData = Canvas(top)
-		self.cnvsData.place(relx=0.03, rely=0.025, relheight=0.75, relwidth=0.94)
+		self.cnvsData.place(relx=0.03, rely=0.023, relheight=0.825, relwidth=0.94)
 		self.cnvsData.configure(relief=FLAT)
 		self.cnvsData.configure(borderwidth="0")
 		self.cnvsData.configure(background=_bgcolor)
@@ -320,7 +332,7 @@ class Smart_Table:
 		self.cnvsData.create_line(259,351,335,351, fill=_fgcolor, width="1")
 
 		self.lblStyleNo = Label(self.cnvsData)
-		self.lblStyleNo.place(relx=0.06, rely=0.07, height=21, width=53)
+		self.lblStyleNo.place(relx=0.06, rely=0.055, height=21, width=53)
 		self.lblStyleNo.configure(activebackground="#f9f9f9")
 		self.lblStyleNo.configure(activeforeground=_fgcolor)
 		self.lblStyleNo.configure(background=_bgcolor)
@@ -332,7 +344,7 @@ class Smart_Table:
 		self.lblStyleNo.configure(text='''Style No.''')
 
 		self.lblSize = Label(self.cnvsData)
-		self.lblSize.place(relx=0.06, rely=0.21, height=21, width=26)
+		self.lblSize.place(relx=0.06, rely=0.175, height=21, width=26)
 		self.lblSize.configure(activebackground="#f9f9f9")
 		self.lblSize.configure(activeforeground=_fgcolor)
 		self.lblSize.configure(background=_bgcolor)
@@ -344,7 +356,7 @@ class Smart_Table:
 		self.lblSize.configure(text='''Size''')
 
 		self.lblTol = Label(self.cnvsData)
-		self.lblTol.place(relx=0.69, rely=0.37, height=21, width=104)
+		self.lblTol.place(relx=0.69, rely=0.3, height=21, width=104)
 		self.lblTol.configure(activebackground="#f9f9f9")
 		self.lblTol.configure(activeforeground=_fgcolor)
 		self.lblTol.configure(background=_bgcolor)
@@ -356,7 +368,7 @@ class Smart_Table:
 		self.lblTol.configure(text='''Tolerance (cm)''')
 
 		self.lblBodyHeight = Label(self.cnvsData)
-		self.lblBodyHeight.place(relx=0.055, rely=0.46, height=21, width=114)
+		self.lblBodyHeight.place(relx=0.055, rely=0.38, height=21, width=114)
 		self.lblBodyHeight.configure(activebackground="#f9f9f9")
 		self.lblBodyHeight.configure(activeforeground=_fgcolor)
 		self.lblBodyHeight.configure(background=_bgcolor)
@@ -368,7 +380,7 @@ class Smart_Table:
 		self.lblBodyHeight.configure(text='''Body Length (cm)''')
 
 		self.lblBodyWidth = Label(self.cnvsData)
-		self.lblBodyWidth.place(relx=0.06, rely=0.60, height=21, width=108)
+		self.lblBodyWidth.place(relx=0.06, rely=0.495, height=21, width=108)
 		self.lblBodyWidth.configure(activebackground="#f9f9f9")
 		self.lblBodyWidth.configure(activeforeground=_fgcolor)
 		self.lblBodyWidth.configure(background=_bgcolor)
@@ -380,7 +392,7 @@ class Smart_Table:
 		self.lblBodyWidth.configure(text='''Body Width (cm)''')
 
 		self.lblBodySweap = Label(self.cnvsData)
-		self.lblBodySweap.place(relx=0.06, rely=0.74, height=21, width=110)
+		self.lblBodySweap.place(relx=0.06, rely=0.61, height=21, width=110)
 		self.lblBodySweap.configure(activebackground="#f9f9f9")
 		self.lblBodySweap.configure(activeforeground=_fgcolor)
 		self.lblBodySweap.configure(background=_bgcolor)
@@ -392,7 +404,7 @@ class Smart_Table:
 		self.lblBodySweap.configure(text='''Body Sweep (cm)''')
 
 		self.lblBackNeckWidth = Label(self.cnvsData)
-		self.lblBackNeckWidth.place(relx=0.06, rely=0.88, height=21, width=136)
+		self.lblBackNeckWidth.place(relx=0.06, rely=0.725, height=21, width=136)
 		self.lblBackNeckWidth.configure(activebackground="#f9f9f9")
 		self.lblBackNeckWidth.configure(activeforeground=_fgcolor)
 		self.lblBackNeckWidth.configure(background=_bgcolor)
@@ -403,8 +415,52 @@ class Smart_Table:
 		self.lblBackNeckWidth.configure(font=('Helvetica', 8, 'bold'))
 		self.lblBackNeckWidth.configure(text='''Back Neck Width (cm)''')
 
+		self.lblWhiteGarmentMode = Label(self.cnvsData)
+		self.lblWhiteGarmentMode.place(relx=0.06, rely=0.87, height=21, width=136)
+		self.lblWhiteGarmentMode.configure(activebackground="#f9f9f9")
+		self.lblWhiteGarmentMode.configure(activeforeground=_fgcolor)
+		self.lblWhiteGarmentMode.configure(background=_bgcolor)
+		self.lblWhiteGarmentMode.configure(disabledforeground="#a3a3a3")
+		self.lblWhiteGarmentMode.configure(foreground=_fgcolor)
+		self.lblWhiteGarmentMode.configure(highlightbackground=_bgcolor)
+		self.lblWhiteGarmentMode.configure(highlightcolor=_fgcolor)
+		self.lblWhiteGarmentMode.configure(font=('Helvetica', 8, 'bold'))
+		self.lblWhiteGarmentMode.configure(text='''White Garment Mode''')
+
+		self.onoff = StringVar()
+		self.onoff.set("OFF")
+
+		self.lblWhiteGarmentStatus = Label(self.cnvsData)
+		self.lblWhiteGarmentStatus.place(relx=0.45, rely=0.87, height=21, width=90)
+		self.lblWhiteGarmentStatus.configure(activebackground="#f9f9f9")
+		self.lblWhiteGarmentStatus.configure(activeforeground=_fgcolor)
+		self.lblWhiteGarmentStatus.configure(background=_bgcolor)
+		self.lblWhiteGarmentStatus.configure(disabledforeground="#a3a3a3")
+		self.lblWhiteGarmentStatus.configure(foreground=_fgcolor)
+		self.lblWhiteGarmentStatus.configure(highlightbackground=_bgcolor)
+		self.lblWhiteGarmentStatus.configure(highlightcolor=_fgcolor)
+		self.lblWhiteGarmentStatus.configure(font=('TkFixedFont', 12, 'bold'))
+		self.lblWhiteGarmentStatus.configure(textvariable=self.onoff)
+
+		self.btnOnOff = Button(self.cnvsData)
+		self.btnOnOff.place(relx=0.74, rely=0.87, height=20, width=70)
+		self.btnOnOff.configure(activebackground="#008000")
+		self.btnOnOff.configure(activeforeground=_fgcolor)
+		self.btnOnOff.configure(background="#3A5FCD")
+		self.btnOnOff.configure(cursor="hand2")
+		self.btnOnOff.configure(relief=FLAT)
+		self.btnOnOff.configure(disabledforeground=_fgcolor)
+		self.btnOnOff.configure(foreground=_fgcolor)
+		self.btnOnOff.configure(highlightbackground=_fgcolor)
+		self.btnOnOff.configure(highlightcolor=_fgcolor)
+		self.btnOnOff.configure(pady="0")
+		self.btnOnOff.configure(state="normal")
+		self.btnOnOff.configure(font=('Helvetica', 8, 'bold'))
+		self.btnOnOff.configure(text='''ON / OFF''')
+		self.btnOnOff.configure(command=self.whiteGarmentModeOnOff)
+
 		self.txtStyleNo = Entry(self.cnvsData)
-		self.txtStyleNo.place(relx=0.48, rely=0.07,height=20, relwidth=0.46)
+		self.txtStyleNo.place(relx=0.48, rely=0.056,height=20, relwidth=0.46)
 		self.txtStyleNo.configure(background=_bgcolor)
 		self.txtStyleNo.configure(disabledforeground="#a3a3a3")
 		self.txtStyleNo.configure(font=("TkFixedFont", 12, 'bold'))
@@ -422,7 +478,7 @@ class Smart_Table:
 		# self.txtStyleNo.bind("<Return>", lambda event: self.txtSize.focus())
 
 		self.txtSize = Entry(self.cnvsData)
-		self.txtSize.place(relx=0.48, rely=0.21,height=20, relwidth=0.46)
+		self.txtSize.place(relx=0.48, rely=0.175,height=20, relwidth=0.46)
 		self.txtSize.configure(background=_bgcolor)
 		self.txtSize.configure(disabledforeground="#a3a3a3")
 		self.txtSize.configure(font=("TkFixedFont", 12, 'bold'))
@@ -439,7 +495,7 @@ class Smart_Table:
 		self.txtSize.bind("<Tab>", self.loadData)
 
 		self.txtBodyHeight = Entry(self.cnvsData)
-		self.txtBodyHeight.place(relx=0.48, rely=0.46,height=20, relwidth=0.2)
+		self.txtBodyHeight.place(relx=0.48, rely=0.38,height=20, relwidth=0.2)
 		self.txtBodyHeight.configure(background=_bgcolor)
 		self.txtBodyHeight.configure(disabledforeground="#a3a3a3")
 		self.txtBodyHeight.configure(font=("TkFixedFont", 12, 'bold'))
@@ -458,7 +514,7 @@ class Smart_Table:
 		self.txtBodyHeight.bind("<Button-1>", self.loadData)
 
 		self.txtBodyHeightTol = Entry(self.cnvsData)
-		self.txtBodyHeightTol.place(relx=0.73, rely=0.46,height=20, relwidth=0.2)
+		self.txtBodyHeightTol.place(relx=0.73, rely=0.38,height=20, relwidth=0.2)
 		self.txtBodyHeightTol.configure(background=_bgcolor)
 		self.txtBodyHeightTol.configure(disabledforeground="#a3a3a3")
 		self.txtBodyHeightTol.configure(font=("TkFixedFont", 12, 'bold'))
@@ -477,7 +533,7 @@ class Smart_Table:
 		self.txtBodyHeightTol.bind("<Button-1>", self.loadData)
 
 		self.txtBodyWidth = Entry(self.cnvsData)
-		self.txtBodyWidth.place(relx=0.48, rely=0.60,height=20, relwidth=0.2)
+		self.txtBodyWidth.place(relx=0.48, rely=0.495,height=20, relwidth=0.2)
 		self.txtBodyWidth.configure(background=_bgcolor)
 		self.txtBodyWidth.configure(disabledforeground="#a3a3a3")
 		self.txtBodyWidth.configure(font=("TkFixedFont", 12, 'bold'))
@@ -496,7 +552,7 @@ class Smart_Table:
 		self.txtBodyWidth.bind("<Button-1>", self.loadData)
 
 		self.txtBodyWidthTol = Entry(self.cnvsData)
-		self.txtBodyWidthTol.place(relx=0.73, rely=0.60,height=20, relwidth=0.2)
+		self.txtBodyWidthTol.place(relx=0.73, rely=0.495,height=20, relwidth=0.2)
 		self.txtBodyWidthTol.configure(background=_bgcolor)
 		self.txtBodyWidthTol.configure(disabledforeground="#a3a3a3")
 		self.txtBodyWidthTol.configure(font=("TkFixedFont", 12, 'bold'))
@@ -515,7 +571,7 @@ class Smart_Table:
 		self.txtBodyWidthTol.bind("<Button-1>", self.loadData)
 
 		self.txtBodySweap = Entry(self.cnvsData)
-		self.txtBodySweap.place(relx=0.48, rely=0.74,height=20, relwidth=0.2)
+		self.txtBodySweap.place(relx=0.48, rely=0.61,height=20, relwidth=0.2)
 		self.txtBodySweap.configure(background=_bgcolor)
 		self.txtBodySweap.configure(disabledforeground="#a3a3a3")
 		self.txtBodySweap.configure(font=("TkFixedFont", 12, 'bold'))
@@ -534,7 +590,7 @@ class Smart_Table:
 		self.txtBodySweap.bind("<Button-1>", self.loadData)
 
 		self.txtBodySweapTol = Entry(self.cnvsData)
-		self.txtBodySweapTol.place(relx=0.73, rely=0.74,height=20, relwidth=0.2)
+		self.txtBodySweapTol.place(relx=0.73, rely=0.61,height=20, relwidth=0.2)
 		self.txtBodySweapTol.configure(background=_bgcolor)
 		self.txtBodySweapTol.configure(disabledforeground="#a3a3a3")
 		self.txtBodySweapTol.configure(font=("TkFixedFont", 12, 'bold'))
@@ -553,8 +609,7 @@ class Smart_Table:
 		self.txtBodySweapTol.bind("<Button-1>", self.loadData)
 
 		self.txtBackNeckWidth = Entry(self.cnvsData)
-		self.txtBackNeckWidth.place(relx=0.48, rely=0.88, height=20
-		        , relwidth=0.2)
+		self.txtBackNeckWidth.place(relx=0.48, rely=0.725, height=20, relwidth=0.2)
 		self.txtBackNeckWidth.configure(background=_bgcolor)
 		self.txtBackNeckWidth.configure(disabledforeground="#a3a3a3")
 		self.txtBackNeckWidth.configure(font=("TkFixedFont", 12, 'bold'))
@@ -573,8 +628,7 @@ class Smart_Table:
 		self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
 
 		self.txtBackNeckWidthTol = Entry(self.cnvsData)
-		self.txtBackNeckWidthTol.place(relx=0.73, rely=0.88, height=20
-		        , relwidth=0.2)
+		self.txtBackNeckWidthTol.place(relx=0.73, rely=0.725, height=20, relwidth=0.2)
 		self.txtBackNeckWidthTol.configure(background=_bgcolor)
 		self.txtBackNeckWidthTol.configure(disabledforeground="#a3a3a3")
 		self.txtBackNeckWidthTol.configure(font=("TkFixedFont", 12, 'bold'))
@@ -593,7 +647,7 @@ class Smart_Table:
 		self.txtBackNeckWidthTol.bind("<Button-1>", self.loadData)
 
 		self.frameRun = Frame(top)
-		self.frameRun.place(relx=0.03, rely=0.8, relheight=0.18, relwidth=0.94)
+		self.frameRun.place(relx=0.03, rely=0.82, relheight=0.18, relwidth=0.94)
 		self.frameRun.configure(relief=FLAT)
 		self.frameRun.configure(borderwidth="0.5")
 		self.frameRun.configure(background=_bgcolor)

@@ -178,8 +178,8 @@ class Smart_Table:
         self.txtBodyHeight.configure(selectbackground="#c4c4c4")
         self.txtBodyHeight.configure(selectforeground="black")
         self.txtBodyHeight.configure(validate="key")
-        vcmd = self.txtBodyHeight.register(SmartTable_GUI_1_support.vcmd)
-        self.txtBodyHeight.configure(validatecommand=(vcmd, '%S'))
+        # vcmd = self.txtBodyHeight.register(SmartTable_GUI_1_support.vcmd)
+        # self.txtBodyHeight.configure(validatecommand=(vcmd, '%S'))
 
         self.txtBodyWidth = Entry(self.frameData)
         self.txtBodyWidth.place(relx=0.48, rely=0.53,height=20, relwidth=0.46)
@@ -217,6 +217,38 @@ class Smart_Table:
         self.txtBackNeckWidth.configure(insertbackground="black")
         self.txtBackNeckWidth.configure(selectbackground="#c4c4c4")
         self.txtBackNeckWidth.configure(selectforeground="black")
+
+
+        vari = IntVar()
+
+        self.Radiobutton1 = Radiobutton(self.frameData)
+        self.Radiobutton1.place(relx=0.62, rely=0.23, relheight=0.1
+                , relwidth=0.16)
+        self.Radiobutton1.configure(activebackground="#d9d9d9")
+        self.Radiobutton1.configure(activeforeground="#000000")
+        self.Radiobutton1.configure(background="#d9d9d9")
+        self.Radiobutton1.configure(disabledforeground="#a3a3a3")
+        self.Radiobutton1.configure(foreground="#000000")
+        self.Radiobutton1.configure(highlightbackground="#d9d9d9")
+        self.Radiobutton1.configure(highlightcolor="black")
+        self.Radiobutton1.configure(justify=LEFT)
+        self.Radiobutton1.configure(text='''Black''')
+        self.Radiobutton1.configure(variable='vari')
+
+        self.Radiobutton2 = Radiobutton(self.frameData)
+        self.Radiobutton2.place(relx=0.62, rely=0.34, relheight=0.1
+                , relwidth=0.17)
+        self.Radiobutton2.configure(activebackground="#d9d9d9")
+        self.Radiobutton2.configure(activeforeground="#000000")
+        self.Radiobutton2.configure(background="#d9d9d9")
+        self.Radiobutton2.configure(disabledforeground="#a3a3a3")
+        self.Radiobutton2.configure(foreground="#000000")
+        self.Radiobutton2.configure(highlightbackground="#d9d9d9")
+        self.Radiobutton2.configure(highlightcolor="black")
+        self.Radiobutton2.configure(justify=LEFT)
+        self.Radiobutton2.configure(text='''White''')
+        self.Radiobutton2.configure(variable='vari')
+
 
         self.frameRun = Frame(top)
         self.frameRun.place(relx=0.03, rely=0.77, relheight=0.2, relwidth=0.94)

@@ -63,6 +63,7 @@ def tshirtMeasuring(imgSrc):
 	global preHeight, preSweap, preWidth, preBackNeck
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global whiteMode
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -85,6 +86,9 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Test1", median)
 	thresh = 200
 	binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
+	if "ON" == whiteMode:
+		thresh = 200
+		binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY)[1]		# Convert image into black & white
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
 	# kernel = np.ones((5,5),np.uint8)											# for Morphology
@@ -248,7 +252,7 @@ def tshirtMeasuring(imgSrc):
 	# *************************************************************
 	body_sweap_y = 0
 	temp_width_pre = np.count_nonzero(rotated_mask[non_sleeve_side])			# Storing previous white pixel count to check with next
-	step = 2																	# White pixel count checking step size
+	step = 1																	# White pixel count checking step size
 	while True:																	# Loop to get the body sweap pixel line
 		if rotated == False:
 			non_sleeve_side += step 											# Checking ending side
@@ -543,9 +547,10 @@ def tshirtMeasuring(imgSrc):
 
 
 # def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global whiteMode
 	styleNo = sN
 	size = sz
 	targetBodyHeight = float(bH)
@@ -556,6 +561,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
 	targetBodySweapTol = float(bST)
 	targetBackNeckWidth = float(bNW)
 	targetBackNeckWidthTol = float(bNWT)
+
+	whiteMode = wM
 
 	loadCalibrationData()
 
@@ -618,6 +625,8 @@ targetBackNeckWidthTol = 0
 
 calibrationSlope = 1
 calibrationIntersect = 0
+
+whiteMode = None
 
 # initDatabase()
 # getDatabaseValues()

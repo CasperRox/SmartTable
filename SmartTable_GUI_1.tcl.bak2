@@ -165,35 +165,16 @@ proc vTclWindow.top37 {base} {
     vTcl:DefineAlias "$site_3_0.ent55" "txtBackNeckWidth" vTcl:WidgetProc "Toplevel1" 1
     canvas $site_3_0.can38 \
         -background {#d9d9d9} -borderwidth 2 -closeenough 1.0 -height 263 \
-        -highlightbackground {#d9d9d9} -highlightcolor black \
         -insertbackground black -relief ridge -selectbackground {#c4c4c4} \
         -selectforeground black -width 353 
     vTcl:DefineAlias "$site_3_0.can38" "Canvas1" vTcl:WidgetProc "Toplevel1" 1
     set site_4_0 $site_3_0.can38
     label $site_4_0.lab39 \
-        -activebackground {#f9f9f9} -activeforeground black \
         -background {#d9d9d9} -disabledforeground {#a3a3a3} \
-        -foreground {#000000} -highlightbackground {#d9d9d9} \
-        -highlightcolor black -text Label 
+        -foreground {#000000} -text Label 
     vTcl:DefineAlias "$site_4_0.lab39" "Label1" vTcl:WidgetProc "Toplevel1" 1
-    radiobutton $site_4_0.rad38 \
-        -activebackground {#d9d9d9} -activeforeground {#000000} \
-        -background {#d9d9d9} -disabledforeground {#a3a3a3} \
-        -foreground {#000000} -highlightbackground {#d9d9d9} \
-        -highlightcolor black -justify left -text Black -variable {} 
-    vTcl:DefineAlias "$site_4_0.rad38" "Radiobutton1" vTcl:WidgetProc "Toplevel1" 1
-    radiobutton $site_4_0.rad39 \
-        -activebackground {#d9d9d9} -activeforeground {#000000} \
-        -background {#d9d9d9} -disabledforeground {#a3a3a3} \
-        -foreground {#000000} -highlightbackground {#d9d9d9} \
-        -highlightcolor black -justify left -text White -variable {} 
-    vTcl:DefineAlias "$site_4_0.rad39" "Radiobutton2" vTcl:WidgetProc "Toplevel1" 1
     place $site_4_0.lab39 \
         -in $site_4_0 -x 50 -y 120 -anchor nw -bordermode ignore 
-    place $site_4_0.rad38 \
-        -in $site_4_0 -x 220 -y 60 -anchor nw -bordermode ignore 
-    place $site_4_0.rad39 \
-        -in $site_4_0 -x 220 -y 90 -anchor nw -bordermode ignore 
     place $site_3_0.lab39 \
         -in $site_3_0 -x 20 -y 20 -anchor nw -bordermode ignore 
     place $site_3_0.lab40 \
