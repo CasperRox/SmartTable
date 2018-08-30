@@ -39,8 +39,8 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
-	imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*2.2),int(height*2.2)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
+	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
 	return imgSrc
@@ -82,12 +82,14 @@ def tshirtMeasuring(imgSrc):
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 	# frame = frame[150:590, 0:480]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
-	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
+	# median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
+	median = cv2.medianBlur(gray, 7)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
-	thresh = 200
+	# thresh = 200
+	thresh = 160
 	binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
 	if "ON" == whiteMode:
-		thresh = 200
+		thresh = 160
 		binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY)[1]		# Convert image into black & white
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
@@ -125,10 +127,10 @@ def tshirtMeasuring(imgSrc):
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if (areaTshirt<(height*width*.25)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
+	if (areaTshirt<(height*width*.20)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
 		return addTextOnFrame(frame)
 
-	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	cv2.drawContours(frame, cnts, 0, (0,255,0), 2)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
@@ -201,9 +203,9 @@ def tshirtMeasuring(imgSrc):
 	# print("pixelHeight = %d" %pixel_height)
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
 		return addTextOnFrame(frame)
-	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 3)	# Draw height calculating line on image
-	cv2.circle(rotated_frame,(height_array_x,body_height_first+12), 5, (0,0,255), -1)
-	cv2.circle(rotated_frame,(height_array_x,body_height_last), 5, (0,0,255), -1)
+	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 2)	# Draw height calculating line on image
+	cv2.circle(rotated_frame,(height_array_x,body_height_first+12), 3, (0,0,255), -1)
+	cv2.circle(rotated_frame,(height_array_x,body_height_last), 3, (0,0,255), -1)
 	font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 	valueHeight = getmmDistance(pixel_height)/10
 	if abs(preHeight - valueHeight) < 1:
@@ -292,9 +294,9 @@ def tshirtMeasuring(imgSrc):
 				white = False
 		pixel_body_sweap = last - first
 		# print("pixelBodySweap = %d" %pixel_body_sweap)
-		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 3)	# Draw body sweap calculating line on image
-		cv2.circle(rotated_frame,(first,body_sweap_y), 5, (0,0,255), -1)
-		cv2.circle(rotated_frame,(last,body_sweap_y), 5, (0,0,255), -1)
+		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 2)	# Draw body sweap calculating line on image
+		cv2.circle(rotated_frame,(first,body_sweap_y), 3, (0,0,255), -1)
+		cv2.circle(rotated_frame,(last,body_sweap_y), 3, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		valueSweap = (getmmDistance(pixel_body_sweap)/10)
 		if abs(preSweap - valueSweap) < 1:
@@ -311,9 +313,9 @@ def tshirtMeasuring(imgSrc):
 	body_width_y = 0
 	temp_width_pre = np.count_nonzero(rotated_mask[mid_width_array_y])			# To compare with
 	sleeve_check = mid_width_array_y 											# Sleeve checking pixel line
-	step = 5 																	# Sleeve checking step size
-	body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
-	# body_width_y_dif = int(getPixelDistance(200)/step)							# Pixel distance from sleeve joint to body width
+	step = 2 																	# Sleeve checking step size
+	# body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
+	body_width_y_dif = int(getPixelDistance(10)/step)							# Pixel distance from sleeve joint to body width
 	body_width_first = [] 														# To store white area starting points
 	body_width_last = [] 														# To store white area ending points
 	count_for_dif = 0
@@ -396,18 +398,18 @@ def tshirtMeasuring(imgSrc):
 			# print("pixelBodyWidthActual = %d" %pixel_body_width_actual)
 			if rotated == False:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif*step)),
-					(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), (255,0,0), 3)	# Draw body width calculating line on image
+					(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), (255,0,0), 2)	# Draw body width calculating line on image
 				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y+body_width_y_dif)),
 				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y+body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
-				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif*step)), 5, (0,0,255), -1)
-				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), 5, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y+body_width_y_dif*step)), 3, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y+body_width_y_dif*step)), 3, (0,0,255), -1)
 			else:
 				cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif*step)),
-					(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), (255,0,0), 3)	# Draw body width calculating line on image
+					(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), (255,0,0), 2)	# Draw body width calculating line on image
 				# cv2.line(rotated_frame, (body_width_first[len(body_width_first)-1-body_width_y_dif],(body_width_y-body_width_y_dif)),
 				# 	(body_width_last[len(body_width_last)-1-body_width_y_dif],(body_width_y-body_width_y_dif)), (255,0,0), 3)	# Draw body width calculating line on image
-				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif*step)), 5, (0,0,255), -1)
-				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), 5, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_first[len(body_width_first)-1],(body_width_y-body_width_y_dif*step)), 3, (0,0,255), -1)
+				cv2.circle(rotated_frame,(body_width_last[len(body_width_last)-1],(body_width_y-body_width_y_dif*step)), 3, (0,0,255), -1)
 			font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 			valueWidth = (getmmDistance(pixel_body_width_actual)/10)
 			if abs(preWidth - valueWidth) < 1:
@@ -502,9 +504,9 @@ def tshirtMeasuring(imgSrc):
 		# print("******y2 ", back_neck_y2)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
-		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 3)
-		cv2.circle(rotated_frame,(back_neck_x1,back_neck_y1), 5, (0,0,255), -1)
-		cv2.circle(rotated_frame,(back_neck_x2,back_neck_y2), 5, (0,0,255), -1)
+		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 2)
+		cv2.circle(rotated_frame,(back_neck_x1,back_neck_y1), 3, (0,0,255), -1)
+		cv2.circle(rotated_frame,(back_neck_x2,back_neck_y2), 3, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		pixel_back_neck = abs(back_neck_x2-back_neck_x1)
 		valueBackNeck = getmmDistance(pixel_back_neck)/10
@@ -566,7 +568,7 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 
 	loadCalibrationData()
 
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
 	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
@@ -579,7 +581,7 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
-			frame = frame[0:height, int(85/640*width):int(620/640*width)]
+			frame = frame[0:height, int(60/640*width):int(620/640*width)]
 			# frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[150:590, 0:480]
 			output = tshirtMeasuring(frame)						# Process live video
@@ -587,6 +589,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
+		if cv2.waitKey(1) & 0xFF == ord('Q'):
 			break
 
 	# When everything done, release the capture
