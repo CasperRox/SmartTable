@@ -34,10 +34,10 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	# rotation_matrix[1,2] += int((width/2)-height/2)
 	# imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	imgTemp = imgSrc.copy()
-	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
+	cv2.rectangle(imgTemp,(0,0),(width,25),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
 	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
@@ -86,10 +86,10 @@ def tshirtMeasuring(imgSrc):
 	median = cv2.medianBlur(gray, 7)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
 	# thresh = 200
-	thresh = 160
+	thresh = 180
 	binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
 	if "ON" == whiteMode:
-		thresh = 160
+		thresh = 75
 		binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY)[1]		# Convert image into black & white
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
@@ -315,7 +315,7 @@ def tshirtMeasuring(imgSrc):
 	sleeve_check = mid_width_array_y 											# Sleeve checking pixel line
 	step = 2 																	# Sleeve checking step size
 	# body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
-	body_width_y_dif = int(getPixelDistance(10)/step)							# Pixel distance from sleeve joint to body width
+	body_width_y_dif = int(getPixelDistance(35)/step)							# Pixel distance from sleeve joint to body width
 	body_width_first = [] 														# To store white area starting points
 	body_width_last = [] 														# To store white area ending points
 	count_for_dif = 0
@@ -493,7 +493,7 @@ def tshirtMeasuring(imgSrc):
 				back_neck_y2 = i-1
 				break
 
-	temp_img = cv2.resize(rotated_mask, (int(width*0.2),int(height*0.2)))
+	# temp_img = cv2.resize(rotated_mask, (int(width*0.2),int(height*0.2)))
 	# cv2.imshow("test6", temp_img)
 	# print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
 	# print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))

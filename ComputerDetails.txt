@@ -1,0 +1,3 @@
+Admin Account:
+	Name		: NMC
+	Password	: NMC@1234

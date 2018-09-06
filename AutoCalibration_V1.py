@@ -35,10 +35,10 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	# rotation_matrix[1,2] += int((width/2)-height/2)
 	# imgSrc = cv2.warpAffine(imgSrc, rotation_matrix, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	imgTemp = imgSrc.copy()
-	cv2.rectangle(imgTemp,(0,0),(width,30),(0,0,0),-1)
+	cv2.rectangle(imgTemp,(0,0),(width,25),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
-	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
 	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
@@ -94,8 +94,10 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 
 def valueColor(value, comparator, tolerance):
 	color = (0,0,0)
-	if abs(comparator - value) <= tolerance:
+	if abs(comparator - value) <= tolerance - 0.3:
 		color = (0,255,0)
+	elif abs(comparator - value) <= tolerance + 0.3:
+		color = (0,255,255)
 	else:
 		color = (0,0,255)
 	return color
@@ -145,10 +147,11 @@ def tshirtMeasuring(imgSrc):
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 	# frame = frame[150:590, 0:480]
 	gray = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2GRAY)						# Convert image into grayscale
-	median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
+	# median = cv2.medianBlur(gray, 11)											# Median filtering(second parameter can only be an odd number)
+	median = cv2.medianBlur(gray, 7)											# Median filtering(second parameter can only be an odd number)
 	# cv2.imshow("Test1", median)
 	# thresh = 200
-	thresh = 160
+	thresh = 180
 	binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
@@ -186,10 +189,10 @@ def tshirtMeasuring(imgSrc):
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
-	if (areaTshirt<(height*width*.25)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
+	if (areaTshirt<(height*width*.20)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
 		return addTextOnFrame(frame)
 
-	cv2.drawContours(frame, cnts, 0, (0,255,0), 3)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
+	cv2.drawContours(frame, cnts, 0, (0,255,0), 2)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
@@ -380,7 +383,7 @@ def tshirtMeasuring(imgSrc):
 	body_width_y = 0
 	temp_width_pre = np.count_nonzero(rotated_mask[mid_width_array_y])			# To compare with
 	sleeve_check = mid_width_array_y 											# Sleeve checking pixel line
-	step = 5 																	# Sleeve checking step size
+	step = 2 																	# Sleeve checking step size
 	body_width_y_dif = int(getPixelDistance(35)/step)							# Pixel distance from sleeve joint to body width
 	body_width_first = [] 														# To store white area starting points
 	body_width_last = [] 														# To store white area ending points
@@ -651,12 +654,12 @@ def getMeasurements():
 # 	targetBackNeckWidth = float(bNW)
 # 	targetBackNeckWidthTol = float(bNWT)
 
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
 	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	original = cv2.imread("Calibration_image_2.jpg")
-	(height, width) = original.shape[:2]
+	# original = cv2.imread("Calibration_image_2.jpg")
+	# (height, width) = original.shape[:2]
 	# print("height ", height, "width ", width)
 
 	while(True):
@@ -667,15 +670,17 @@ def getMeasurements():
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
-			frame = frame[0:height, int(85/640*width):int(620/640*width)]
+			frame = frame[0:height, int(60/640*width):int(620/640*width)]
 			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
 			# frame = frame[150:590, 0:480]
-			original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
+			# original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
+		if cv2.waitKey(1) & 0xFF == ord('Q'):
 			break
 
 	# When everything done, release the capture
@@ -690,18 +695,10 @@ def getUserInputs():
 	# toBeBodyWidth = float(input("Body Width (cm)		: "))
 	# toBeBodySweap = float(input("Body Sweep (cm)		: "))
 	# toBeBackNeckWidth = float(input("Back Neck Width (cm)	: "))
-	# toBeBodyHeight = 63.1
-	# toBeBodyWidth = 41.4
-	# toBeBodySweap = 39.2
-	# toBeBackNeckWidth = 14.6
-	# toBeBodyHeight = 71.6
-	# toBeBodyWidth = 51.8
-	# toBeBodySweap = 50.5
-	# toBeBackNeckWidth = 17
-	toBeBodyHeight = 67
-	toBeBodyWidth = 47.2
-	toBeBodySweap = 47
-	toBeBackNeckWidth = 17
+	toBeBodyHeight = 74.2
+	toBeBodyWidth = 52.0
+	toBeBodySweap = 58.5
+	toBeBackNeckWidth = 18.3
 
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
