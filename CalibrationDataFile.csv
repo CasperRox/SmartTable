@@ -1,5 +1,5 @@
-calibrationSlope,0.544394101117
-calibrationIntersect,-0.543936654541
+calibrationSlope,0.538662565409
+calibrationIntersect,-9.37125194499
 ,BodyLength,BodyWidth,BodySweep,BackNeckWidth
-Value_in_cm,70.4,45.5,46.7,18
-Value_in_px,381,248,256,96
+Value_in_cm,74.2,52.0,58.5,18.3
+Value_in_px,389,275,304,88

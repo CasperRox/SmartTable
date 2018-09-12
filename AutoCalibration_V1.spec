@@ -3,7 +3,7 @@
 block_cipher = None
 
 
-a = Analysis(['SmartTable_p2_5_GUI.py'],
+a = Analysis(['AutoCalibration_V1.py'],
              pathex=['E:\\SmartTable'],
              binaries=[],
              datas=[],
@@ -21,9 +21,9 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='SmartTable_p2_5_GUI',
+          name='AutoCalibration_V1',
           debug=False,
           strip=False,
           upx=True,
           runtime_tmpdir=None,
-          console=False )
+          console=True )

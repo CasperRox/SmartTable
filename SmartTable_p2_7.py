@@ -38,11 +38,12 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
+	imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
-	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*0.3),int(height*0.3)))
 	return imgSrc
 
 
@@ -134,17 +135,18 @@ def tshirtMeasuring(imgSrc):
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
-	# cv2.imshow("Test3", mask)
+	cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
+	print(ellipse)		#!!!!!!!!!!!!!!!!!!!
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
 		return addTextOnFrame(frame)
 
-	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
+	cv2.ellipse(frame, ellipse, (0,0,255), 3)		#!!!!!!!!!!!!!!!!!!!!!!!!
 	# print(int(ellipse[0][0]), int(ellipse[0][1]))
-	# box = cv2.boxPoints(ellipse)												# Take 4 cordinates of enclosing rectangle for the ellipse
-	# box = np.int0(box)
-	# cv2.drawContours(frame,[box],0,(0,0,255),3)
+	box = cv2.boxPoints(ellipse)		#!!!!!!!!!!!!!!!!!!!!												# Take 4 cordinates of enclosing rectangle for the ellipse
+	box = np.int0(box)		#!!!!!!!!!!!!!!!!!!!
+	cv2.drawContours(frame,[box],0,(0,0,255),3)		#!!!!!!!!!!!!!!!!!!!!!!!
 	# print(box)
 
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
@@ -153,17 +155,19 @@ def tshirtMeasuring(imgSrc):
 		rotation_angle = ellipse[2]
 	else:
 		rotation_angle = ellipse[2] + 180
+	print(rotation_angle)		#!!!!!!!!!!!!!!!!!!!!!!!
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
 
-	# rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
-	rotated_mask = mask.copy()
+	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)		#!!!!!!!!!!!!!!!!!!!!!!
+	# rotated_mask = mask.copy()		!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
-	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
-	rotated_frame = frame.copy()
-	# cv2.imshow("Test4", rotated_mask)
+	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))		#!!!!!!!!!!!!!!!!!!!!
+	# rotated_frame = frame.copy()		!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	cv2.imshow("Test4", rotated_mask)
+	cv2.imshow("Test5", rotated_frame)
 
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
@@ -226,10 +230,12 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (0,mid_width_array_y+sleeve_check_length), (640,mid_width_array_y+sleeve_check_length), (255,255,0), 3)		# Sleeve check line
 	if mid_width_array_y<=sleeve_check_length or (height-sleeve_check_length)<=mid_width_array_y or sleeve_check_length<=0:		# If this false width calculation is useless
 
-		# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-		# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+		# !!!!!!!!!!!!!!!!!
+		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+		# !!!!!!!!!!!!!!!!!
 
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
 		return addTextOnFrame(rotated_frame)
@@ -538,45 +544,52 @@ def tshirtMeasuring(imgSrc):
 	# else:
 	# 	print(body_height_first)
 
-
-	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# !!!!!!!!!!!!!!!!!!!!!!
+	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# !!!!!!!!!!!!!!!!!!!!
 
 	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
-	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	global whiteMode
-	styleNo = sN
-	size = sz
-	targetBodyHeight = float(bH)
-	targetBodyHeightTol = float(bHT)
-	targetBodyWidth = float(bW)
-	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
-	targetBackNeckWidth = float(bNW)
-	targetBackNeckWidthTol = float(bNWT)
+def getMeasurements():
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	global whiteMode
+# 	styleNo = sN
+# 	size = sz
+# 	targetBodyHeight = float(bH)
+# 	targetBodyHeightTol = float(bHT)
+# 	targetBodyWidth = float(bW)
+# 	targetBodyWidthTol = float(bWT)
+# 	targetBodySweap = float(bS)
+# 	targetBodySweapTol = float(bST)
+# 	targetBackNeckWidth = float(bNW)
+# 	targetBackNeckWidthTol = float(bNWT)
 
-	whiteMode = wM
+# 	whiteMode = wM
 
 	loadCalibrationData()
 
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20180907_14_59_07_Pro.mp4")
 	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
+	# count_temp = 0
 
 	while(True):
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
+			# count_temp += 1
+			# if count_temp%50 != 0:
+			# 	# print(count_temp)
+			# 	continue
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)

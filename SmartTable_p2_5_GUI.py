@@ -282,7 +282,8 @@ class Smart_Table:
 
 
 		# top.geometry("377x379+417+148")
-		top.geometry("377x550+417+100")
+		# top.geometry("377x550+417+100")
+		top.geometry("377x550+150+200")
 		top.title("Smart Table")
 		top.iconbitmap("MASKreedaNMC.ico")
 		# top.configure(background="#d9d9d9")
