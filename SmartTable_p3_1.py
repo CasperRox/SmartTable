@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import math
 # import pymysql.cursors
-from statistics import mean
 import csv
 
 
@@ -37,59 +36,15 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(width,25),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,20), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
 	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
-	# imgSrc = cv2.resize(imgSrc, (int(width*1.565),int(height*1.9)))
-	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
+	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
-	# imgSrc = cv2.resize(imgSrc, (int(width*0.2),int(height*0.2)))
+	imgSrc = cv2.resize(imgSrc, (int(width*0.3),int(height*0.3)))
 	return imgSrc
-
-
-# def initDatabase():
-# 	connection = pymysql.connect(host='localhost',
-# 								user='root',
-# 								password='password',
-# 								charset='utf8mb4',
-# 								cursorclass=pymysql.cursors.DictCursor)
-# 	try:
-# 		with connection.cursor() as cursor:
-# 			cursor.execute("create database if not exists nmc")
-# 			cursor.execute("use nmc")
-# 			cursor.execute("""
-# 			create table if not exists PolyTop (
-# 				Style varchar(100) not null, 
-# 				Size varchar(10) not null, 
-# 				BodyHeight float(4,1) not null, 
-# 				BodyWidth float(4,1) not null, 
-# 				BodySweap float(4,1) not null, 
-# 				BackNeckWidth float(4,1) not null, 
-# 				primary key(Style, Size)
-# 			);
-# 			""")
-# 		connection.commit()
-# 	finally:
-# 		connection.close()
-
-
-# def getDatabaseValues():
-# 	global targetBodyHeight, targetBodyWidth, targetBodySweap, targetBackNeckWidth
-# 	connection = pymysql.connect(host='localhost',
-# 								user='root',
-# 								password='password',
-# 								db='nmc',
-# 								charset='utf8mb4',
-# 								cursorclass=pymysql.cursors.DictCursor)
-# 	try:
-# 		with connection.cursor() as cursor:
-# 			sql = "SELECT `*` FROM `PolyTop`"
-# 			cursor.execute(sql)
-# 			result = cursor.fetchall()
-# 			print(result[0]['BodyHeight'])
-# 			targetBodyHeight = result[0]['BodyHeight']
-# 		connection.commit()
-# 	finally:
-# 		connection.close()
 
 
 def valueColor(value, comparator, tolerance):
@@ -103,32 +58,13 @@ def valueColor(value, comparator, tolerance):
 	return color
 
 
-def bestFitLine(xArray, yArray):
-	m = (((mean(xArray)*mean(yArray)) - mean(xArray*yArray)) /
-		((mean(xArray)*mean(xArray)) - mean(xArray*xArray)))
-
-	c = mean(yArray) - m*mean(xArray)
-
-	return m, c
-
-
 def tshirtMeasuring(imgSrc):
 	# print("New")
 	global preRotatedFrame, preRotatedMask, preAreaTshirt
 	global preHeight, preSweap, preWidth, preBackNeck
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	global toBeBodyHeight, toBeBodyWidth, toBeBodySweap, toBeBackNeckWidth, calibrationSlope, calibrationIntersect
-
-	pixel_height = 0
-	pixel_body_width_actual = 0
-	pixel_body_sweap = 0
-	pixel_back_neck = 0
-
-	calibrationPixelArray = np.array([])
-	calibrationValueArray = np.array([])
-	# calibrationValueArray = np.array([toBeBodyHeight, toBeBodySweap, toBeBodyWidth, toBeBackNeckWidth])
-
+	global whiteMode
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -153,6 +89,9 @@ def tshirtMeasuring(imgSrc):
 	# thresh = 200
 	thresh = 180
 	binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY_INV)[1]		# Convert image into black & white
+	if "ON" == whiteMode:
+		thresh = 75
+		binary = cv2.threshold(median, thresh, 255, cv2.THRESH_BINARY)[1]		# Convert image into black & white
 	# binary = cv2.Canny(median, 30, 150)			# Edge detection(2nd & 3rd parameters are minVal & maxVal, 
 													# below min -> not edge, above max -> sure edge, between -> only is connected with sure edge)
 	# kernel = np.ones((5,5),np.uint8)											# for Morphology
@@ -196,17 +135,18 @@ def tshirtMeasuring(imgSrc):
 	mask = np.zeros(gray.shape,np.uint8)										# Create a black colored empty frame
 	cv2.drawContours(mask, cnts, 0, 255, -1)				# Draw T.shirt on it (0 -> contourIndex, 255 -> color(white), -1 -> filledContour)
 															# Color can be represented using one integer since "mask" is black & white (or grayscale)
-	# cv2.imshow("Test3", mask)
+	cv2.imshow("Test3", mask)
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
+	print(ellipse)		#!!!!!!!!!!!!!!!!!!!
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
 		return addTextOnFrame(frame)
 
-	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
+	cv2.ellipse(frame, ellipse, (0,0,255), 3)		#!!!!!!!!!!!!!!!!!!!!!!!!
 	# print(int(ellipse[0][0]), int(ellipse[0][1]))
-	# box = cv2.boxPoints(ellipse)												# Take 4 cordinates of enclosing rectangle for the ellipse
-	# box = np.int0(box)
-	# cv2.drawContours(frame,[box],0,(0,0,255),3)
+	box = cv2.boxPoints(ellipse)		#!!!!!!!!!!!!!!!!!!!!												# Take 4 cordinates of enclosing rectangle for the ellipse
+	box = np.int0(box)		#!!!!!!!!!!!!!!!!!!!
+	cv2.drawContours(frame,[box],0,(0,0,255),3)		#!!!!!!!!!!!!!!!!!!!!!!!
 	# print(box)
 
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
@@ -215,17 +155,19 @@ def tshirtMeasuring(imgSrc):
 		rotation_angle = ellipse[2]
 	else:
 		rotation_angle = ellipse[2] + 180
+	print(rotation_angle)		#!!!!!!!!!!!!!!!!!!!!!!!
 	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], rotation_angle, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# rotation_matrix = cv2.getRotationMatrix2D((int(ellipse[0][0]),int(ellipse[0][1])), (int(ellipse[2])-90), 1)
 	# rotation_matrix[0,2] += int((frame_diagonal/2)-ellipse[0][0])
 	# rotation_matrix[1,2] += int((frame_diagonal/2)-ellipse[0][1])
 
-	# rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
-	rotated_mask = mask.copy()
+	rotated_mask = cv2.warpAffine(mask, rotation_matrix, (width,height))		# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)		#!!!!!!!!!!!!!!!!!!!!!!
+	# rotated_mask = mask.copy()		!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (frame_diagonal,frame_diagonal))		# Rotate actual image
-	# rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))
-	rotated_frame = frame.copy()
-	# cv2.imshow("Test4", rotated_mask)
+	rotated_frame = cv2.warpAffine(frame, rotation_matrix, (width,height))		#!!!!!!!!!!!!!!!!!!!!
+	# rotated_frame = frame.copy()		!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	cv2.imshow("Test4", rotated_mask)
+	cv2.imshow("Test5", rotated_frame)
 
 	dummy = np.full(frame.shape, 255, np.uint8)									# Dummy white image to get missing parts of rotated frame
 	rotated_dummy = cv2.warpAffine(dummy, rotation_matrix, (width,height))		# Rotate dummy to get exact position
@@ -274,12 +216,8 @@ def tshirtMeasuring(imgSrc):
 		valueHeight = preHeight
 	else:
 		preHeight = valueHeight
-	# cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
-	# 			font, 0.5, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 1, cv2.LINE_AA)	# Display height value on image
-	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, toBeBodyHeight), (height_array_x+10,body_height_first+100), 
+	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
 				font, 0.5, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 1, cv2.LINE_AA)	# Display height value on image
-	calibrationPixelArray = np.append(calibrationPixelArray, pixel_height)
-	calibrationValueArray = np.append(calibrationValueArray, toBeBodyHeight)
 
 
 	# *************************************************************
@@ -292,10 +230,12 @@ def tshirtMeasuring(imgSrc):
 	# cv2.line(rotated_frame, (0,mid_width_array_y+sleeve_check_length), (640,mid_width_array_y+sleeve_check_length), (255,255,0), 3)		# Sleeve check line
 	if mid_width_array_y<=sleeve_check_length or (height-sleeve_check_length)<=mid_width_array_y or sleeve_check_length<=0:		# If this false width calculation is useless
 
-		# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-		# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
-		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+		# !!!!!!!!!!!!!!!!!
+		rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+		rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))		# Rotate actual image
+		rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
+		# !!!!!!!!!!!!!!!!!
 
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
 		return addTextOnFrame(rotated_frame)
@@ -369,12 +309,8 @@ def tshirtMeasuring(imgSrc):
 			valueSweap = preSweap
 		else:
 			preSweap = valueSweap
-		# cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
-		# 			font, 0.5, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 1, cv2.LINE_AA)	# Display body sweap value on image
-		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, toBeBodySweap), (first,body_sweap_y-10),
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
 					font, 0.5, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 1, cv2.LINE_AA)	# Display body sweap value on image
-		calibrationPixelArray = np.append(calibrationPixelArray, pixel_body_sweap)
-		calibrationValueArray = np.append(calibrationValueArray, toBeBodySweap)
 
 
 	# *************************************************************
@@ -384,6 +320,7 @@ def tshirtMeasuring(imgSrc):
 	temp_width_pre = np.count_nonzero(rotated_mask[mid_width_array_y])			# To compare with
 	sleeve_check = mid_width_array_y 											# Sleeve checking pixel line
 	step = 2 																	# Sleeve checking step size
+	# body_width_y_dif = int(getPixelDistance(25)/step)							# Pixel distance from sleeve joint to body width
 	body_width_y_dif = int(getPixelDistance(35)/step)							# Pixel distance from sleeve joint to body width
 	body_width_first = [] 														# To store white area starting points
 	body_width_last = [] 														# To store white area ending points
@@ -485,12 +422,8 @@ def tshirtMeasuring(imgSrc):
 				valueWidth = preWidth
 			else:
 				preWidth = valueWidth
-			# cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
-			# 			font, 0.5, valueColor(valueWidth, targetBodyWidth, targetBodyWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
-			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, toBeBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
+			cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueWidth, targetBodyWidth), (body_width_first[len(body_width_first)-1],body_width_y-10),
 						font, 0.5, valueColor(valueWidth, targetBodyWidth, targetBodyWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
-			calibrationPixelArray = np.append(calibrationPixelArray, pixel_body_width_actual)
-			calibrationValueArray = np.append(calibrationValueArray, toBeBodyWidth)
 
 
 	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -587,26 +520,8 @@ def tshirtMeasuring(imgSrc):
 			valueBackNeck = preBackNeck
 		else:
 			preBackNeck = valueBackNeck
-		# cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20),
-		# 			font, 0.5, valueColor(valueBackNeck, targetBackNeckWidth, targetBackNeckWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
-		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, toBeBackNeckWidth), (back_neck_x1,back_neck_y1+20),
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueBackNeck, targetBackNeckWidth), (back_neck_x1,back_neck_y1+20),
 					font, 0.5, valueColor(valueBackNeck, targetBackNeckWidth, targetBackNeckWidthTol), 1, cv2.LINE_AA)		# Display body width value on image
-		calibrationPixelArray = np.append(calibrationPixelArray, pixel_back_neck)
-		calibrationValueArray = np.append(calibrationValueArray, toBeBackNeckWidth)
-		# print(calibrationPixelArray)
-
-		calibrationSlope, calibrationIntersect = bestFitLine(calibrationValueArray*10, calibrationPixelArray)
-		print(calibrationSlope, calibrationIntersect)
-
-		calibrationData = [["calibrationSlope", calibrationSlope],
-							["calibrationIntersect", calibrationIntersect],
-							["", "BodyLength", "BodyWidth", "BodySweep", "BackNeckWidth"],
-							["Value_in_cm", toBeBodyHeight, toBeBodyWidth, toBeBodySweap, toBeBackNeckWidth],
-							["Value_in_px", pixel_height, pixel_body_width_actual, pixel_body_sweap, pixel_back_neck]]
-		calibrationDataFile = open('CalibrationDataFile.csv', 'w', newline='')
-		with calibrationDataFile:
-			writer = csv.writer(calibrationDataFile)
-			writer.writerows(calibrationData)
 
 
 	# if 
@@ -629,20 +544,22 @@ def tshirtMeasuring(imgSrc):
 	# else:
 	# 	print(body_height_first)
 
-
-	# rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
-	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# !!!!!!!!!!!!!!!!!!!!!!
+	rotation_matrix = cv2.getRotationMatrix2D(ellipse[0], (360-rotation_angle), 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotated_frame = cv2.warpAffine(rotated_frame, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
+	rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
+	# !!!!!!!!!!!!!!!!!!!!
 
 	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
 	return addTextOnFrame(rotated_frame)
 
 
 def getMeasurements():
-# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT):
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 # 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 # 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	global whiteMode
 # 	styleNo = sN
 # 	size = sz
 # 	targetBodyHeight = float(bH)
@@ -654,26 +571,31 @@ def getMeasurements():
 # 	targetBackNeckWidth = float(bNW)
 # 	targetBackNeckWidthTol = float(bNWT)
 
-	cap = cv2.VideoCapture(0)
-	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+# 	whiteMode = wM
+
+	loadCalibrationData()
+
+	# cap = cv2.VideoCapture(0)
+	# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20180907_14_59_07_Pro.mp4")
+	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
-	# original = cv2.imread("E:\MachineLearning\Images\TShirt\img2890.jpg")
-	# original = cv2.imread("Calibration_image_2.jpg")
-	# (height, width) = original.shape[:2]
-	# print("height ", height, "width ", width)
+	# original = cv2.imread("test\WIN_20180126_152758.JPG")
+	# count_temp = 0
 
 	while(True):
-	# for i in range(0,100):
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
+			# count_temp += 1
+			# if count_temp%50 != 0:
+			# 	# print(count_temp)
+			# 	continue
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(60/640*width):int(620/640*width)]
-			# frame = frame[int(150/640*height):int(590/640*height), 0:width]
+			# frame = frame[0:height, int(150/640*width):int(615/640*width)]
 			# frame = frame[150:590, 0:480]
-			# original = cv2.resize(original, (int(height*0.2),int(width*0.2)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
@@ -688,17 +610,12 @@ def getMeasurements():
 	cv2.destroyAllWindows()
 
 
-def getUserInputs():
-	global toBeBodyHeight, toBeBodyWidth, toBeBodySweap, toBeBackNeckWidth
-	# print("\n----- Please Enter Actual Measurements of Model -----\n")
-	# toBeBodyHeight = float(input("Body Length (cm)	: "))
-	# toBeBodyWidth = float(input("Body Width (cm)		: "))
-	# toBeBodySweap = float(input("Body Sweep (cm)		: "))
-	# toBeBackNeckWidth = float(input("Back Neck Width (cm)	: "))
-	toBeBodyHeight = 74.2
-	toBeBodyWidth = 52.0
-	toBeBodySweap = 58.5
-	toBeBackNeckWidth = 18.3
+def loadCalibrationData():
+	global calibrationSlope, calibrationIntersect
+	with open('CalibrationDataFile.csv', newline='') as csvfile:
+		dataList = list(csv.reader(csvfile, delimiter=' ', quotechar='|'))
+		calibrationSlope = float(dataList[0][0].split(',')[1])
+		calibrationIntersect = float(dataList[1][0].split(',')[1])
 
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
@@ -722,19 +639,16 @@ targetBodySweapTol = 0
 targetBackNeckWidth = 0
 targetBackNeckWidthTol = 0
 
-toBeBodyHeight = 0
-toBeBodyWidth = 0
-toBeBodySweap = 0
-toBeBackNeckWidth = 0
 calibrationSlope = 1
 calibrationIntersect = 0
+
+whiteMode = None
 
 # initDatabase()
 # getDatabaseValues()
 # getMeasurements()
 
 if __name__ == "__main__":
-	getUserInputs()
 	getMeasurements()
 	# testing()
 
