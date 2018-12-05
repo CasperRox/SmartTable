@@ -15,9 +15,6 @@ connection = pymysql.connect(host='localhost',
 							charset='utf8mb4',
 							cursorclass=pymysql.cursors.DictCursor)
 
-
-# sys.exit("Error occured")
-# sys.exit(-1)
 try:
 	ports = list(serial.tools.list_ports.comports())
 	for p in ports:
