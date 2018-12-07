@@ -100,10 +100,11 @@ def storeMeasurements(height, heightDif, sweap, sweapDif, width, widthDif, backN
 					with connection.cursor() as cursor:
 						cursor.execute("use nmc")
 						sql = (
-							"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s) "
+							"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 							"ON DUPLICATE KEY UPDATE "
 							"Date_Time = %s, Style = %s, Size = %s, "
-							"BodyHeight = %s, BodyWidth = %s, BodySweap = %s, BackNeckWidth = %s"
+							"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
+							"BodySweap = %s, BodySweapDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
 						)
 						# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
 						# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
