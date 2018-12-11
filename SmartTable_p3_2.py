@@ -51,6 +51,18 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	return imgSrc
 
 
+def addSavedOnFrame(imgSrc):														# Add default text and "Saved" text on frame and resize it
+	global styleNo, size
+	(height, width) = imgSrc.shape[:2]
+	imgTemp = imgSrc.copy()
+	cv2.rectangle(imgTemp, (int(132/465*width), int(300/480*height)), (int(332/465*width), int(400/480*height)), (0,0,255), 3)
+	cv2.addWeighted(imgTemp,1,imgSrc,0,0,imgSrc)							# Adding transparent layer
+	# cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	# cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	print("cccccc")
+	return imgSrc
+
+
 def valueColor(value, comparator, tolerance):
 	color = (0,0,0)
 	if abs(comparator - value) <= tolerance - 0.3:
@@ -72,51 +84,53 @@ def initSerialRead():
 				des = p.description				# "USB-SERIAL CH340 (COM15)" supposed to be come, since Arduino Nano uses CH340 chip for serial communication
 		serialPort = 'COM' + des[(des.rfind("COM")+3):(des.rfind(")"))]
 		ser = serial.Serial(serialPort, 9600, timeout=1)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
+		# ser = serial.Serial(serialPort, 9600, timeout=0)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
 	except NameError:
 		print("\n***** Error: Serial communication port is not connected properly\n")
 
 
-def storeMeasurements(height, heightDif, sweap, sweapDif, width, widthDif, backNeckWidth, backNeckWidthDif):
+def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDif, backNeckWidth, backNeckWidthDif):
 	global styleNo, size
-	global ser, serRead
+	global ser, serRead, buttonPressed
 
-	while True:
-		if ser is not None:
-			serRead = ser.readline()
-			# serRead = ser.readlines()
-			# print(serRead)
+	# while True:
+	if ser is not None:
+		serRead = ser.readline()
+		# serRead = ser.readlines()
+		# print(serRead)
 
-			# if serRead == 1:
-			if serRead == b'1\r\n':
-				print ("Button pressed")
+		# if serRead == 1:
+		if serRead == b'1\r\n':
+			buttonPressed = True
+			print ("Button pressed")
 
-				connection = pymysql.connect(host='localhost',
-											user='root',
-											password='password',
-											charset='utf8mb4',
-											cursorclass=pymysql.cursors.DictCursor)
+			connection = pymysql.connect(host='localhost',
+										user='root',
+										password='password',
+										charset='utf8mb4',
+										cursorclass=pymysql.cursors.DictCursor)
 
-				try:
-					with connection.cursor() as cursor:
-						cursor.execute("use nmc")
-						sql = (
-							"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-							"ON DUPLICATE KEY UPDATE "
-							"Date_Time = %s, Style = %s, Size = %s, "
-							"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
-							"BodySweap = %s, BodySweapDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
-						)
-						# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
-						# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
-						cursor.execute(sql, (datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
-											 float(width), float(widthDif), float(BackNeckWidth), float(backNeckWidthDif),
-											datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
-											 float(width), float(widthDif), float(BackNeckWidth), float(backNeckWidthDif)))
-					connection.commit()
-				finally:
-					connection.close()
-
-			time.sleep(1)
+			try:
+				with connection.cursor() as cursor:
+					cursor.execute("use nmc")
+					sql = (
+						"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+						"ON DUPLICATE KEY UPDATE "
+						"Date_Time = %s, Style = %s, Size = %s, "
+						"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
+						"BodySweap = %s, BodySweapDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
+					)
+					# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
+					# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
+					cursor.execute(sql, (datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
+										 float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
+										datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
+										 float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+				connection.commit()
+			finally:
+				connection.close()
+			return addSavedOnFrame(imgSrc)
+	return imgSrc
 
 
 def tshirtMeasuring(imgSrc):
@@ -126,6 +140,10 @@ def tshirtMeasuring(imgSrc):
 	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
 	global whiteMode
+	valueHeight = 0
+	valueSweap = 0
+	valueWidth = 0
+	valueBackNeck = 0
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -294,6 +312,9 @@ def tshirtMeasuring(imgSrc):
 		# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))			# Fill missing parts of final output
 
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
+		# storeMeasurements(valueHeight, (valueHeight - targetBodyHeight), 0, 0, 0, 0, 0, 0)
+		rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
+										valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
 		return addTextOnFrame(rotated_frame)
 
 	sleeve_check_temp1_count = np.count_nonzero(rotated_mask[mid_width_array_y-sleeve_check_length])	# Get number of white pixels
@@ -607,28 +628,32 @@ def tshirtMeasuring(imgSrc):
 	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
 	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
+	rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
+									valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
 	return addTextOnFrame(rotated_frame)
 
 
-def getMeasurements():
-# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
-# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-# 	global whiteMode
-# 	styleNo = sN
-# 	size = sz
-# 	targetBodyHeight = float(bH)
-# 	targetBodyHeightTol = float(bHT)
-# 	targetBodyWidth = float(bW)
-# 	targetBodyWidthTol = float(bWT)
-# 	targetBodySweap = float(bS)
-# 	targetBodySweapTol = float(bST)
-# 	targetBackNeckWidth = float(bNW)
-# 	targetBackNeckWidthTol = float(bNWT)
+# def getMeasurements():
+def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global whiteMode
+	global ser, buttonPressed
+	styleNo = sN
+	size = sz
+	targetBodyHeight = float(bH)
+	targetBodyHeightTol = float(bHT)
+	targetBodyWidth = float(bW)
+	targetBodyWidthTol = float(bWT)
+	targetBodySweap = float(bS)
+	targetBodySweapTol = float(bST)
+	targetBackNeckWidth = float(bNW)
+	targetBackNeckWidthTol = float(bNWT)
 
-# 	whiteMode = wM
+	whiteMode = wM
 
 	loadCalibrationData()
+	initSerialRead()
 
 	# cap = cv2.VideoCapture(1)
 	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
@@ -636,6 +661,7 @@ def getMeasurements():
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
 
 	while(True):
+		buttonPressed = False
 		# Capture frame-by-frame
 		ret, frame = cap.read()
 		if ret:
@@ -643,16 +669,21 @@ def getMeasurements():
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			# frame = frame[0:height, int(60/640*width):int(620/640*width)]
-			frame = frame[0:height, int(150/640*width):int(615/640*width)]
+			frame = frame[0:height, int(150/640*width):int(615/640*width)]		# 480, 465
 			# frame = frame[150:590, 0:480]
 			frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
+			if buttonPressed:
+				print("dddd")
+				time.sleep(10)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
+			ser.close()
 			break
 		if cv2.waitKey(1) & 0xFF == ord('Q'):
+			ser.close()
 			break
 
 	# When everything done, release the capture
@@ -680,6 +711,8 @@ preBackNeck = 0
 
 styleNo = None
 size = None
+# styleNo = 832835
+# size = "M"
 targetBodyHeight = 0
 targetBodyHeightTol = 0
 targetBodyWidth = 0
@@ -700,10 +733,9 @@ whiteMode = None
 
 serRead = None
 ser = None
-
+buttonPressed = False
 
 if __name__ == "__main__":
-	initSerialRead()
 	getMeasurements()
 	# testing()
 

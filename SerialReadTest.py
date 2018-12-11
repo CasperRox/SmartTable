@@ -51,20 +51,21 @@ try:
 finally:
 	connection.close()
 
-a=0
+# a=0
 while True:
 	if ser is not None:
-		a=a+1
-		print(a)
+		# a=a+1
+		# print(a)
 		# print(ser)
-		# status = ser.readline()
-		status = ser.readlines()
+		status = ser.readline()
+		# status = ser.readlines()
 		# print(status)
 		# print(ser.readlines())
 		# ser.readlines()
 
 		# if status == 1:
-		if len(status)>0 and status[0] == b'1\r\n' and a%10==0:
+		# if len(status)>0 and status[0] == b'1\r\n' and a%10==0:
+		if status == b'1\r\n':
 			print ("Button pressed")
 
 			connection = pymysql.connect(host='localhost',
@@ -88,4 +89,4 @@ while True:
 			finally:
 				connection.close()
 
-		# time.sleep(1)
+		time.sleep(1)
