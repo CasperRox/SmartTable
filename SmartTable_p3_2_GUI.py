@@ -70,7 +70,9 @@ def initDatabase():
 			""")
 			cursor.execute("""
 			create table if not exists PolyTop_Records (
-				Date_Time varchar(30) not null,
+				DateTime varchar(30) not null,
+				TableIndex varchar(10) not null,
+				Plant varchar(100) not null,
 				Style varchar(100) not null,
 				Size varchar(10) not null,
 				BodyHeight float(4,1) not null,
@@ -81,7 +83,7 @@ def initDatabase():
 				BodySweapDif float(3,1) not null,
 				BackNeckWidth float(4,1) not null,
 				BackNeckWidthDif float(3,1) not null,
-				primary key(Date_Time, Style, Size)
+				primary key(DateTime, TableIndex, Plant, Style, Size)
 			);
 			""")
 			# print("Database initialized")

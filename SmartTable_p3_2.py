@@ -52,14 +52,14 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 
 
 def addSavedOnFrame(imgSrc):														# Add default text and "Saved" text on frame and resize it
-	global styleNo, size
 	(height, width) = imgSrc.shape[:2]
 	imgTemp = imgSrc.copy()
-	cv2.rectangle(imgTemp, (int(132/465*width), int(300/480*height)), (int(332/465*width), int(400/480*height)), (0,0,255), 3)
-	cv2.addWeighted(imgTemp,1,imgSrc,0,0,imgSrc)							# Adding transparent layer
-	# cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
-	# cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
-	print("cccccc")
+	# cv2.rectangle(imgTemp, (int(90/465*width), int(200/480*height)), (int(375/465*width), int(320/480*height)), (0,0,0), 3)
+	# cv2.putText(imgTemp, "Saved", (int(105/465*width), int(290/480*height)), cv2.FONT_HERSHEY_TRIPLEX, 2, (0,0,0), 3, cv2.LINE_AA)
+	cv2.rectangle(imgTemp, (int(0/465*width), int(0/480*height)), (int(465/465*width), int(480/480*height)), (0,0,0), -1)
+	cv2.rectangle(imgTemp, (int(90/465*width), int(200/480*height)), (int(375/465*width), int(320/480*height)), (255,255,255), 3)
+	cv2.putText(imgTemp, "Saved", (int(105/465*width), int(290/480*height)), cv2.FONT_HERSHEY_TRIPLEX, 2, (255,255,255), 3, cv2.LINE_AA)
+	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	return imgSrc
 
 
@@ -83,14 +83,14 @@ def initSerialRead():
 			if " CH340 " in p.description:
 				des = p.description				# "USB-SERIAL CH340 (COM15)" supposed to be come, since Arduino Nano uses CH340 chip for serial communication
 		serialPort = 'COM' + des[(des.rfind("COM")+3):(des.rfind(")"))]
-		ser = serial.Serial(serialPort, 9600, timeout=1)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
-		# ser = serial.Serial(serialPort, 9600, timeout=0)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
+		# ser = serial.Serial(serialPort, 9600, timeout=1)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
+		ser = serial.Serial(serialPort, 9600, timeout=0)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
 	except NameError:
 		print("\n***** Error: Serial communication port is not connected properly\n")
 
 
 def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDif, backNeckWidth, backNeckWidthDif):
-	global styleNo, size
+	global tableIndex, plant, styleNo, size
 	global ser, serRead, buttonPressed
 
 	# while True:
@@ -114,23 +114,31 @@ def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDi
 				with connection.cursor() as cursor:
 					cursor.execute("use nmc")
 					sql = (
-						"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+						"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 						"ON DUPLICATE KEY UPDATE "
-						"Date_Time = %s, Style = %s, Size = %s, "
+						"DateTime = %s, TableIndex = %s, Plant = %s, Style = %s, Size = %s, "
 						"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
 						"BodySweap = %s, BodySweapDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
 					)
 					# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
 					# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
-					cursor.execute(sql, (datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
-										 float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
-										datetime.datetime.now(), styleNo, size, float(height), float(heightDif), float(sweap), float(sweapDif),
-										 float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+					cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
+										 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
+										datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
+										 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
 				connection.commit()
 			finally:
 				connection.close()
 			return addSavedOnFrame(imgSrc)
 	return imgSrc
+
+
+def ignoreButtonPress():
+	global ser
+
+	if ser is not None:
+		serRead = ser.readline()
+
 
 
 def tshirtMeasuring(imgSrc):
@@ -182,6 +190,7 @@ def tshirtMeasuring(imgSrc):
 
 	cnts = cv2.findContours(binary.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]	# Contour tracking(), function will modify source image
 	if len(cnts) == 0:			# If no contours detected skip further process
+		ignoreButtonPress()
 		return addTextOnFrame(frame)
 
 
@@ -208,6 +217,7 @@ def tshirtMeasuring(imgSrc):
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
 	if (areaTshirt<(height*width*.20)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
+		ignoreButtonPress()
 		return addTextOnFrame(frame)
 
 	cv2.drawContours(frame, cnts, 0, (0,255,0), 2)								# Draw boundary for contour(-1 for third -> draw all contours, 3 -> width of boundary)
@@ -218,6 +228,7 @@ def tshirtMeasuring(imgSrc):
 
 	ellipse = cv2.fitEllipse(cnts[0])						# [ellipse] = [(center), (MajorAxisLength, MinorAxisLength), clockwiseAngleFromXAxisToMajorOrMinorAxis]
 	if len(ellipse) < 1:														# If ellipse detection false, all other calculations are useless
+		ignoreButtonPress()
 		return addTextOnFrame(frame)
 
 	# cv2.ellipse(frame, ellipse, (0,0,255), 3)
@@ -270,6 +281,7 @@ def tshirtMeasuring(imgSrc):
 	body_height_first = 0
 	body_height_last = 0
 	if height_array_x<=0 or width<=height_array_x:								# If center of ellipse is at out of frame, further calculations are useless
+		ignoreButtonPress()
 		return addTextOnFrame(frame)
 
 	for i in range(0,len(transpose_rotated_mask[height_array_x])):				# Calculate pixel height by checking pixel value
@@ -282,6 +294,7 @@ def tshirtMeasuring(imgSrc):
 	pixel_height = body_height_last - body_height_first - 12
 	# print("pixelHeight = %d" %pixel_height)
 	if pixel_height <= getPixelDistance(250):									# If height is less than 25cm, most probably it is a garbage value
+		ignoreButtonPress()
 		return addTextOnFrame(frame)
 	cv2.line(rotated_frame, (height_array_x,body_height_first+12), (height_array_x,body_height_last), (255,0,0), 2)	# Draw height calculating line on image
 	cv2.circle(rotated_frame,(height_array_x,body_height_first+12), 3, (0,0,255), -1)
@@ -627,30 +640,30 @@ def tshirtMeasuring(imgSrc):
 	# rotated_dummy = cv2.warpAffine(rotated_dummy, rotation_matrix, (width,height))	# Rotate actual image
 	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
-	# preRotatedFrame = rotated_frame.copy()												# Save a copy to avoid value variation
+	# preRotatedFrame = rotated_frame.copy()
 	rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
 									valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
-	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	global whiteMode
+def getMeasurements():
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	global whiteMode
 	global ser, buttonPressed
-	styleNo = sN
-	size = sz
-	targetBodyHeight = float(bH)
-	targetBodyHeightTol = float(bHT)
-	targetBodyWidth = float(bW)
-	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
-	targetBackNeckWidth = float(bNW)
-	targetBackNeckWidthTol = float(bNWT)
+# 	styleNo = sN
+# 	size = sz
+# 	targetBodyHeight = float(bH)
+# 	targetBodyHeightTol = float(bHT)
+# 	targetBodyWidth = float(bW)
+# 	targetBodyWidthTol = float(bWT)
+# 	targetBodySweap = float(bS)
+# 	targetBodySweapTol = float(bST)
+# 	targetBackNeckWidth = float(bNW)
+# 	targetBackNeckWidthTol = float(bNWT)
 
-	whiteMode = wM
+# 	whiteMode = wM
 
 	loadCalibrationData()
 	initSerialRead()
@@ -675,9 +688,9 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
+			cv2.waitKey(1)
 			if buttonPressed:
-				print("dddd")
-				time.sleep(10)
+				time.sleep(2)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			ser.close()
@@ -709,10 +722,12 @@ preSweap = 0
 preWidth = 0
 preBackNeck = 0
 
-styleNo = None
-size = None
-# styleNo = 832835
-# size = "M"
+tableIndex = "st0001"
+plant = "Vaanavil"
+# styleNo = None
+# size = None
+styleNo = 832835
+size = "M"
 targetBodyHeight = 0
 targetBodyHeightTol = 0
 targetBodyWidth = 0
