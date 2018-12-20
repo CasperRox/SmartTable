@@ -5,3 +5,9 @@ Admin Account:
 
 RealVNC:
 	Password	: dam@1234
+
+
+SmartTable Email:
+	Username	: smarttablenmc@gmail.com
+	Password 	: NMC@1234
+

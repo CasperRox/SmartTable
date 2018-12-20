@@ -2,7 +2,7 @@
 
 int button = 5;
 int led =13;
-int count = 0;
+int count = 10;
 
 void setup() {
   Serial.begin(9600);

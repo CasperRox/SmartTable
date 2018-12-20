@@ -56,9 +56,9 @@ def addSavedOnFrame(imgSrc):														# Add default text and "Saved" text on
 	imgTemp = imgSrc.copy()
 	# cv2.rectangle(imgTemp, (int(90/465*width), int(200/480*height)), (int(375/465*width), int(320/480*height)), (0,0,0), 3)
 	# cv2.putText(imgTemp, "Saved", (int(105/465*width), int(290/480*height)), cv2.FONT_HERSHEY_TRIPLEX, 2, (0,0,0), 3, cv2.LINE_AA)
-	cv2.rectangle(imgTemp, (int(0/465*width), int(0/480*height)), (int(465/465*width), int(480/480*height)), (0,0,0), -1)
-	cv2.rectangle(imgTemp, (int(90/465*width), int(200/480*height)), (int(375/465*width), int(320/480*height)), (255,255,255), 3)
-	cv2.putText(imgTemp, "Saved", (int(105/465*width), int(290/480*height)), cv2.FONT_HERSHEY_TRIPLEX, 2, (255,255,255), 3, cv2.LINE_AA)
+	cv2.rectangle(imgTemp, (0, 0), (width, height), (0,0,0), -1)
+	cv2.rectangle(imgTemp, (int(120/560*width), int(200/480*height)), (int(440/560*width), int(320/480*height)), (255,255,255), 3)
+	cv2.putText(imgTemp, "Saved", (int(135/465*width), int(290/480*height)), cv2.FONT_HERSHEY_TRIPLEX, 3, (255,255,255), 4, cv2.LINE_AA)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
 	return imgSrc
 
@@ -102,7 +102,7 @@ def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDi
 		# if serRead == 1:
 		if serRead == b'1\r\n':
 			buttonPressed = True
-			print ("Button pressed")
+			# print ("Button pressed")
 
 			connection = pymysql.connect(host='localhost',
 										user='root',
@@ -159,12 +159,12 @@ def tshirtMeasuring(imgSrc):
 	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
-	(height, width) = frame.shape[:2]
-	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# (height, width) = frame.shape[:2]
+	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# # rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	rotation_matrix1[0,2] += int((height/2)-width/2)
-	rotation_matrix1[1,2] += int((width/2)-height/2)
-	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	# rotation_matrix1[0,2] += int((height/2)-width/2)
+	# rotation_matrix1[1,2] += int((width/2)-height/2)
+	# frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
 	# print("height ", height, "width ", width)
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
@@ -646,30 +646,30 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-def getMeasurements():
-# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
-# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-# 	global whiteMode
+# def getMeasurements():
+def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global whiteMode
 	global ser, buttonPressed
-# 	styleNo = sN
-# 	size = sz
-# 	targetBodyHeight = float(bH)
-# 	targetBodyHeightTol = float(bHT)
-# 	targetBodyWidth = float(bW)
-# 	targetBodyWidthTol = float(bWT)
-# 	targetBodySweap = float(bS)
-# 	targetBodySweapTol = float(bST)
-# 	targetBackNeckWidth = float(bNW)
-# 	targetBackNeckWidthTol = float(bNWT)
+	styleNo = sN
+	size = sz
+	targetBodyHeight = float(bH)
+	targetBodyHeightTol = float(bHT)
+	targetBodyWidth = float(bW)
+	targetBodyWidthTol = float(bWT)
+	targetBodySweap = float(bS)
+	targetBodySweapTol = float(bST)
+	targetBackNeckWidth = float(bNW)
+	targetBackNeckWidthTol = float(bNWT)
 
-# 	whiteMode = wM
+	whiteMode = wM
 
 	loadCalibrationData()
 	initSerialRead()
 
-	# cap = cv2.VideoCapture(1)
-	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	cap = cv2.VideoCapture(1)
+	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
 
@@ -681,10 +681,9 @@ def getMeasurements():
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
-			# frame = frame[0:height, int(60/640*width):int(620/640*width)]
-			frame = frame[0:height, int(150/640*width):int(615/640*width)]		# 480, 465
-			# frame = frame[150:590, 0:480]
-			frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
+			frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
+			# frame = frame[0:height, int(150/640*width):int(615/640*width)]		# 480, 465
+			# frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
@@ -724,10 +723,10 @@ preBackNeck = 0
 
 tableIndex = "st0001"
 plant = "Vaanavil"
-# styleNo = None
-# size = None
-styleNo = 832835
-size = "M"
+styleNo = None
+size = None
+# styleNo = 832835
+# size = "M"
 targetBodyHeight = 0
 targetBodyHeightTol = 0
 targetBodyWidth = 0
