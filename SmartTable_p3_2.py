@@ -670,6 +670,7 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 
 	cap = cv2.VideoCapture(1)
 	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
 
@@ -682,8 +683,9 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
-			# frame = frame[0:height, int(150/640*width):int(615/640*width)]		# 480, 465
+			# frame = frame[0:height, int(60/640*width):int(605/640*width)]		# 480, 465
 			# frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
+			# frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
