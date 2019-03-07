@@ -1,6 +1,14 @@
+import numpy as np
+import cv2
+import math
+import threading
+from PIL import Image as PILImage
+from PIL import ImageTk
+
 import sys
-import SmartTable_p3_3_FGHub_GUI_support
+import TkinterGUITest_1_support
 import SmartTable_p3_3_FGHub
+import SmartTable_p3_3_FGHub_GUI
 import pymysql.cursors
 
 try:
@@ -22,8 +30,10 @@ def vp_start_gui():
 	global val, w, root
 	root = Tk()
 	top = Smart_Table (root)
-	SmartTable_p3_3_FGHub_GUI_support.init(root, top)
-	root.resizable(0,0)
+	TkinterGUITest_1_support.init(root, top)
+	root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+	# root.attributes('-fullscreen', True)
+	# root.resizable(0,0)
 	# root.after(100, SmartTable_p3_3_FGHub.loopTest)
 	root.mainloop()
 
@@ -34,7 +44,7 @@ def create_Smart_Table(root, *args, **kwargs):
 	rt = root
 	w = Toplevel (root)
 	top = Smart_Table (w)
-	SmartTable_p3_3_FGHub_GUI_support.init(w, top, *args, **kwargs)
+	TkinterGUITest_1_support.init(w, top, *args, **kwargs)
 	return (w, top)
 
 def destroy_Smart_Table():
@@ -170,54 +180,55 @@ class Smart_Table:
 			connection.close()
 
 
-	def runMeasuring(self):
-		sN = self.txtStyleNo.get()
-		sz = self.txtSize.get()
-		bH = self.txtBodyHeight.get()
-		bHT = self.txtBodyHeightTol.get()
-		bW = self.txtBodyWidth.get()
-		bWT = self.txtBodyWidthTol.get()
-		bS = self.txtBodySweap.get()
-		bST = self.txtBodySweapTol.get()
-		bNW = self.txtBackNeckWidth.get()
-		bNWT = self.txtBackNeckWidthTol.get()
-		whiteMode = self.onoff.get()
+	def runMeasuring(self, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode):
+		# sN = self.txtStyleNo.get()
+		# sz = self.txtSize.get()
+		# bH = self.txtBodyHeight.get()
+		# bHT = self.txtBodyHeightTol.get()
+		# bW = self.txtBodyWidth.get()
+		# bWT = self.txtBodyWidthTol.get()
+		# bS = self.txtBodySweap.get()
+		# bST = self.txtBodySweapTol.get()
+		# bNW = self.txtBackNeckWidth.get()
+		# bNWT = self.txtBackNeckWidthTol.get()
+		# whiteMode = self.onoff.get()
 
-		if not sN:
-			self.txtStyleNo.focus()
-			messagebox.showerror("Input Error", "Please enter valid Style Number")
-		elif not sz:
-			self.txtSize.focus()
-			messagebox.showerror("Input Error", "Please enter valid Size")
-		elif not bH:
-			self.txtBodyHeight.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Value")
-		elif not bHT:
-			self.txtBodyHeightTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-		elif not bW:
-			self.txtBodyWidth.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Width Value")
-		elif not bWT:
-			self.txtBodyWidthTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-		elif not bS:
-			self.txtBodySweap.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
-		elif not bST:
-			self.txtBodySweapTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
-		elif not bNW:
-			self.txtBackNeckWidth.focus()
-			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
-		elif not bNWT:
-			self.txtBackNeckWidthTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
-		# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
-		# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
-		else:
+		# if not sN:
+		# 	self.txtStyleNo.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Style Number")
+		# elif not sz:
+		# 	self.txtSize.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Size")
+		# elif not bH:
+		# 	self.txtBodyHeight.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Length Value")
+		# elif not bHT:
+		# 	self.txtBodyHeightTol.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+		# elif not bW:
+		# 	self.txtBodyWidth.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Width Value")
+		# elif not bWT:
+		# 	self.txtBodyWidthTol.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+		# elif not bS:
+		# 	self.txtBodySweap.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
+		# elif not bST:
+		# 	self.txtBodySweapTol.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
+		# elif not bNW:
+		# 	self.txtBackNeckWidth.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
+		# elif not bNWT:
+		# 	self.txtBackNeckWidthTol.focus()
+		# 	messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
+		# # elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
+		# # 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
+		# else:
 			self.btnRun.configure(state = "disabled")
 			self.btnRun.pack_forget()
+			SmartTable_p3_3_FGHub_GUI.vp_start_gui()
 			SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
 			self.btnRun.configure(state = "normal")
 
@@ -293,10 +304,10 @@ class Smart_Table:
 
 
 		# top.geometry("377x379+417+148")
-		# top.geometry("377x550+417+100")
-		top.geometry("377x550+150+200")
+		# top.geometry("377x550+150+200")
+		top.geometry("1177x550+150+200")
 		top.title("Smart Table")
-		top.iconbitmap("MASKreedaNMC.ico")
+		# top.iconbitmap("MASKreedaNMC.ico")
 		# top.configure(background="#d9d9d9")
 		top.configure(background=_bgcolor)
 		# top.configure(image="MASKreedaNMC_Set.jpg")
@@ -323,6 +334,8 @@ class Smart_Table:
 		# self.lblBG.place(relx=0, rely=0, height=300, width=300)
 		# self.lblBG.configure(image=photo)
 
+
+
 		self.cnvsData = Canvas(top)
 		self.cnvsData.place(relx=0.03, rely=0.023, relheight=0.825, relwidth=0.94)
 		self.cnvsData.configure(relief=FLAT)
@@ -330,9 +343,6 @@ class Smart_Table:
 		self.cnvsData.configure(background=_bgcolor)
 		self.cnvsData.configure(highlightbackground=_bgcolor)
 		self.cnvsData.configure(highlightcolor=_bgcolor)
-		# self.cnvsData.configure(background=_fgcolor)
-		# self.cnvsData.configure(highlightbackground=_fgcolor)
-		# self.cnvsData.configure(highlightcolor=_fgcolor)
 		self.cnvsData.configure(width=355)
 		# self.cnvsData.create_line(170,46,335,46, fill=_fgcolor, width="3", dash=(4,2))
 		self.cnvsData.create_line(170,46,335,46, fill=_fgcolor, width="1")
@@ -357,6 +367,18 @@ class Smart_Table:
 		self.lblStyleNo.configure(highlightcolor=_fgcolor)
 		self.lblStyleNo.configure(font=('Helvetica', 8, 'bold'))
 		self.lblStyleNo.configure(text='''Style No.''')
+
+		self.lblimage = Label(self.cnvsData)
+		self.lblimage.place(relx=0.5, rely=0.0001, height=321, width=553)
+		self.lblimage.configure(activebackground="#f9f9f9")
+		self.lblimage.configure(activeforeground=_fgcolor)
+		self.lblimage.configure(background=_bgcolor)
+		self.lblimage.configure(disabledforeground="#a3a3a3")
+		self.lblimage.configure(foreground=_fgcolor)
+		self.lblimage.configure(highlightbackground=_bgcolor)
+		self.lblimage.configure(highlightcolor=_fgcolor)
+		self.lblimage.configure(font=('Helvetica', 28, 'bold'))
+		self.lblimage.configure(text='''Style No.''')
 
 		self.lblSize = Label(self.cnvsData)
 		self.lblSize.place(relx=0.06, rely=0.175, height=21, width=26)
@@ -688,7 +710,8 @@ class Smart_Table:
 		self.btnRun.configure(font=('Helvetica', 20, 'bold'))
 		self.btnRun.configure(text='''Run''')
 		# self.btnRun.configure(command=SmartTable_p3_3_FGHub.getMeasurements)
-		self.btnRun.configure(command=self.runMeasuring)
+		# self.btnRun.configure(command=self.runMeasuring)
+		self.btnRun.configure(command=self.runMeasuring(0,0,0,0,0,0,0,0,0,0,True))
 
 		# self.btnStop = Button(self.frameRun)
 		# self.btnStop.place(relx=0.59, rely=0.13, height=54, width=64)
@@ -706,10 +729,69 @@ class Smart_Table:
 		# self.btnStop.configure(command=SmartTable_p3_3_FGHub.testing)
 
 
+
+		sN = self.txtStyleNo.get()
+		sz = self.txtSize.get()
+		bH = self.txtBodyHeight.get()
+		bHT = self.txtBodyHeightTol.get()
+		bW = self.txtBodyWidth.get()
+		bWT = self.txtBodyWidthTol.get()
+		bS = self.txtBodySweap.get()
+		bST = self.txtBodySweapTol.get()
+		bNW = self.txtBackNeckWidth.get()
+		bNWT = self.txtBackNeckWidthTol.get()
+		whiteMode = self.onoff.get()
+
+		# self.frame = None
+		self.thread = None
+		self.stopEvent = None
+
+		self.stopEvent = threading.Event()
+		# self.thread = threading.Thread(target=self.test)
+		# self.thread = threading.Thread(target=self.runMeasuring, args=(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode))
+		# self.thread = threading.Thread(target=self.runMeasuring, args=(0,0,0,0,0,0,0,0,0,0,True))
+		# self.thread = threading.Thread(target=SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode))
+		# self.thread.start()
+
+
+
+
+	def test(self):
+		cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
+
+		while(True):
+			# Capture frame-by-frame
+			ret, frame = cap.read()
+			if ret:
+				(height, width) = frame.shape[:2]
+				# print("height ", height, "width ", width)
+				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
+				frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
+				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
+				# cv2.imshow("Smart Table", frame)
+				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
+				frame = PILImage.fromarray(frame)
+				frame = ImageTk.PhotoImage(frame)
+				self.lblimage.configure(image=frame)
+				cv2.waitKey(1)
+
+			if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
+				break
+			if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
+				break
+			self.stopEvent.set()
+
+		# When everything done, release the capture
+		cap.release()
+		cv2.destroyAllWindows()
+
+
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
 
 initDatabase()
 
-
 if __name__ == '__main__':
 	vp_start_gui()
+
+
+
