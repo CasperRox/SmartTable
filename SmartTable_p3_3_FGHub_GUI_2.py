@@ -48,53 +48,53 @@ def destroy_Smart_Table():
 	w = None
 
 
-def initDatabase():
-	connection = pymysql.connect(host='localhost',
-								user='root',
-								password='password',
-								charset='utf8mb4',
-								cursorclass=pymysql.cursors.DictCursor)
-	try:
-		with connection.cursor() as cursor:
-			cursor.execute("create database if not exists nmc")
-			cursor.execute("use nmc")
-			cursor.execute("""
-			create table if not exists PolyTop (
-				Style varchar(100) not null,
-				Size varchar(10) not null,
-				BodyHeight float(4,1) not null,
-				BodyHeightTol float(2,1) not null,
-				BodyWidth float(4,1) not null,
-				BodyWidthTol float(2,1) not null,
-				BodySweap float(4,1) not null,
-				BodySweapTol float(2,1) not null,
-				BackNeckWidth float(4,1) not null,
-				BackNeckWidthTol float(2,1) not null,
-				primary key(Style, Size)
-			);
-			""")
-			cursor.execute("""
-			create table if not exists PolyTop_Records (
-				DateTime varchar(30) not null,
-				TableIndex varchar(10) not null,
-				Plant varchar(100) not null,
-				Style varchar(100) not null,
-				Size varchar(10) not null,
-				BodyHeight float(4,1) not null,
-				BodyHeightDif float(3,1) not null,
-				BodyWidth float(4,1) not null,
-				BodyWidthDif float(3,1) not null,
-				BodySweap float(4,1) not null,
-				BodySweapDif float(3,1) not null,
-				BackNeckWidth float(4,1) not null,
-				BackNeckWidthDif float(3,1) not null,
-				primary key(DateTime, TableIndex, Plant, Style, Size)
-			);
-			""")
-			# print("Database initialized")
-		connection.commit()
-	finally:
-		connection.close()
+# def initDatabase():
+# 	connection = pymysql.connect(host='localhost',
+# 								user='root',
+# 								password='password',
+# 								charset='utf8mb4',
+# 								cursorclass=pymysql.cursors.DictCursor)
+# 	try:
+# 		with connection.cursor() as cursor:
+# 			cursor.execute("create database if not exists nmc")
+# 			cursor.execute("use nmc")
+# 			cursor.execute("""
+# 			create table if not exists PolyTop (
+# 				Style varchar(100) not null,
+# 				Size varchar(10) not null,
+# 				BodyHeight float(4,1) not null,
+# 				BodyHeightTol float(2,1) not null,
+# 				BodyWidth float(4,1) not null,
+# 				BodyWidthTol float(2,1) not null,
+# 				BodySweap float(4,1) not null,
+# 				BodySweapTol float(2,1) not null,
+# 				BackNeckWidth float(4,1) not null,
+# 				BackNeckWidthTol float(2,1) not null,
+# 				primary key(Style, Size)
+# 			);
+# 			""")
+# 			cursor.execute("""
+# 			create table if not exists PolyTop_Records (
+# 				DateTime varchar(30) not null,
+# 				TableIndex varchar(10) not null,
+# 				Plant varchar(100) not null,
+# 				Style varchar(100) not null,
+# 				Size varchar(10) not null,
+# 				BodyHeight float(4,1) not null,
+# 				BodyHeightDif float(3,1) not null,
+# 				BodyWidth float(4,1) not null,
+# 				BodyWidthDif float(3,1) not null,
+# 				BodySweap float(4,1) not null,
+# 				BodySweapDif float(3,1) not null,
+# 				BackNeckWidth float(4,1) not null,
+# 				BackNeckWidthDif float(3,1) not null,
+# 				primary key(DateTime, TableIndex, Plant, Style, Size)
+# 			);
+# 			""")
+# 			# print("Database initialized")
+# 		connection.commit()
+# 	finally:
+# 		connection.close()
 
 
 class Smart_Table:
@@ -103,76 +103,96 @@ class Smart_Table:
 		# print (event.char)
 		widget = event.widget
 		# print ("search " + widget.get())
-		if widget == self.txtStyleNo:
-			self.txtSize.focus()
-		elif widget == self.txtSize:
-			self.txtBodyHeight.focus()
-			self.loadData(event)
-		elif widget == self.txtBodyHeight:
-			self.txtBodyHeightTol.focus()
-		elif widget == self.txtBodyHeightTol:
+		if widget == self.txtBodyLength:
 			self.txtBodyWidth.focus()
 		elif widget == self.txtBodyWidth:
-			self.txtBodyWidthTol.focus()
-		elif widget == self.txtBodyWidthTol:
-			self.txtBodySweap.focus()
-		elif widget == self.txtBodySweap:
-			self.txtBodySweapTol.focus()
-		elif widget == self.txtBodySweapTol:
+			self.txtBodySweep.focus()
+			# self.loadData(event)
+		elif widget == self.txtBodySweep:
 			self.txtBackNeckWidth.focus()
 		elif widget == self.txtBackNeckWidth:
-			self.txtBackNeckWidthTol.focus()
-		elif widget == self.txtBackNeckWidthTol:
-			self.btnRun.focus()
+			self.txtCollarHeight.focus()
+		elif widget == self.txtCollarHeight:
+			self.txtBackNeckDrop.focus()
+		elif widget == self.txtBackNeckDrop:
+			self.txtXDistance.focus()
+		elif widget == self.txtXDistance:
+			self.txtBodyWaistWidth.focus()
+		elif widget == self.txtBodyWaistWidth:
+			self.txtLSSleeveLength.focus()
+		elif widget == self.txtLSSleeveLength:
+			self.txtSleeveWidth.focus()
+		elif widget == self.txtSleeveWidth:
+			self.txtElbowWidth.focus()
+		elif widget == self.txtElbowWidth:
+			self.txtForeArmWidth.focus()
+		elif widget == self.txtForeArmWidth:
+			self.txtSleeveOpening.focus()
+		elif widget == self.txtSleeveOpening:
+			self.txtFrontNeckDrop.focus()
+		elif widget == self.txtFrontNeckDrop:
+			self.txtNeckOpening.focus()
+		elif widget == self.txtNeckOpening:
+			self.txtCollarPoints.focus()
+		elif widget == self.txtCollarPoints:
+			self.txtCollarLength.focus()
+		elif widget == self.txtCollarLength:
+			self.txtZipperLength.focus()
+		elif widget == self.txtZipperLength:
+			self.txtDropTailLength.focus()
+		elif widget == self.txtDropTailLength:
+			self.txtPocketHeight.focus()
+		elif widget == self.txtPocketHeight:
+			self.btnSave.focus()
 
 
-	def loadData(self, event):
-		widget = event.widget
-		styleNo = self.txtStyleNo.get()
-		size = self.txtSize.get()
-		connection = pymysql.connect(host='localhost',
-									user='root',
-									password='password',
-									charset='utf8mb4',
-									cursorclass=pymysql.cursors.DictCursor)
-		try:
-			with connection.cursor() as cursor:
-				cursor.execute("use nmc")
-				sql = "SELECT * FROM PolyTop where Style=%s and Size=%s"
-				cursor.execute(sql, (styleNo, size))
-				result = cursor.fetchall()
-				# print (result)
-				if len(result) > 0:
-					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
-					self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
-					self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
-					self.txtBodyHeightTol.insert(0,result[0]['BodyHeightTol'])
-					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-					self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
-					self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
-					self.txtBodyWidthTol.insert(0,result[0]['BodyWidthTol'])
-					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
-					self.txtBodySweap.insert(0,result[0]['BodySweap'])
-					self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
-					self.txtBodySweapTol.insert(0,result[0]['BodySweapTol'])
-					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-					self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
-					self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
-					self.txtBackNeckWidthTol.insert(0,result[0]['BackNeckWidthTol'])
-				# elif widget == self.txtBodyHeight or widget == self.txtSize:
-				elif widget == self.txtSize:
-					self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
-					self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
-					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-					self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
-					self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
-					self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
-					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-					self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
-			connection.commit()
+	# def loadData(self, event):
+	# 	widget = event.widget
+	# 	styleNo = self.txtStyleNo.get()
+	# 	size = self.txtSize.get()
+	# 	connection = pymysql.connect(host='localhost',
+	# 								user='root',
+	# 								password='password',
+	# 								charset='utf8mb4',
+	# 								cursorclass=pymysql.cursors.DictCursor)
+	# 	try:
+	# 		with connection.cursor() as cursor:
+	# 			cursor.execute("use nmc")
+	# 			sql = "SELECT * FROM PolyTop where Style=%s and Size=%s"
+	# 			cursor.execute(sql, (styleNo, size))
+	# 			result = cursor.fetchall()
+	# 			# print (result)
+	# 			if len(result) > 0:
+	# 				self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
+	# 				self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
+	# 				self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
+	# 				self.txtBodyHeightTol.insert(0,result[0]['BodyHeightTol'])
+	# 				self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+	# 				self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
+	# 				self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
+	# 				self.txtBodyWidthTol.insert(0,result[0]['BodyWidthTol'])
+	# 				self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
+	# 				self.txtBodySweap.insert(0,result[0]['BodySweap'])
+	# 				self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
+	# 				self.txtBodySweapTol.insert(0,result[0]['BodySweapTol'])
+	# 				self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+	# 				self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
+	# 				self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
+	# 				self.txtBackNeckWidthTol.insert(0,result[0]['BackNeckWidthTol'])
+	# 			# elif widget == self.txtBodyHeight or widget == self.txtSize:
+	# 			elif widget == self.txtSize:
+	# 				self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
+	# 				self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
+	# 				self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+	# 				self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
+	# 				self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
+	# 				self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
+	# 				self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+	# 				self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
+	# 		connection.commit()
 
-		finally:
-			connection.close()
+	# 	finally:
+	# 		connection.close()
 
 
 	def runMeasuring(self):
@@ -221,10 +241,10 @@ class Smart_Table:
 		# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
 		# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
 		else:
-			self.btnRun.configure(state = "disabled")
-			self.btnRun.pack_forget()
+			self.btnSave.configure(state = "disabled")
+			self.btnSave.pack_forget()
 			SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
-			self.btnRun.configure(state = "normal")
+			self.btnSave.configure(state = "normal")
 
 			connection = pymysql.connect(host='localhost',
 										user='root',
@@ -251,6 +271,95 @@ class Smart_Table:
 				connection.close()
 
 
+	def liveMeasuring(self):
+		global ser, buttonPressed
+
+		# cap = cv2.VideoCapture(0)
+		cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
+
+		UIWidth = root.winfo_screenwidth()
+		UIHeight = root.winfo_screenheight()
+
+		while(True):
+			buttonPressed = False
+			# Capture frame-by-frame
+			ret, frame = cap.read()
+			if ret:
+				(height, width) = frame.shape[:2]
+				# print("height ", height, "width ", width)
+				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
+				frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
+				frame, xyz = SmartTable_p3_3_FGHub.tshirtMeasuring(frame)						# Process live video
+				# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
+				frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
+				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
+				# cv2.imshow("Smart Table", frame)
+				# cv2.waitKey(1)
+				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
+				frame = PILImage.fromarray(frame)
+				frame = ImageTk.PhotoImage(frame)
+				self.lblimage.configure(image=frame)
+				self.lblimage.image = frame
+				self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
+				self.txtBodyLength.insert(0, xyz)
+				if buttonPressed:
+					time.sleep(2)
+
+			if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
+				print("q")
+				break
+			if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
+				print("Q")
+				break
+			# self.stopEvent.set()
+
+		# When everything done, release the capture
+		cap.release()
+		cv2.destroyAllWindows()
+
+
+	# def liveTest(self):
+	# 	cap = cv2.VideoCapture(0)
+	# 	# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
+
+	# 	UIWidth = root.winfo_screenwidth()
+	# 	UIHeight = root.winfo_screenheight()
+
+	# 	while(True):
+	# 		# Capture frame-by-frame
+	# 		ret, frame = cap.read()
+	# 		if ret:
+	# 			(height, width) = frame.shape[:2]
+	# 			# print("height ", height, "width ", width)
+	# 			frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
+	# 			# frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
+	# 			# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
+	# 			frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
+	# 			# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
+	# 			# cv2.imshow("Smart Table", frame)
+	# 			frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
+	# 			frame = PILImage.fromarray(frame)
+	# 			frame = ImageTk.PhotoImage(frame)
+	# 			self.lblimage.configure(image=frame)
+	# 			self.lblimage.image = frame
+	# 			cv2.waitKey(1)
+
+	# 		if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
+	# 			print("q")
+	# 			break
+	# 		if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
+	# 			print("Q")
+	# 			break
+
+	# 	# When everything done, release the capture
+	# 	cap.release()
+	# 	cv2.destroyAllWindows()
+
+
+	def saveMeasurements(self):
+		print("saved")
+
+
 	def validateFloat(self, value, preValue, action):
 		try:
 			if '0' == action:
@@ -270,14 +379,14 @@ class Smart_Table:
 			return False
 
 
-	def whiteGarmentModeOnOff(self):
-		# status = self.lblWhiteGarmentStatus.cget("textvariable")
-		status = self.onoff.get()
-		# print(status)
-		if "ON" == status:
-			self.onoff.set("OFF")
-		elif "OFF" == status:
-			self.onoff.set("ON")
+	# def whiteGarmentModeOnOff(self):
+	# 	# status = self.lblWhiteGarmentStatus.cget("textvariable")
+	# 	status = self.onoff.get()
+	# 	# print(status)
+	# 	if "ON" == status:
+	# 		self.onoff.set("OFF")
+	# 	elif "OFF" == status:
+	# 		self.onoff.set("ON")
 
 
 	def __init__(self, top=None):
@@ -713,7 +822,8 @@ class Smart_Table:
 
 		self.txtBodyWidth.bind("<Return>", self.onEnter)
 		# self.txtBodyWidth.bind("<Return>", self.loadData)
-		self.txtBodyWidth.bind("<Tab>", self.BodySweep
+		# self.txtBodyWidth.bind("<Tab>", self.loadData)
+
 		self.txtBodySweep = Entry(self.cnvsData)
 		self.txtBodySweep.place(relx=0.51, rely=0.11, relheight=0.03, relwidth=0.47)
 		self.txtBodySweep.configure(background=_bgcolor)
@@ -731,7 +841,7 @@ class Smart_Table:
 		self.txtBodySweep.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBodySweep.bind("<Return>", self.onEnter)
-		self.txtBodySweep.bind("<Button-1>", self.loadData)
+		# self.txtBodySweep.bind("<Button-1>", self.loadData)
 
 		self.txtBackNeckWidth = Entry(self.cnvsData)
 		self.txtBackNeckWidth.place(relx=0.51, rely=0.16, relheight=0.03, relwidth=0.47)
@@ -750,7 +860,7 @@ class Smart_Table:
 		self.txtBackNeckWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBackNeckWidth.bind("<Return>", self.onEnter)
-		self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
+		# self.txtBackNeckWidth.bind("<Button-1>", self.loadData)
 
 		self.txtCollarHeight = Entry(self.cnvsData)
 		self.txtCollarHeight.place(relx=0.51, rely=0.21, relheight=0.03, relwidth=0.47)
@@ -769,7 +879,7 @@ class Smart_Table:
 		self.txtCollarHeight.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtCollarHeight.bind("<Return>", self.onEnter)
-		self.txtCollarHeight.bind("<Button-1>", self.loadData)
+		# self.txtCollarHeight.bind("<Button-1>", self.loadData)
 
 		self.txtBackNeckDrop = Entry(self.cnvsData)
 		self.txtBackNeckDrop.place(relx=0.51, rely=0.26, relheight=0.03, relwidth=0.47)
@@ -788,7 +898,7 @@ class Smart_Table:
 		self.txtBackNeckDrop.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBackNeckDrop.bind("<Return>", self.onEnter)
-		self.txtBackNeckDrop.bind("<Button-1>", self.loadData)
+		# self.txtBackNeckDrop.bind("<Button-1>", self.loadData)
 
 		self.txtXDistance = Entry(self.cnvsData)
 		self.txtXDistance.place(relx=0.51, rely=0.31, relheight=0.03, relwidth=0.47)
@@ -807,7 +917,7 @@ class Smart_Table:
 		self.txtXDistance.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtXDistance.bind("<Return>", self.onEnter)
-		self.txtXDistance.bind("<Button-1>", self.loadData)
+		# self.txtXDistance.bind("<Button-1>", self.loadData)
 
 		self.txtBodyWaistWidth = Entry(self.cnvsData)
 		self.txtBodyWaistWidth.place(relx=0.51, rely=0.36, relheight=0.03, relwidth=0.47)
@@ -826,7 +936,7 @@ class Smart_Table:
 		self.txtBodyWaistWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtBodyWaistWidth.bind("<Return>", self.onEnter)
-		self.txtBodyWaistWidth.bind("<Button-1>", self.loadData)
+		# self.txtBodyWaistWidth.bind("<Button-1>", self.loadData)
 
 		self.txtLSSleeveLength = Entry(self.cnvsData)
 		self.txtLSSleeveLength.place(relx=0.51, rely=0.41, relheight=0.03, relwidth=0.47)
@@ -845,7 +955,7 @@ class Smart_Table:
 		self.txtLSSleeveLength.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtLSSleeveLength.bind("<Return>", self.onEnter)
-		self.txtLSSleeveLength.bind("<Button-1>", self.loadData)
+		# self.txtLSSleeveLength.bind("<Button-1>", self.loadData)
 
 		self.txtSleeveWidth = Entry(self.cnvsData)
 		self.txtSleeveWidth.place(relx=0.51, rely=0.46, relheight=0.03, relwidth=0.47)
@@ -864,7 +974,7 @@ class Smart_Table:
 		self.txtSleeveWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtSleeveWidth.bind("<Return>", self.onEnter)
-		self.txtSleeveWidth.bind("<Button-1>", self.loadData)
+		# self.txtSleeveWidth.bind("<Button-1>", self.loadData)
 
 		self.txtElbowWidth = Entry(self.cnvsData)
 		self.txtElbowWidth.place(relx=0.51, rely=0.51, relheight=0.03, relwidth=0.47)
@@ -883,7 +993,7 @@ class Smart_Table:
 		self.txtElbowWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtElbowWidth.bind("<Return>", self.onEnter)
-		self.txtElbowWidth.bind("<Button-1>", self.loadData)
+		# self.txtElbowWidth.bind("<Button-1>", self.loadData)
 
 		self.txtForeArmWidth = Entry(self.cnvsData)
 		self.txtForeArmWidth.place(relx=0.51, rely=0.56, relheight=0.03, relwidth=0.47)
@@ -902,7 +1012,7 @@ class Smart_Table:
 		self.txtForeArmWidth.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtForeArmWidth.bind("<Return>", self.onEnter)
-		self.txtForeArmWidth.bind("<Button-1>", self.loadData)
+		# self.txtForeArmWidth.bind("<Button-1>", self.loadData)
 
 		self.txtSleeveOpening = Entry(self.cnvsData)
 		self.txtSleeveOpening.place(relx=0.51, rely=0.61, relheight=0.03, relwidth=0.47)
@@ -921,7 +1031,7 @@ class Smart_Table:
 		self.txtSleeveOpening.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtSleeveOpening.bind("<Return>", self.onEnter)
-		self.txtSleeveOpening.bind("<Button-1>", self.loadData)
+		# self.txtSleeveOpening.bind("<Button-1>", self.loadData)
 
 		self.txtFrontNeckDrop = Entry(self.cnvsData)
 		self.txtFrontNeckDrop.place(relx=0.51, rely=0.66, relheight=0.03, relwidth=0.47)
@@ -940,7 +1050,7 @@ class Smart_Table:
 		self.txtFrontNeckDrop.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtFrontNeckDrop.bind("<Return>", self.onEnter)
-		self.txtFrontNeckDrop.bind("<Button-1>", self.loadData)
+		# self.txtFrontNeckDrop.bind("<Button-1>", self.loadData)
 
 		self.txtNeckOpening = Entry(self.cnvsData)
 		self.txtNeckOpening.place(relx=0.51, rely=0.71, relheight=0.03, relwidth=0.47)
@@ -959,7 +1069,7 @@ class Smart_Table:
 		self.txtNeckOpening.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtNeckOpening.bind("<Return>", self.onEnter)
-		self.txtNeckOpening.bind("<Button-1>", self.loadData)
+		# self.txtNeckOpening.bind("<Button-1>", self.loadData)
 
 		self.txtCollarPoints = Entry(self.cnvsData)
 		self.txtCollarPoints.place(relx=0.51, rely=0.76, relheight=0.03, relwidth=0.47)
@@ -978,7 +1088,7 @@ class Smart_Table:
 		self.txtCollarPoints.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtCollarPoints.bind("<Return>", self.onEnter)
-		self.txtCollarPoints.bind("<Button-1>", self.loadData)
+		# self.txtCollarPoints.bind("<Button-1>", self.loadData)
 
 		self.txtCollarLength = Entry(self.cnvsData)
 		self.txtCollarLength.place(relx=0.51, rely=0.81, relheight=0.03, relwidth=0.47)
@@ -997,7 +1107,7 @@ class Smart_Table:
 		self.txtCollarLength.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtCollarLength.bind("<Return>", self.onEnter)
-		self.txtCollarLength.bind("<Button-1>", self.loadData)
+		# self.txtCollarLength.bind("<Button-1>", self.loadData)
 
 		self.txtZipperLength = Entry(self.cnvsData)
 		self.txtZipperLength.place(relx=0.51, rely=0.86, relheight=0.03, relwidth=0.47)
@@ -1016,7 +1126,7 @@ class Smart_Table:
 		self.txtZipperLength.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtZipperLength.bind("<Return>", self.onEnter)
-		self.txtZipperLength.bind("<Button-1>", self.loadData)
+		# self.txtZipperLength.bind("<Button-1>", self.loadData)
 
 		self.txtDropTailLength = Entry(self.cnvsData)
 		self.txtDropTailLength.place(relx=0.51, rely=0.91, relheight=0.03, relwidth=0.47)
@@ -1035,7 +1145,7 @@ class Smart_Table:
 		self.txtDropTailLength.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtDropTailLength.bind("<Return>", self.onEnter)
-		self.txtDropTailLength.bind("<Button-1>", self.loadData)
+		# self.txtDropTailLength.bind("<Button-1>", self.loadData)
 
 		self.txtPocketHeight = Entry(self.cnvsData)
 		self.txtPocketHeight.place(relx=0.51, rely=0.96, relheight=0.03, relwidth=0.47)
@@ -1054,7 +1164,7 @@ class Smart_Table:
 		self.txtPocketHeight.configure(validatecommand=(validateSupport, '%S', '%s', '%d'))
 
 		self.txtPocketHeight.bind("<Return>", self.onEnter)
-		self.txtPocketHeight.bind("<Button-1>", self.loadData)
+		# self.txtPocketHeight.bind("<Button-1>", self.loadData)
 
 
 		self.cnvsLive = Canvas(top)
@@ -1084,39 +1194,39 @@ class Smart_Table:
 		self.lblimage.configure(text='''Live''')
 
 
-		self.frameRun = Frame(top)
-		self.frameRun.place(relx=0.01, rely=0.92, relheight=0.06, relwidth=0.28)
-		self.frameRun.configure(relief=FLAT)
-		self.frameRun.configure(borderwidth="0.5")
-		self.frameRun.configure(background=_bgcolor)
-		self.frameRun.configure(highlightbackground=_bgcolor)
-		self.frameRun.configure(highlightcolor=_fgcolor)
-		# self.frameRun.configure(background=_fgcolor)
-		# self.frameRun.configure(highlightbackground=_fgcolor)
-		# self.frameRun.configure(highlightcolor=_fgcolor)
-		# self.frameRun.configure(width=355)
+		self.frameSave = Frame(top)
+		self.frameSave.place(relx=0.01, rely=0.92, relheight=0.06, relwidth=0.28)
+		self.frameSave.configure(relief=FLAT)
+		self.frameSave.configure(borderwidth="0.5")
+		self.frameSave.configure(background=_bgcolor)
+		self.frameSave.configure(highlightbackground=_bgcolor)
+		self.frameSave.configure(highlightcolor=_fgcolor)
+		# self.frameSave.configure(background=_fgcolor)
+		# self.frameSave.configure(highlightbackground=_fgcolor)
+		# self.frameSave.configure(highlightcolor=_fgcolor)
+		# self.frameSave.configure(width=355)
 
-		self.btnRun = Button(self.frameRun)
-		# self.btnRun.place(relx=0.07, rely=0.2, height=54, width=300)
-		self.btnRun.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
-		self.btnRun.configure(activebackground="#008000")
-		self.btnRun.configure(activeforeground=_fgcolor)
-		self.btnRun.configure(background="#3A5FCD")
-		# self.btnRun.configure(background=_bgcolor)
-		self.btnRun.configure(cursor="hand2")
-		self.btnRun.configure(relief=FLAT)
-		self.btnRun.configure(disabledforeground=_fgcolor)
-		self.btnRun.configure(foreground=_fgcolor)
-		self.btnRun.configure(highlightbackground=_fgcolor)
-		self.btnRun.configure(highlightcolor=_fgcolor)
-		self.btnRun.configure(pady="0")
-		self.btnRun.configure(state="normal")
-		self.btnRun.configure(font=('Helvetica', 20, 'bold'))
-		self.btnRun.configure(text='''Save''')
-		# self.btnRun.configure(command=SmartTable_p3_3_FGHub.getMeasurements)
-		self.btnRun.configure(command=self.runMeasuring)
+		self.btnSave = Button(self.frameSave)
+		# self.btnSave.place(relx=0.07, rely=0.2, height=54, width=300)
+		self.btnSave.place(relx=0.05, rely=0.05, relheight=0.9, relwidth=0.9)
+		self.btnSave.configure(activebackground="#008000")
+		self.btnSave.configure(activeforeground=_fgcolor)
+		self.btnSave.configure(background="#3A5FCD")
+		# self.btnSave.configure(background=_bgcolor)
+		self.btnSave.configure(cursor="hand2")
+		self.btnSave.configure(relief=FLAT)
+		self.btnSave.configure(disabledforeground=_fgcolor)
+		self.btnSave.configure(foreground=_fgcolor)
+		self.btnSave.configure(highlightbackground=_fgcolor)
+		self.btnSave.configure(highlightcolor=_fgcolor)
+		self.btnSave.configure(pady="0")
+		self.btnSave.configure(state="normal")
+		self.btnSave.configure(font=('Helvetica', 20, 'bold'))
+		self.btnSave.configure(text='''Save''')
+		# self.btnSave.configure(command=SmartTable_p3_3_FGHub.getMeasurements)
+		self.btnSave.configure(command=self.saveMeasurements)
 
-		# self.btnStop = Button(self.frameRun)
+		# self.btnStop = Button(self.frameSave)
 		# self.btnStop.place(relx=0.59, rely=0.13, height=54, width=64)
 		# self.btnStop.configure(activebackground="red")
 		# self.btnStop.configure(activeforeground=_fgcolor)
@@ -1136,8 +1246,9 @@ class Smart_Table:
 		self.stopEvent = None
 
 		self.stopEvent = threading.Event()
-		self.thread = threading.Thread(target=self.test)
-		# self.thread = threading.Thread(target=self.test, daemon=True)
+		self.thread = threading.Thread(target=self.liveMeasuring)
+		# self.thread = threading.Thread(target=self.liveMeasuring, daemon=True)
+		# self.thread = threading.Thread(target=self.liveTest)
 
 		self.thread.start()
 
@@ -1150,49 +1261,13 @@ class Smart_Table:
 	# 	print("Done")
 
 
-	def test(self):
-		cap = cv2.VideoCapture(0)
-		# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
-
-		screenWidth = root.winfo_screenwidth()
-		screenHeight = root.winfo_screenheight()
-
-		while(True):
-			# Capture frame-by-frame
-			ret, frame = cap.read()
-			if ret:
-				(height, width) = frame.shape[:2]
-				# print("height ", height, "width ", width)
-				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
-				# frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
-				# frame = cv2.resize(frame, (int(screenWidth*0.69*0.98),int(screenHeight*0.96*0.98)))
-				frame = cv2.resize(frame, (int(screenWidth*0.69),int(screenHeight*0.96)))
-				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
-				# cv2.imshow("Smart Table", frame)
-				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
-				frame = PILImage.fromarray(frame)
-				frame = ImageTk.PhotoImage(frame)
-				self.lblimage.configure(image=frame)
-				self.lblimage.image = frame
-				cv2.waitKey(1)
-
-			if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
-				print("q")
-				break
-			if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
-				print("Q")
-				break
-			# self.stopEvent.set()
-
-		# When everything done, release the capture
-		cap.release()
-		cv2.destroyAllWindows()
-
-
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
 
-initDatabase()
+# initDatabase()
+serRead = None
+ser = None
+buttonPressed = False
 
 
 if __name__ == '__main__':
