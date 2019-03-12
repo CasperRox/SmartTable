@@ -1,6 +1,7 @@
 import sys
 import SmartTable_p3_3_FGHub_GUI_support
 import SmartTable_p3_3_FGHub
+import SmartTable_p3_3_FGHub_GUI_2
 import pymysql.cursors
 
 try:
@@ -68,22 +69,54 @@ def initDatabase():
 				primary key(Style, Size)
 			);
 			""")
+			# cursor.execute("""
+			# create table if not exists PolyTop_Records (
+			# 	DateTime varchar(30) not null,
+			# 	TableIndex varchar(10) not null,
+			# 	Plant varchar(100) not null,
+			# 	Style varchar(100) not null,
+			# 	Size varchar(10) not null,
+			# 	BodyHeight float(4,1) not null,
+			# 	BodyHeightDif float(3,1) not null,
+			# 	BodyWidth float(4,1) not null,
+			# 	BodyWidthDif float(3,1) not null,
+			# 	BodySweap float(4,1) not null,
+			# 	BodySweapDif float(3,1) not null,
+			# 	BackNeckWidth float(4,1) not null,
+			# 	BackNeckWidthDif float(3,1) not null,
+			# 	primary key(DateTime, TableIndex, Plant, Style, Size)
+			# );
+			# """)
 			cursor.execute("""
-			create table if not exists PolyTop_Records (
+			create table if not exists Measurement_Records (
 				DateTime varchar(30) not null,
 				TableIndex varchar(10) not null,
 				Plant varchar(100) not null,
-				Style varchar(100) not null,
+				PONumber varchar(100) not null,
+				LINumber varchar(100) not null,
+				StyleNumber varchar(100) not null,
 				Size varchar(10) not null,
-				BodyHeight float(4,1) not null,
-				BodyHeightDif float(3,1) not null,
+				BodyLength float(4,1) not null,
 				BodyWidth float(4,1) not null,
-				BodyWidthDif float(3,1) not null,
-				BodySweap float(4,1) not null,
-				BodySweapDif float(3,1) not null,
+				BodySweep float(4,1) not null,
 				BackNeckWidth float(4,1) not null,
-				BackNeckWidthDif float(3,1) not null,
-				primary key(DateTime, TableIndex, Plant, Style, Size)
+				CollarHeight float(4,1) not null,
+				BackNeckDrop float(4,1) not null,
+				XDistance float(4,1) not null,
+				WaistWidth float(4,1) not null,
+				LSSleeveLength float(4,1) not null,
+				SleeveWidth float(4,1) not null,
+				ElbowWidth float(4,1) not null,
+				ForeArmWidth float(4,1) not null,
+				SleeveOpening float(4,1) not null,
+				FrontNeckDrop float(4,1) not null,
+				NeckOpening float(4,1) not null,
+				CollarPoints float(4,1) not null,
+				CollarLength float(4,1) not null,
+				ZipperLength float(4,1) not null,
+				DropTailLength float(4,1) not null,
+				PocketHeight float(4,1) not null,
+				primary key(DateTime, TableIndex, Plant, PONumber, LINumber, StyleNumber, Size)
 			);
 			""")
 			# print("Database initialized")
@@ -218,7 +251,8 @@ class Smart_Table:
 		else:
 			self.btnRun.configure(state = "disabled")
 			self.btnRun.pack_forget()
-			SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
+			# SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
+			SmartTable_p3_3_FGHub_GUI_2.vp_start_gui(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
 			self.btnRun.configure(state = "normal")
 
 			connection = pymysql.connect(host='localhost',

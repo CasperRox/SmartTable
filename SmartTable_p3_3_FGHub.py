@@ -30,7 +30,7 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 		return 0
 
 
-def addTextOnFrame(imgSrc):														# Add default text on frame and resize it
+def addTextOnFrame(imgSrc, bodyLength=0, bodyWidth=0, bodySweep=0, backNeckWidth=0):								# Add default text on frame and resize it
 	global styleNo, size
 	(height, width) = imgSrc.shape[:2]
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
@@ -48,7 +48,7 @@ def addTextOnFrame(imgSrc):														# Add default text on frame and resize 
 	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*2.5),int(height*2.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*0.7),int(height*0.7)))
-	return imgSrc
+	return imgSrc, bodyLength, bodyWidth, bodySweep, backNeckWidth
 
 
 def addSavedOnFrame(imgSrc):														# Add default text and "Saved" text on frame and resize it
@@ -216,6 +216,7 @@ def tshirtMeasuring(imgSrc):
 
 	areaTshirt = cv2.contourArea(cnts[0])
 	# print("area %.2f" %areaTshirt)
+	# print(areaTshirt/height/width)
 	if (areaTshirt<(height*width*.20)) or ((height*width*.75)<areaTshirt):		# If contour is too small or too big, ignore it
 		ignoreButtonPress()
 		return addTextOnFrame(frame)
@@ -328,7 +329,7 @@ def tshirtMeasuring(imgSrc):
 		# storeMeasurements(valueHeight, (valueHeight - targetBodyHeight), 0, 0, 0, 0, 0, 0)
 		rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
 										valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
-		return addTextOnFrame(rotated_frame)
+		return addTextOnFrame(rotated_frame, round(valueHeight,1))
 
 	sleeve_check_temp1_count = np.count_nonzero(rotated_mask[mid_width_array_y-sleeve_check_length])	# Get number of white pixels
 	sleeve_check_temp2_count = np.count_nonzero(rotated_mask[mid_width_array_y+sleeve_check_length])	# Get number of white pixels
@@ -643,7 +644,7 @@ def tshirtMeasuring(imgSrc):
 	# preRotatedFrame = rotated_frame.copy()
 	rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
 									valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
-	return addTextOnFrame(rotated_frame)
+	return addTextOnFrame(rotated_frame, round(valueHeight,1), round(valueWidth,1), round(valueSweap,1), round(valueBackNeck,1))
 
 
 # def getMeasurements():

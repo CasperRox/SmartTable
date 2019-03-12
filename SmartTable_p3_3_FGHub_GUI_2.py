@@ -8,6 +8,8 @@ import math
 import threading
 from PIL import Image as PILImage
 from PIL import ImageTk
+import time
+import datetime
 
 try:
 	from Tkinter import *
@@ -23,9 +25,27 @@ except ImportError:
 	import tkinter.ttk as ttk
 	py3 = True
 
-def vp_start_gui():
+def vp_start_gui(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	'''Starting point when module is the main routine.'''
 	global val, w, root
+	global poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth
+	global bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode
+
+	poNumber = po
+	liNumber = li
+	plant = pl
+	styleNumber = sN
+	size = sz
+	targetBodyHeight = bH
+	bodyHeightTol = bHT
+	targetBodyWidth = bW
+	bodyWidthTol = bWT
+	targetBodySweep = bS
+	bodySweepTol = bST
+	targetBackNeckWidth = bNW
+	backNeckWidthTol = bNWT
+	whiteMode = wM
+
 	root = Tk()
 	top = Smart_Table (root)
 	SmartTable_p3_3_FGHub_GUI_2_support.init(root, top)
@@ -195,90 +215,94 @@ class Smart_Table:
 	# 		connection.close()
 
 
-	def runMeasuring(self):
-		sN = self.txtStyleNo.get()
-		sz = self.txtSize.get()
-		bH = self.txtBodyHeight.get()
-		bHT = self.txtBodyHeightTol.get()
-		bW = self.txtBodyWidth.get()
-		bWT = self.txtBodyWidthTol.get()
-		bS = self.txtBodySweap.get()
-		bST = self.txtBodySweapTol.get()
-		bNW = self.txtBackNeckWidth.get()
-		bNWT = self.txtBackNeckWidthTol.get()
-		whiteMode = self.onoff.get()
+	# def runMeasuring(self):
+	# 	sN = self.txtStyleNo.get()
+	# 	sz = self.txtSize.get()
+	# 	bH = self.txtBodyHeight.get()
+	# 	bHT = self.txtBodyHeightTol.get()
+	# 	bW = self.txtBodyWidth.get()
+	# 	bWT = self.txtBodyWidthTol.get()
+	# 	bS = self.txtBodySweap.get()
+	# 	bST = self.txtBodySweapTol.get()
+	# 	bNW = self.txtBackNeckWidth.get()
+	# 	bNWT = self.txtBackNeckWidthTol.get()
+	# 	whiteMode = self.onoff.get()
 
-		if not sN:
-			self.txtStyleNo.focus()
-			messagebox.showerror("Input Error", "Please enter valid Style Number")
-		elif not sz:
-			self.txtSize.focus()
-			messagebox.showerror("Input Error", "Please enter valid Size")
-		elif not bH:
-			self.txtBodyHeight.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Value")
-		elif not bHT:
-			self.txtBodyHeightTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-		elif not bW:
-			self.txtBodyWidth.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Width Value")
-		elif not bWT:
-			self.txtBodyWidthTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-		elif not bS:
-			self.txtBodySweap.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
-		elif not bST:
-			self.txtBodySweapTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
-		elif not bNW:
-			self.txtBackNeckWidth.focus()
-			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
-		elif not bNWT:
-			self.txtBackNeckWidthTol.focus()
-			messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
-		# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
-		# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
-		else:
-			self.btnSave.configure(state = "disabled")
-			self.btnSave.pack_forget()
-			SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
-			self.btnSave.configure(state = "normal")
+	# 	if not sN:
+	# 		self.txtStyleNo.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Style Number")
+	# 	elif not sz:
+	# 		self.txtSize.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Size")
+	# 	elif not bH:
+	# 		self.txtBodyHeight.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Value")
+	# 	elif not bHT:
+	# 		self.txtBodyHeightTol.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+	# 	elif not bW:
+	# 		self.txtBodyWidth.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Width Value")
+	# 	elif not bWT:
+	# 		self.txtBodyWidthTol.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
+	# 	elif not bS:
+	# 		self.txtBodySweap.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
+	# 	elif not bST:
+	# 		self.txtBodySweapTol.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
+	# 	elif not bNW:
+	# 		self.txtBackNeckWidth.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
+	# 	elif not bNWT:
+	# 		self.txtBackNeckWidthTol.focus()
+	# 		messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
+	# 	# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
+	# 	# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
+	# 	else:
+	# 		self.btnSave.configure(state = "disabled")
+	# 		self.btnSave.pack_forget()
+	# 		SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
+	# 		self.btnSave.configure(state = "normal")
 
-			connection = pymysql.connect(host='localhost',
-										user='root',
-										password='password',
-										charset='utf8mb4',
-										cursorclass=pymysql.cursors.DictCursor)
-			try:
-				with connection.cursor() as cursor:
-					cursor.execute("use nmc")
-					# print(float(self.txtBodyHeight.get()))
-					sql = (
-						"INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-						"ON DUPLICATE KEY UPDATE "
-						"BodyHeight = %s, BodyHeightTol = %s, BodyWidth = %s, BodyWidthTol = %s, "
-						"BodySweap = %s, BodySweapTol = %s, BackNeckWidth = %s, BackNeckWidthTol = %s"
-					)
-					cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT),
-										float(bS), float(bST), float(bNW), float(bNWT),
-										float(bH), float(bHT), float(bW), float(bWT),
-										float(bS), float(bST), float(bNW), float(bNWT)))
-				connection.commit()
+	# 		connection = pymysql.connect(host='localhost',
+	# 									user='root',
+	# 									password='password',
+	# 									charset='utf8mb4',
+	# 									cursorclass=pymysql.cursors.DictCursor)
+	# 		try:
+	# 			with connection.cursor() as cursor:
+	# 				cursor.execute("use nmc")
+	# 				# print(float(self.txtBodyHeight.get()))
+	# 				sql = (
+	# 					"INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+	# 					"ON DUPLICATE KEY UPDATE "
+	# 					"BodyHeight = %s, BodyHeightTol = %s, BodyWidth = %s, BodyWidthTol = %s, "
+	# 					"BodySweap = %s, BodySweapTol = %s, BackNeckWidth = %s, BackNeckWidthTol = %s"
+	# 				)
+	# 				cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT),
+	# 									float(bS), float(bST), float(bNW), float(bNWT),
+	# 									float(bH), float(bHT), float(bW), float(bWT),
+	# 									float(bS), float(bST), float(bNW), float(bNWT)))
+	# 			connection.commit()
 
-			finally:
-				connection.close()
+	# 		finally:
+	# 			connection.close()
 
 
 	def liveMeasuring(self):
 		global ser, buttonPressed
+		global poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth
+		global bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode
+
+		SmartTable_p3_3_FGHub.loadCalibrationData()
 
 		# cap = cv2.VideoCapture(0)
 		cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
 
 		UIWidth = root.winfo_screenwidth()
-		UIHeight = root.winfo_screenheight()
+		UIHeight = root.winfo_screenheight()-60
 
 		while(True):
 			buttonPressed = False
@@ -289,7 +313,9 @@ class Smart_Table:
 				# print("height ", height, "width ", width)
 				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
 				frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
-				frame, xyz = SmartTable_p3_3_FGHub.tshirtMeasuring(frame)						# Process live video
+				frame, bodyLength, bodyWidth, bodySweep, backNeckWidth = SmartTable_p3_3_FGHub.tshirtMeasuring(frame, 
+					poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth,
+					bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode)						# Process live video
 				# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
 				frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
 				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
@@ -298,10 +324,20 @@ class Smart_Table:
 				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
 				frame = PILImage.fromarray(frame)
 				frame = ImageTk.PhotoImage(frame)
-				self.lblimage.configure(image=frame)
-				self.lblimage.image = frame
-				self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
-				self.txtBodyLength.insert(0, xyz)
+				self.lblImage.configure(image=frame)
+				self.lblImage.image = frame
+				if bodyLength > 0:
+					self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
+					self.txtBodyLength.insert(0, bodyLength)
+				if bodyWidth > 0:
+					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+					self.txtBodyWidth.insert(0, bodyWidth)
+				if bodySweep > 0:
+					self.txtBodySweep.delete(0,len(self.txtBodySweep.get()))
+					self.txtBodySweep.insert(0, bodySweep)
+				if backNeckWidth > 0:
+					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+					self.txtBackNeckWidth.insert(0, backNeckWidth)
 				if buttonPressed:
 					time.sleep(2)
 
@@ -340,8 +376,8 @@ class Smart_Table:
 	# 			frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
 	# 			frame = PILImage.fromarray(frame)
 	# 			frame = ImageTk.PhotoImage(frame)
-	# 			self.lblimage.configure(image=frame)
-	# 			self.lblimage.image = frame
+	# 			self.lblImage.configure(image=frame)
+	# 			self.lblImage.image = frame
 	# 			cv2.waitKey(1)
 
 	# 		if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
@@ -357,7 +393,46 @@ class Smart_Table:
 
 
 	def saveMeasurements(self):
+		global tableIndex, poNumber, liNumber, plant, styleNumber, size
+
+		print("Body Length : ", self.txtBodyLength.get())
+		print("Body Width : ", self.txtBodyWidth.get())
+		print("Body Sweep : ", self.txtBodySweep.get())
+		print("Back Neck Width : " ,self.txtBackNeckWidth.get())
 		print("saved")
+
+		connection = pymysql.connect(host='localhost',
+									user='root',
+									password='password',
+									charset='utf8mb4',
+									cursorclass=pymysql.cursors.DictCursor)
+
+		try:
+			with connection.cursor() as cursor:
+				cursor.execute("use nmc")
+				sql = (
+					"INSERT INTO Measurement_Records VALUES "
+					"(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+					"ON DUPLICATE KEY UPDATE "
+					"DateTime = %s, TableIndex = %s, PONumber = %s, LINumber = %s, Plant = %s, StyleNumber = %s, Size = %s, "
+					"BodyLength = %s, BodyWidth = %s, BodySweep = %s, BackNeckWidth = %s, CollarHeight = %s, BackNeckDrop = %s, "
+					"XDistance = %s, WaistWidth = %s, LSSleeveLength = %s, SleeveWidth = %s, ElbowWidth = %s, ForeArmWidth = %s, "
+					"SleeveOpening = %s, FrontNeckDrop = %s, NeckOpening = %s, CollarPoints = %s, CollarLength = %s, "
+					"ZipperLength = %s, DropTailLength = %s, PocketHeight = %s"
+				)
+				cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
+									 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
+									datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
+									 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+			connection.commit()
+		finally:
+			connection.close()
+
+
+		# frameWithSave = SmartTable_p3_3_FGHub.addSavedOnFrame(self.lblImage.get())
+		# self.lblImage.configure(image=frameWithSave)
+		# self.lblImage.image = frameWithSave
+		time.sleep(2)
 
 
 	def validateFloat(self, value, preValue, action):
@@ -1179,19 +1254,19 @@ class Smart_Table:
 		# self.cnvsLive.configure(highlightcolor=_fgcolor)
 		# self.cnvsLive.configure(width=355)
 
-		self.lblimage = Label(self.cnvsLive)
-		# self.lblimage.place(relx=0.01, rely=0.01, relheight=0.98, relwidth=0.98)
-		self.lblimage.place(relx=0.00, rely=0.00, relheight=1.00, relwidth=1.00)
-		# self.lblimage.place(relx=0.01, rely=0.01)
-		self.lblimage.configure(activebackground="#f9f9f9")
-		self.lblimage.configure(activeforeground=_fgcolor)
-		self.lblimage.configure(background=_bgcolor)
-		self.lblimage.configure(disabledforeground="#a3a3a3")
-		self.lblimage.configure(foreground=_fgcolor)
-		self.lblimage.configure(highlightbackground=_bgcolor)
-		self.lblimage.configure(highlightcolor=_fgcolor)
-		self.lblimage.configure(font=('Helvetica', 28, 'bold'))
-		self.lblimage.configure(text='''Live''')
+		self.lblImage = Label(self.cnvsLive)
+		# self.lblImage.place(relx=0.01, rely=0.01, relheight=0.98, relwidth=0.98)
+		self.lblImage.place(relx=0.00, rely=0.00, relheight=1.00, relwidth=1.00)
+		# self.lblImage.place(relx=0.01, rely=0.01)
+		self.lblImage.configure(activebackground="#f9f9f9")
+		self.lblImage.configure(activeforeground=_fgcolor)
+		self.lblImage.configure(background=_bgcolor)
+		self.lblImage.configure(disabledforeground="#a3a3a3")
+		self.lblImage.configure(foreground=_fgcolor)
+		self.lblImage.configure(highlightbackground=_bgcolor)
+		self.lblImage.configure(highlightcolor=_fgcolor)
+		self.lblImage.configure(font=('Helvetica', 28, 'bold'))
+		self.lblImage.configure(text='''Live''')
 
 
 		self.frameSave = Frame(top)
@@ -1268,6 +1343,22 @@ class Smart_Table:
 serRead = None
 ser = None
 buttonPressed = False
+
+tableIndex = "st0001"
+poNumber = None
+liNumber = None
+plant = None
+styleNumber = None
+size = None
+targetBodyHeight = None
+bodyHeightTol = None
+targetBodyWidth = None
+bodyWidthTol = None
+targetBodySweep = None
+bodySweepTol = None
+targetBackNeckWidth = None
+backNeckWidthTol = None
+whiteMode = None
 
 
 if __name__ == '__main__':
