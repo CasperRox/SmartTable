@@ -25,9 +25,19 @@ except ImportError:
 	import tkinter.ttk as ttk
 	py3 = True
 
-def vp_start_gui(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+def vp_start_gui():
 	'''Starting point when module is the main routine.'''
 	global val, w, root
+
+	root = Tk()
+	top = Smart_Table (root)
+	SmartTable_p3_3_FGHub_GUI_2_support.init(root, top)
+	root.resizable(0,0)
+	root.mainloop()
+
+
+def startGUI(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+	global root
 	global poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth
 	global bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode
 
@@ -46,11 +56,10 @@ def vp_start_gui(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	backNeckWidthTol = bNWT
 	whiteMode = wM
 
-	root = Tk()
-	top = Smart_Table (root)
-	SmartTable_p3_3_FGHub_GUI_2_support.init(root, top)
-	root.resizable(0,0)
-	root.mainloop()
+	vp_start_gui()
+	create_Smart_Table(root)
+	# create_Smart_Table()
+
 
 w = None
 def create_Smart_Table(root, *args, **kwargs):
@@ -68,53 +77,19 @@ def destroy_Smart_Table():
 	w = None
 
 
-# def initDatabase():
-# 	connection = pymysql.connect(host='localhost',
-# 								user='root',
-# 								password='password',
-# 								charset='utf8mb4',
-# 								cursorclass=pymysql.cursors.DictCursor)
-# 	try:
-# 		with connection.cursor() as cursor:
-# 			cursor.execute("create database if not exists nmc")
-# 			cursor.execute("use nmc")
-# 			cursor.execute("""
-# 			create table if not exists PolyTop (
-# 				Style varchar(100) not null,
-# 				Size varchar(10) not null,
-# 				BodyHeight float(4,1) not null,
-# 				BodyHeightTol float(2,1) not null,
-# 				BodyWidth float(4,1) not null,
-# 				BodyWidthTol float(2,1) not null,
-# 				BodySweap float(4,1) not null,
-# 				BodySweapTol float(2,1) not null,
-# 				BackNeckWidth float(4,1) not null,
-# 				BackNeckWidthTol float(2,1) not null,
-# 				primary key(Style, Size)
-# 			);
-# 			""")
-# 			cursor.execute("""
-# 			create table if not exists PolyTop_Records (
-# 				DateTime varchar(30) not null,
-# 				TableIndex varchar(10) not null,
-# 				Plant varchar(100) not null,
-# 				Style varchar(100) not null,
-# 				Size varchar(10) not null,
-# 				BodyHeight float(4,1) not null,
-# 				BodyHeightDif float(3,1) not null,
-# 				BodyWidth float(4,1) not null,
-# 				BodyWidthDif float(3,1) not null,
-# 				BodySweap float(4,1) not null,
-# 				BodySweapDif float(3,1) not null,
-# 				BackNeckWidth float(4,1) not null,
-# 				BackNeckWidthDif float(3,1) not null,
-# 				primary key(DateTime, TableIndex, Plant, Style, Size)
-# 			);
-# 			""")
-# 			# print("Database initialized")
-# 		connection.commit()
-# 	finally:
-# 		connection.close()
+def initSerialRead():
+	global ser
+
+	try:
+		ports = list(serial.tools.list_ports.comports())
+		for p in ports:
+			if " CH340 " in p.description:
+				des = p.description				# "USB-SERIAL CH340 (COM15)" supposed to be come, since Arduino Nano uses CH340 chip for serial communication
+		serialPort = 'COM' + des[(des.rfind("COM")+3):(des.rfind(")"))]
+		# ser = serial.Serial(serialPort, 9600, timeout=1)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
+		ser = serial.Serial(serialPort, 9600, timeout=0)			# comport, baud-rate, timeout=the max time between two button press events to capture them within one buffer
+	except NameError:
+		print("\n***** Error: Serial communication port is not connected properly\n")
 
 
 class Smart_Table:
@@ -166,131 +141,6 @@ class Smart_Table:
 			self.btnSave.focus()
 
 
-	# def loadData(self, event):
-	# 	widget = event.widget
-	# 	styleNo = self.txtStyleNo.get()
-	# 	size = self.txtSize.get()
-	# 	connection = pymysql.connect(host='localhost',
-	# 								user='root',
-	# 								password='password',
-	# 								charset='utf8mb4',
-	# 								cursorclass=pymysql.cursors.DictCursor)
-	# 	try:
-	# 		with connection.cursor() as cursor:
-	# 			cursor.execute("use nmc")
-	# 			sql = "SELECT * FROM PolyTop where Style=%s and Size=%s"
-	# 			cursor.execute(sql, (styleNo, size))
-	# 			result = cursor.fetchall()
-	# 			# print (result)
-	# 			if len(result) > 0:
-	# 				self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
-	# 				self.txtBodyHeight.insert(0,result[0]['BodyHeight'])
-	# 				self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
-	# 				self.txtBodyHeightTol.insert(0,result[0]['BodyHeightTol'])
-	# 				self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-	# 				self.txtBodyWidth.insert(0,result[0]['BodyWidth'])
-	# 				self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
-	# 				self.txtBodyWidthTol.insert(0,result[0]['BodyWidthTol'])
-	# 				self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
-	# 				self.txtBodySweap.insert(0,result[0]['BodySweap'])
-	# 				self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
-	# 				self.txtBodySweapTol.insert(0,result[0]['BodySweapTol'])
-	# 				self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-	# 				self.txtBackNeckWidth.insert(0,result[0]['BackNeckWidth'])
-	# 				self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
-	# 				self.txtBackNeckWidthTol.insert(0,result[0]['BackNeckWidthTol'])
-	# 			# elif widget == self.txtBodyHeight or widget == self.txtSize:
-	# 			elif widget == self.txtSize:
-	# 				self.txtBodyHeight.delete(0,len(self.txtBodyHeight.get()))
-	# 				self.txtBodyHeightTol.delete(0,len(self.txtBodyHeightTol.get()))
-	# 				self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-	# 				self.txtBodyWidthTol.delete(0,len(self.txtBodyWidthTol.get()))
-	# 				self.txtBodySweap.delete(0,len(self.txtBodySweap.get()))
-	# 				self.txtBodySweapTol.delete(0,len(self.txtBodySweapTol.get()))
-	# 				self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-	# 				self.txtBackNeckWidthTol.delete(0,len(self.txtBackNeckWidthTol.get()))
-	# 		connection.commit()
-
-	# 	finally:
-	# 		connection.close()
-
-
-	# def runMeasuring(self):
-	# 	sN = self.txtStyleNo.get()
-	# 	sz = self.txtSize.get()
-	# 	bH = self.txtBodyHeight.get()
-	# 	bHT = self.txtBodyHeightTol.get()
-	# 	bW = self.txtBodyWidth.get()
-	# 	bWT = self.txtBodyWidthTol.get()
-	# 	bS = self.txtBodySweap.get()
-	# 	bST = self.txtBodySweapTol.get()
-	# 	bNW = self.txtBackNeckWidth.get()
-	# 	bNWT = self.txtBackNeckWidthTol.get()
-	# 	whiteMode = self.onoff.get()
-
-	# 	if not sN:
-	# 		self.txtStyleNo.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Style Number")
-	# 	elif not sz:
-	# 		self.txtSize.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Size")
-	# 	elif not bH:
-	# 		self.txtBodyHeight.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Value")
-	# 	elif not bHT:
-	# 		self.txtBodyHeightTol.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-	# 	elif not bW:
-	# 		self.txtBodyWidth.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Width Value")
-	# 	elif not bWT:
-	# 		self.txtBodyWidthTol.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Length Tolerance")
-	# 	elif not bS:
-	# 		self.txtBodySweap.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Sweep Value")
-	# 	elif not bST:
-	# 		self.txtBodySweapTol.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Body Sweep Tolerance")
-	# 	elif not bNW:
-	# 		self.txtBackNeckWidth.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Back Neck Width Value")
-	# 	elif not bNWT:
-	# 		self.txtBackNeckWidthTol.focus()
-	# 		messagebox.showerror("Input Error", "Please enter valid Back Neck Width Tolerance")
-	# 	# elif not bH or not bHT or not bW or not bWT or not bS or not bST or not bNW or not bNWT:
-	# 	# 	messagebox.showerror("Input Error", "Please enter valid Measurement Values for all fields")
-	# 	else:
-	# 		self.btnSave.configure(state = "disabled")
-	# 		self.btnSave.pack_forget()
-	# 		SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
-	# 		self.btnSave.configure(state = "normal")
-
-	# 		connection = pymysql.connect(host='localhost',
-	# 									user='root',
-	# 									password='password',
-	# 									charset='utf8mb4',
-	# 									cursorclass=pymysql.cursors.DictCursor)
-	# 		try:
-	# 			with connection.cursor() as cursor:
-	# 				cursor.execute("use nmc")
-	# 				# print(float(self.txtBodyHeight.get()))
-	# 				sql = (
-	# 					"INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-	# 					"ON DUPLICATE KEY UPDATE "
-	# 					"BodyHeight = %s, BodyHeightTol = %s, BodyWidth = %s, BodyWidthTol = %s, "
-	# 					"BodySweap = %s, BodySweapTol = %s, BackNeckWidth = %s, BackNeckWidthTol = %s"
-	# 				)
-	# 				cursor.execute(sql, (sN, sz, float(bH), float(bHT), float(bW), float(bWT),
-	# 									float(bS), float(bST), float(bNW), float(bNWT),
-	# 									float(bH), float(bHT), float(bW), float(bWT),
-	# 									float(bS), float(bST), float(bNW), float(bNWT)))
-	# 			connection.commit()
-
-	# 		finally:
-	# 			connection.close()
-
-
 	def liveMeasuring(self):
 		global ser, buttonPressed
 		global poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth
@@ -314,8 +164,8 @@ class Smart_Table:
 				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
 				frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
 				frame, bodyLength, bodyWidth, bodySweep, backNeckWidth = SmartTable_p3_3_FGHub.tshirtMeasuring(frame, 
-					poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth,
-					bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode)						# Process live video
+										poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth,
+										bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode)						# Process live video
 				# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
 				frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
 				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
@@ -323,7 +173,7 @@ class Smart_Table:
 				# cv2.waitKey(1)
 				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
 				frame = PILImage.fromarray(frame)
-				frame = ImageTk.PhotoImage(frame)
+				frame = ImageTk.PhotoImage(frame, master=root)
 				self.lblImage.configure(image=frame)
 				self.lblImage.image = frame
 				if bodyLength > 0:
@@ -395,6 +245,32 @@ class Smart_Table:
 	def saveMeasurements(self):
 		global tableIndex, poNumber, liNumber, plant, styleNumber, size
 
+		# if len(self.txtBodyLength.get()) == 0:
+		# 	bodyLength = 0.0
+		# else:
+		# 	bodyLength = round(float(self.txtBodyLength.get()),1)
+
+		bodyLength = 0.0 if len(self.txtBodyLength.get()) == 0 else round(float(self.txtBodyLength.get()),1)
+		bodyWidth = 0.0 if len(self.txtBodyWidth.get()) == 0 else round(float(self.txtBodyWidth.get()),1)
+		bodySweep = 0.0 if len(self.txtBodySweep.get()) == 0 else round(float(self.txtBodySweep.get()),1)
+		backNeckWidth = 0.0 if len(self.txtBackNeckWidth.get()) == 0 else round(float(self.txtBackNeckWidth.get()),1)
+		collarHeight = 0.0 if len(self.txtCollarHeight.get()) == 0 else round(float(self.txtCollarHeight.get()),1)
+		backNeckDrop = 0.0 if len(self.txtBackNeckDrop.get()) == 0 else round(float(self.txtBackNeckDrop.get()),1)
+		xDistance = 0.0 if len(self.txtXDistance.get()) == 0 else round(float(self.txtXDistance.get()),1)
+		waistWidth = 0.0 if len(self.txtBodyWaistWidth.get()) == 0 else round(float(self.txtBodyWaistWidth.get()),1)
+		lSSleeveLength = 0.0 if len(self.txtLSSleeveLength.get()) == 0 else round(float(self.txtLSSleeveLength.get()),1)
+		sleeveWidth = 0.0 if len(self.txtSleeveWidth.get()) == 0 else round(float(self.txtSleeveWidth.get()),1)
+		elbowWidth = 0.0 if len(self.txtElbowWidth.get()) == 0 else round(float(self.txtElbowWidth.get()),1)
+		foreArmWidth = 0.0 if len(self.txtForeArmWidth.get()) == 0 else round(float(self.txtForeArmWidth.get()),1)
+		sleeveOpening = 0.0 if len(self.txtSleeveOpening.get()) == 0 else round(float(self.txtSleeveOpening.get()),1)
+		frontNeckDrop = 0.0 if len(self.txtFrontNeckDrop.get()) == 0 else round(float(self.txtFrontNeckDrop.get()),1)
+		neckOpening = 0.0 if len(self.txtNeckOpening.get()) == 0 else round(float(self.txtNeckOpening.get()),1)
+		collarPoints = 0.0 if len(self.txtCollarPoints.get()) == 0 else round(float(self.txtCollarPoints.get()),1)
+		collarLength = 0.0 if len(self.txtCollarLength.get()) == 0 else round(float(self.txtCollarLength.get()),1)
+		zipperLength = 0.0 if len(self.txtZipperLength.get()) == 0 else round(float(self.txtZipperLength.get()),1)
+		dropTailLength = 0.0 if len(self.txtDropTailLength.get()) == 0 else round(float(self.txtDropTailLength.get()),1)
+		pocketHeight = 0.0 if len(self.txtPocketHeight.get()) == 0 else round(float(self.txtPocketHeight.get()),1)
+
 		print("Body Length : ", self.txtBodyLength.get())
 		print("Body Width : ", self.txtBodyWidth.get())
 		print("Body Sweep : ", self.txtBodySweep.get())
@@ -420,19 +296,62 @@ class Smart_Table:
 					"SleeveOpening = %s, FrontNeckDrop = %s, NeckOpening = %s, CollarPoints = %s, CollarLength = %s, "
 					"ZipperLength = %s, DropTailLength = %s, PocketHeight = %s"
 				)
-				cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
-									 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
-									datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
-									 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+				cursor.execute(sql, (datetime.datetime.now(), tableIndex, poNumber, liNumber, plant, styleNumber, size, bodyLength, 
+									bodyWidth, bodySweep, backNeckWidth, collarHeight, backNeckDrop, xDistance, waistWidth,
+									lSSleeveLength, sleeveWidth, elbowWidth, foreArmWidth, sleeveOpening, frontNeckDrop, 
+									neckOpening, collarPoints, collarLength, zipperLength, dropTailLength, pocketHeight,
+									datetime.datetime.now(), tableIndex, poNumber, liNumber, plant, styleNumber, size, bodyLength, 
+									bodyWidth, bodySweep, backNeckWidth, collarHeight, backNeckDrop, xDistance, waistWidth,
+									lSSleeveLength, sleeveWidth, elbowWidth, foreArmWidth, sleeveOpening, frontNeckDrop, 
+									neckOpening, collarPoints, collarLength, zipperLength, dropTailLength, pocketHeight))
 			connection.commit()
 		finally:
 			connection.close()
 
 
-		# frameWithSave = SmartTable_p3_3_FGHub.addSavedOnFrame(self.lblImage.get())
-		# self.lblImage.configure(image=frameWithSave)
-		# self.lblImage.image = frameWithSave
+		# messagebox.showwarning("Saved", "Measurement Values Saved")
 		time.sleep(2)
+
+		self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
+		self.txtBodyLength.insert(0,"")
+		self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+		self.txtBodyWidth.insert(0,"")
+		self.txtBodySweep.delete(0,len(self.txtBodySweep.get()))
+		self.txtBodySweep.insert(0,"")
+		self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+		self.txtBackNeckWidth.insert(0,"")
+		self.txtCollarHeight.delete(0,len(self.txtCollarHeight.get()))
+		self.txtCollarHeight.insert(0,"")
+		self.txtBackNeckDrop.delete(0,len(self.txtBackNeckDrop.get()))
+		self.txtBackNeckDrop.insert(0,"")
+		self.txtXDistance.delete(0,len(self.txtXDistance.get()))
+		self.txtXDistance.insert(0,"")
+		self.txtBodyWaistWidth.delete(0,len(self.txtBodyWaistWidth.get()))
+		self.txtBodyWaistWidth.insert(0,"")
+		self.txtLSSleeveLength.delete(0,len(self.txtLSSleeveLength.get()))
+		self.txtLSSleeveLength.insert(0,"")
+		self.txtSleeveWidth.delete(0,len(self.txtSleeveWidth.get()))
+		self.txtSleeveWidth.insert(0,"")
+		self.txtElbowWidth.delete(0,len(self.txtElbowWidth.get()))
+		self.txtElbowWidth.insert(0,"")
+		self.txtForeArmWidth.delete(0,len(self.txtForeArmWidth.get()))
+		self.txtForeArmWidth.insert(0,"")
+		self.txtSleeveOpening.delete(0,len(self.txtSleeveOpening.get()))
+		self.txtSleeveOpening.insert(0,"")
+		self.txtFrontNeckDrop.delete(0,len(self.txtFrontNeckDrop.get()))
+		self.txtFrontNeckDrop.insert(0,"")
+		self.txtNeckOpening.delete(0,len(self.txtNeckOpening.get()))
+		self.txtNeckOpening.insert(0,"")
+		self.txtCollarPoints.delete(0,len(self.txtCollarPoints.get()))
+		self.txtCollarPoints.insert(0,"")
+		self.txtCollarLength.delete(0,len(self.txtCollarLength.get()))
+		self.txtCollarLength.insert(0,"")
+		self.txtZipperLength.delete(0,len(self.txtZipperLength.get()))
+		self.txtZipperLength.insert(0,"")
+		self.txtDropTailLength.delete(0,len(self.txtDropTailLength.get()))
+		self.txtDropTailLength.insert(0,"")
+		self.txtPocketHeight.delete(0,len(self.txtPocketHeight.get()))
+		self.txtPocketHeight.insert(0,"")
 
 
 	def validateFloat(self, value, preValue, action):
@@ -452,16 +371,6 @@ class Smart_Table:
 		except ValueError:
 			# print("N")
 			return False
-
-
-	# def whiteGarmentModeOnOff(self):
-	# 	# status = self.lblWhiteGarmentStatus.cget("textvariable")
-	# 	status = self.onoff.get()
-	# 	# print(status)
-	# 	if "ON" == status:
-	# 		self.onoff.set("OFF")
-	# 	elif "OFF" == status:
-	# 		self.onoff.set("ON")
 
 
 	def __init__(self, top=None):
@@ -1301,21 +1210,6 @@ class Smart_Table:
 		# self.btnSave.configure(command=SmartTable_p3_3_FGHub.getMeasurements)
 		self.btnSave.configure(command=self.saveMeasurements)
 
-		# self.btnStop = Button(self.frameSave)
-		# self.btnStop.place(relx=0.59, rely=0.13, height=54, width=64)
-		# self.btnStop.configure(activebackground="red")
-		# self.btnStop.configure(activeforeground=_fgcolor)
-		# self.btnStop.configure(background="#FF4040")
-		# self.btnStop.configure(cursor="hand2")
-		# self.btnStop.configure(disabledforeground="#a3a3a3")
-		# self.btnStop.configure(foreground=_fgcolor)
-		# self.btnStop.configure(highlightbackground=_bgcolor)
-		# self.btnStop.configure(highlightcolor=_fgcolor)
-		# self.btnStop.configure(pady="0")
-		# self.btnStop.configure(state=NORMAL)
-		# self.btnStop.configure(text='''Stop''')
-		# self.btnStop.configure(command=SmartTable_p3_3_FGHub.testing)
-
 
 		self.thread = None
 		self.stopEvent = None
@@ -1339,7 +1233,6 @@ class Smart_Table:
 
 # ~~~~~~~~~~~~~~~~~ Main Program ~~~~~~~~~~~~~~~~~
 
-# initDatabase()
 serRead = None
 ser = None
 buttonPressed = False
@@ -1350,15 +1243,17 @@ liNumber = None
 plant = None
 styleNumber = None
 size = None
-targetBodyHeight = None
-bodyHeightTol = None
-targetBodyWidth = None
-bodyWidthTol = None
-targetBodySweep = None
-bodySweepTol = None
-targetBackNeckWidth = None
-backNeckWidthTol = None
+targetBodyHeight = 0
+bodyHeightTol = 0
+targetBodyWidth = 0
+bodyWidthTol = 0
+targetBodySweep = 0
+bodySweepTol = 0
+targetBackNeckWidth = 0
+backNeckWidthTol = 0
 whiteMode = None
+
+initSerialRead()
 
 
 if __name__ == '__main__':

@@ -91,9 +91,9 @@ def initDatabase():
 			create table if not exists Measurement_Records (
 				DateTime varchar(30) not null,
 				TableIndex varchar(10) not null,
-				Plant varchar(100) not null,
 				PONumber varchar(100) not null,
 				LINumber varchar(100) not null,
+				Plant varchar(100) not null,
 				StyleNumber varchar(100) not null,
 				Size varchar(10) not null,
 				BodyLength float(4,1) not null,
@@ -204,16 +204,19 @@ class Smart_Table:
 
 
 	def runMeasuring(self):
+		po = 123
+		li = 456
+		pl = "Shade"
 		sN = self.txtStyleNo.get()
 		sz = self.txtSize.get()
-		bH = self.txtBodyHeight.get()
-		bHT = self.txtBodyHeightTol.get()
-		bW = self.txtBodyWidth.get()
-		bWT = self.txtBodyWidthTol.get()
-		bS = self.txtBodySweap.get()
-		bST = self.txtBodySweapTol.get()
-		bNW = self.txtBackNeckWidth.get()
-		bNWT = self.txtBackNeckWidthTol.get()
+		bH = float(self.txtBodyHeight.get())
+		bHT = float(self.txtBodyHeightTol.get())
+		bW = float(self.txtBodyWidth.get())
+		bWT = float(self.txtBodyWidthTol.get())
+		bS = float(self.txtBodySweap.get())
+		bST = float(self.txtBodySweapTol.get())
+		bNW = float(self.txtBackNeckWidth.get())
+		bNWT = float(self.txtBackNeckWidthTol.get())
 		whiteMode = self.onoff.get()
 
 		if not sN:
@@ -252,7 +255,7 @@ class Smart_Table:
 			self.btnRun.configure(state = "disabled")
 			self.btnRun.pack_forget()
 			# SmartTable_p3_3_FGHub.getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
-			SmartTable_p3_3_FGHub_GUI_2.vp_start_gui(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
+			SmartTable_p3_3_FGHub_GUI_2.startGUI(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, whiteMode)
 			self.btnRun.configure(state = "normal")
 
 			connection = pymysql.connect(host='localhost',

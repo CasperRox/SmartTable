@@ -89,7 +89,7 @@ def initSerialRead():
 		print("\n***** Error: Serial communication port is not connected properly\n")
 
 
-def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDif, backNeckWidth, backNeckWidthDif):
+def storeMeasurements(imgSrc, height, heightDif, sweep, sweepDif, width, widthDif, backNeckWidth, backNeckWidthDif):
 	global tableIndex, plant, styleNo, size
 	global ser, serRead, buttonPressed
 
@@ -118,14 +118,14 @@ def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDi
 						"ON DUPLICATE KEY UPDATE "
 						"DateTime = %s, TableIndex = %s, Plant = %s, Style = %s, Size = %s, "
 						"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
-						"BodySweap = %s, BodySweapDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
+						"BodySweep = %s, BodySweepDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
 					)
 					# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
 					# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
-					cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
-										 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
-										datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweap),
-										 float(sweapDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+					cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
+										 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
+										datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
+										 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
 				connection.commit()
 			finally:
 				connection.close()
@@ -141,17 +141,29 @@ def ignoreButtonPress():
 
 
 
-def tshirtMeasuring(imgSrc):
+def tshirtMeasuring(imgSrc, poNumber, liNumber, plant, styleNumber, size, targetBH, targetBHT, targetBW,
+					targetBWT, targetBS, targetBST, targetBNW, targetBNWT, wM):
 	# print("New")
 	global preRotatedFrame, preRotatedMask, preAreaTshirt
-	global preHeight, preSweap, preWidth, preBackNeck
-	global targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global preHeight, preSweep, preWidth, preBackNeck
+	global targetBodyHeight, targetBodySweep, targetBodyWidth, targetBackNeckWidth
+	global targetBodyHeightTol, targetBodySweepTol, targetBodyWidthTol, targetBackNeckWidthTol
 	global whiteMode
+
 	valueHeight = 0
-	valueSweap = 0
+	valueSweep = 0
 	valueWidth = 0
 	valueBackNeck = 0
+	targetBodyHeight = targetBH
+	targetBodyWidth = targetBW
+	targetBodySweep = targetBS
+	targetBackNeckWidth = targetBNW
+	targetBodyHeightTol = targetBHT
+	targetBodyWidthTol = targetBWT
+	targetBodySweepTol = targetBST
+	targetBackNeckWidthTol = targetBNWT
+	whiteMode = wM
+
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
 
@@ -306,6 +318,7 @@ def tshirtMeasuring(imgSrc):
 		valueHeight = preHeight
 	else:
 		preHeight = valueHeight
+
 	cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueHeight, targetBodyHeight), (height_array_x+10,body_height_first+100), 
 				font, 0.5, valueColor(valueHeight, targetBodyHeight, targetBodyHeightTol), 1, cv2.LINE_AA)	# Display height value on image
 
@@ -313,7 +326,7 @@ def tshirtMeasuring(imgSrc):
 	# *************************************************************
 	# *************************************************************
 	# *************************************************************
-	mid_width_array_y = int(ellipse[0][1])										# To calculate body sweap & body width
+	mid_width_array_y = int(ellipse[0][1])										# To calculate body sweep & body width
 	sleeve_check_length = int(pixel_height * 27 /100)							# Guessing the general distance from middle to sleeve level
 	# cv2.line(rotated_frame, (0,mid_width_array_y), (640,mid_width_array_y), (255,0,0), 3)													# Middle line
 	# cv2.line(rotated_frame, (0,mid_width_array_y-sleeve_check_length), (640,mid_width_array_y-sleeve_check_length), (255,255,0), 3)		# Sleeve check line
@@ -327,7 +340,7 @@ def tshirtMeasuring(imgSrc):
 
 		# cv2.addWeighted(frame,0.5,rotated_frame,0.5,0,rotated_frame)						# Adding missing parts
 		# storeMeasurements(valueHeight, (valueHeight - targetBodyHeight), 0, 0, 0, 0, 0, 0)
-		rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
+		rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweep, (valueSweep - targetBodySweep),
 										valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
 		return addTextOnFrame(rotated_frame, round(valueHeight,1))
 
@@ -347,12 +360,12 @@ def tshirtMeasuring(imgSrc):
 
 
 	# *************************************************************
-	# ***********************Body Sweap****************************
+	# ***********************Body Sweep****************************
 	# *************************************************************
-	body_sweap_y = 0
+	body_sweep_y = 0
 	temp_width_pre = np.count_nonzero(rotated_mask[non_sleeve_side])			# Storing previous white pixel count to check with next
 	step = 1																	# White pixel count checking step size
-	while True:																	# Loop to get the body sweap pixel line
+	while True:																	# Loop to get the body sweep pixel line
 		if rotated == False:
 			non_sleeve_side += step 											# Checking ending side
 			if non_sleeve_side >= body_height_last-step:
@@ -361,7 +374,7 @@ def tshirtMeasuring(imgSrc):
 			if temp_count < temp_width_pre-5:										# Compare pixel counts
 				temp_count2 = np.count_nonzero(rotated_mask[non_sleeve_side+step])
 				if temp_count2 < temp_count-5:									# Compare next line also to verify
-					body_sweap_y = non_sleeve_side-step
+					body_sweep_y = non_sleeve_side-step
 					break
 			else:
 				temp_width_pre = temp_count 									# Update previous pixel count
@@ -373,35 +386,35 @@ def tshirtMeasuring(imgSrc):
 			if temp_count < temp_width_pre-5: 									# Compare pixel counts
 				temp_count2 = np.count_nonzero(rotated_mask[non_sleeve_side-step])
 				if temp_count2 < temp_count-5:									# Compare next line also to verify
-					body_sweap_y = non_sleeve_side+step
+					body_sweep_y = non_sleeve_side+step
 					break
 			else:
 				temp_width_pre = temp_count 									# Update previous pixel count
 
-	if 0 < body_sweap_y and body_sweap_y < height:
+	if 0 < body_sweep_y and body_sweep_y < height:
 		white = False
 		first = 0
 		last = 0
-		for i in range(0,len(rotated_mask[body_sweap_y])):						# Calculate pixel body sweap by checking pixel value
-			if white == False and rotated_mask[body_sweap_y][i] != 0:
+		for i in range(0,len(rotated_mask[body_sweep_y])):						# Calculate pixel body sweep by checking pixel value
+			if white == False and rotated_mask[body_sweep_y][i] != 0:
 				first = i 														# First white pixel
 				white = True
-			elif white == True and rotated_mask[body_sweap_y][i] == 0:
+			elif white == True and rotated_mask[body_sweep_y][i] == 0:
 				last = i-1 														# Last white pixel
 				white = False
-		pixel_body_sweap = last - first
-		# print("pixelBodySweap = %d" %pixel_body_sweap)
-		cv2.line(rotated_frame, (first,body_sweap_y), (last,body_sweap_y), (255,0,0), 2)	# Draw body sweap calculating line on image
-		cv2.circle(rotated_frame,(first,body_sweap_y), 3, (0,0,255), -1)
-		cv2.circle(rotated_frame,(last,body_sweap_y), 3, (0,0,255), -1)
+		pixel_body_sweep = last - first
+		# print("pixelBodySweep = %d" %pixel_body_sweep)
+		cv2.line(rotated_frame, (first,body_sweep_y), (last,body_sweep_y), (255,0,0), 2)	# Draw body sweep calculating line on image
+		cv2.circle(rotated_frame,(first,body_sweep_y), 3, (0,0,255), -1)
+		cv2.circle(rotated_frame,(last,body_sweep_y), 3, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
-		valueSweap = (getmmDistance(pixel_body_sweap)/10)
-		if abs(preSweap - valueSweap) < 1:
-			valueSweap = preSweap
+		valueSweep = (getmmDistance(pixel_body_sweep)/10)
+		if abs(preSweep - valueSweep) < 1:
+			valueSweep = preSweep
 		else:
-			preSweap = valueSweap
-		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweap, targetBodySweap), (first,body_sweap_y-10),
-					font, 0.5, valueColor(valueSweap, targetBodySweap, targetBodySweapTol), 1, cv2.LINE_AA)	# Display body sweap value on image
+			preSweep = valueSweep
+		cv2.putText(rotated_frame, '%.1f cm / %.1f cm' %(valueSweep, targetBodySweep), (first,body_sweep_y-10),
+					font, 0.5, valueColor(valueSweep, targetBodySweep, targetBodySweepTol), 1, cv2.LINE_AA)	# Display body sweep value on image
 
 
 	# *************************************************************
@@ -642,15 +655,15 @@ def tshirtMeasuring(imgSrc):
 	# rotated_frame = cv2.add(rotated_frame, cv2.subtract(frame, rotated_dummy))		# Fill missing parts of final output
 
 	# preRotatedFrame = rotated_frame.copy()
-	rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweap, (valueSweap - targetBodySweap),
+	rotated_frame = storeMeasurements(rotated_frame, valueHeight, (valueHeight - targetBodyHeight), valueSweep, (valueSweep - targetBodySweep),
 									valueWidth, (valueWidth - targetBodyWidth), valueBackNeck, (valueBackNeck - targetBackNeckWidth))
-	return addTextOnFrame(rotated_frame, round(valueHeight,1), round(valueWidth,1), round(valueSweap,1), round(valueBackNeck,1))
+	return addTextOnFrame(rotated_frame, round(valueHeight,1), round(valueWidth,1), round(valueSweep,1), round(valueBackNeck,1))
 
 
 # def getMeasurements():
 def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+	global targetBodySweep, targetBodySweepTol, targetBackNeckWidth, targetBackNeckWidthTol
 	global whiteMode
 	global ser, buttonPressed
 	styleNo = sN
@@ -659,8 +672,8 @@ def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	targetBodyHeightTol = float(bHT)
 	targetBodyWidth = float(bW)
 	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
+	targetBodySweep = float(bS)
+	targetBodySweepTol = float(bST)
 	targetBackNeckWidth = float(bNW)
 	targetBackNeckWidthTol = float(bNWT)
 
@@ -727,7 +740,7 @@ preRotatedFrame = None
 preRotatedMask = None
 preAreaTshirt = 0
 preHeight = 0
-preSweap = 0
+preSweep = 0
 preWidth = 0
 preBackNeck = 0
 
@@ -741,8 +754,8 @@ targetBodyHeight = 0
 targetBodyHeightTol = 0
 targetBodyWidth = 0
 targetBodyWidthTol = 0
-targetBodySweap = 0
-targetBodySweapTol = 0
+targetBodySweep = 0
+targetBodySweepTol = 0
 targetBackNeckWidth = 0
 targetBackNeckWidthTol = 0
 
