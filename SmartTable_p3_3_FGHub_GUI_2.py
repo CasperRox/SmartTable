@@ -27,7 +27,7 @@ except ImportError:
 
 def vp_start_gui():
 	'''Starting point when module is the main routine.'''
-	global val, w, root
+	global val, w2, root
 
 	root = Tk()
 	top = Smart_Table (root)
@@ -61,20 +61,25 @@ def startGUI(po, li, pl, sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
 	# create_Smart_Table()
 
 
-w = None
+w2 = None
 def create_Smart_Table(root, *args, **kwargs):
 	'''Starting point when module is imported by another program.'''
-	global w, w_win, rt
+	global w2, w_win, rt
 	rt = root
-	w = Toplevel (root)
-	top = Smart_Table (w)
-	SmartTable_p3_3_FGHub_GUI_2_support.init(w, top, *args, **kwargs)
-	return (w, top)
+	w2 = Toplevel (root)
+	top = Smart_Table (w2)
+	SmartTable_p3_3_FGHub_GUI_2_support.init(w2, top, *args, **kwargs)
+	return (w2, top)
 
 def destroy_Smart_Table():
-	global w
-	w.destroy()
-	w = None
+	global w2, thread
+
+	print("[INFO] Closing...")
+	stopEvent.set()
+	thread.join()
+
+	w2.destroy()
+	w2 = None
 
 
 def initSerialRead():
@@ -145,64 +150,70 @@ class Smart_Table:
 		global ser, buttonPressed
 		global poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth
 		global bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode
+		global thread, stopEvent
 
 		SmartTable_p3_3_FGHub.loadCalibrationData()
 
-		# cap = cv2.VideoCapture(0)
-		cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
+		cap = cv2.VideoCapture(0)
+		# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
 
 		UIWidth = root.winfo_screenwidth()
 		UIHeight = root.winfo_screenheight()-60
 
-		while(True):
-			buttonPressed = False
-			# Capture frame-by-frame
-			ret, frame = cap.read()
-			if ret:
-				(height, width) = frame.shape[:2]
-				# print("height ", height, "width ", width)
-				frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
-				frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
-				frame, bodyLength, bodyWidth, bodySweep, backNeckWidth = SmartTable_p3_3_FGHub.tshirtMeasuring(frame, 
-										poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth,
-										bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode)						# Process live video
-				# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
-				frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
-				# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
-				# cv2.imshow("Smart Table", frame)
-				# cv2.waitKey(1)
-				frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
-				frame = PILImage.fromarray(frame)
-				frame = ImageTk.PhotoImage(frame, master=root)
-				self.lblImage.configure(image=frame)
-				self.lblImage.image = frame
-				if bodyLength > 0:
-					self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
-					self.txtBodyLength.insert(0, bodyLength)
-				if bodyWidth > 0:
-					self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
-					self.txtBodyWidth.insert(0, bodyWidth)
-				if bodySweep > 0:
-					self.txtBodySweep.delete(0,len(self.txtBodySweep.get()))
-					self.txtBodySweep.insert(0, bodySweep)
-				if backNeckWidth > 0:
-					self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
-					self.txtBackNeckWidth.insert(0, backNeckWidth)
-				if buttonPressed:
-					time.sleep(2)
+		try:
+			# while(True):
+			while not stopEvent.is_set():
+				buttonPressed = False
+				# Capture frame-by-frame
+				ret, frame = cap.read()
+				if ret:
+					(height, width) = frame.shape[:2]
+					# print("height ", height, "width ", width)
+					frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
+					# frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
+					frame, bodyLength, bodyWidth, bodySweep, backNeckWidth = SmartTable_p3_3_FGHub.tshirtMeasuring(frame, 
+											poNumber, liNumber, plant, styleNumber, size, targetBodyHeight, bodyHeightTol, targetBodyWidth,
+											bodyWidthTol, targetBodySweep, bodySweepTol, targetBackNeckWidth, backNeckWidthTol, whiteMode)						# Process live video
+					# frame = cv2.resize(frame, (int(UIWidth*0.69*0.98),int(UIHeight*0.96*0.98)))
+					frame = cv2.resize(frame, (int(UIWidth*0.69),int(UIHeight*0.96)))
+					# cv2.namedWindow("Smart Table", cv2.WINDOW_NORMAL)
+					# cv2.imshow("Smart Table", frame)
+					# cv2.waitKey(1)
+					frame = cv2.cvtColor(frame.copy(), cv2.COLOR_BGR2RGB)
+					frame = PILImage.fromarray(frame)
+					frame = ImageTk.PhotoImage(frame, master=root)
+					self.lblImage.configure(image=frame)
+					self.lblImage.image = frame
+					if bodyLength > 0:
+						self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
+						self.txtBodyLength.insert(0, bodyLength)
+					if bodyWidth > 0:
+						self.txtBodyWidth.delete(0,len(self.txtBodyWidth.get()))
+						self.txtBodyWidth.insert(0, bodyWidth)
+					if bodySweep > 0:
+						self.txtBodySweep.delete(0,len(self.txtBodySweep.get()))
+						self.txtBodySweep.insert(0, bodySweep)
+					if backNeckWidth > 0:
+						self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
+						self.txtBackNeckWidth.insert(0, backNeckWidth)
+					if buttonPressed:
+						time.sleep(2)
 
-			if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
-				print("q")
-				break
-			if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
-				print("Q")
-				break
-			# self.stopEvent.set()
+				# if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
+				# 	print("q")
+				# 	break
+				# if cv2.waitKey(1) & 0xFF == ord('Q'):					# "Q" key to quit
+				# 	print("Q")
+				# 	break
+				# self.stopEvent.set()
 
-		# When everything done, release the capture
-		cap.release()
-		cv2.destroyAllWindows()
+			# When everything done, release the capture
+			cap.release()
+			cv2.destroyAllWindows()
 
+		except Exception as e:
+			print("[INFO] Caught a Runtime Error GUI 2")
+			print("[INFO] Error type : " + str(e))
 
 	# def liveTest(self):
 	# 	cap = cv2.VideoCapture(0)
@@ -271,12 +282,6 @@ class Smart_Table:
 		dropTailLength = 0.0 if len(self.txtDropTailLength.get()) == 0 else round(float(self.txtDropTailLength.get()),1)
 		pocketHeight = 0.0 if len(self.txtPocketHeight.get()) == 0 else round(float(self.txtPocketHeight.get()),1)
 
-		print("Body Length : ", self.txtBodyLength.get())
-		print("Body Width : ", self.txtBodyWidth.get())
-		print("Body Sweep : ", self.txtBodySweep.get())
-		print("Back Neck Width : " ,self.txtBackNeckWidth.get())
-		print("saved")
-
 		connection = pymysql.connect(host='localhost',
 									user='root',
 									password='password',
@@ -287,10 +292,10 @@ class Smart_Table:
 			with connection.cursor() as cursor:
 				cursor.execute("use nmc")
 				sql = (
-					"INSERT INTO Measurement_Records VALUES "
+					"INSERT INTO TShirt_Measurement_Records VALUES "
 					"(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 					"ON DUPLICATE KEY UPDATE "
-					"DateTime = %s, TableIndex = %s, PONumber = %s, LINumber = %s, Plant = %s, StyleNumber = %s, Size = %s, "
+					# "DateTime = %s, TableIndex = %s, PONumber = %s, LINumber = %s, Plant = %s, StyleNumber = %s, Size = %s, "
 					"BodyLength = %s, BodyWidth = %s, BodySweep = %s, BackNeckWidth = %s, CollarHeight = %s, BackNeckDrop = %s, "
 					"XDistance = %s, WaistWidth = %s, LSSleeveLength = %s, SleeveWidth = %s, ElbowWidth = %s, ForeArmWidth = %s, "
 					"SleeveOpening = %s, FrontNeckDrop = %s, NeckOpening = %s, CollarPoints = %s, CollarLength = %s, "
@@ -300,8 +305,8 @@ class Smart_Table:
 									bodyWidth, bodySweep, backNeckWidth, collarHeight, backNeckDrop, xDistance, waistWidth,
 									lSSleeveLength, sleeveWidth, elbowWidth, foreArmWidth, sleeveOpening, frontNeckDrop, 
 									neckOpening, collarPoints, collarLength, zipperLength, dropTailLength, pocketHeight,
-									datetime.datetime.now(), tableIndex, poNumber, liNumber, plant, styleNumber, size, bodyLength, 
-									bodyWidth, bodySweep, backNeckWidth, collarHeight, backNeckDrop, xDistance, waistWidth,
+									# datetime.datetime.now(), tableIndex, poNumber, liNumber, plant, styleNumber, size, 
+									bodyLength, bodyWidth, bodySweep, backNeckWidth, collarHeight, backNeckDrop, xDistance, waistWidth,
 									lSSleeveLength, sleeveWidth, elbowWidth, foreArmWidth, sleeveOpening, frontNeckDrop, 
 									neckOpening, collarPoints, collarLength, zipperLength, dropTailLength, pocketHeight))
 			connection.commit()
@@ -311,6 +316,8 @@ class Smart_Table:
 
 		# messagebox.showwarning("Saved", "Measurement Values Saved")
 		time.sleep(2)
+
+		print("saved @ ", datetime.datetime.now())
 
 		self.txtBodyLength.delete(0,len(self.txtBodyLength.get()))
 		self.txtBodyLength.insert(0,"")
@@ -376,6 +383,9 @@ class Smart_Table:
 	def __init__(self, top=None):
 		'''This class configures and populates the toplevel window.
 		   top is the toplevel containing window.'''
+
+		global thread, stopEvent
+
 		_bgcolor = '#27408B'  # X11 color: 'gray85'
 		# _fgcolor = '#8470FF'  # X11 color: 'black'
 		_fgcolor = 'white'  # X11 color: 'black'
@@ -390,8 +400,6 @@ class Smart_Table:
 		# print(self.theme.theme_use())
 
 
-		# top.geometry("377x379+417+148")
-		# top.geometry("377x550+417+100")
 		# top.geometry("377x550+150+200")
 		UIWidth = root.winfo_screenwidth()
 		UIHeight = root.winfo_screenheight()-60
@@ -439,7 +447,7 @@ class Smart_Table:
 		cnvDataWidth = UIWidth * 0.28
 		cnvDataHeight = UIHeight * 0.88
 		# self.cnvsData.create_line(170,100,335,100, fill=_fgcolor, width="1")
-		self.cnvsData.create_line(cnvDataWidth*0.51, cnvDataHeight*0.045, cnvDataWidth*0.98, cnvDataHeight*0.045, fill=_fgcolor, width="1")
+		self.cnvsData.create_line(cnvDataWidth*0.51, cnvDataHeight*0.045, cnvDataWidth*0.98, cnvDataHeight*0.045, fill=_fgcolor, width="1")		# (x1,y1,x2,y2)
 		self.cnvsData.create_line(cnvDataWidth*0.51, cnvDataHeight*0.095, cnvDataWidth*0.98, cnvDataHeight*0.095, fill=_fgcolor, width="1")
 		self.cnvsData.create_line(cnvDataWidth*0.51, cnvDataHeight*0.145, cnvDataWidth*0.98, cnvDataHeight*0.145, fill=_fgcolor, width="1")
 		self.cnvsData.create_line(cnvDataWidth*0.51, cnvDataHeight*0.195, cnvDataWidth*0.98, cnvDataHeight*0.195, fill=_fgcolor, width="1")
@@ -1211,15 +1219,18 @@ class Smart_Table:
 		self.btnSave.configure(command=self.saveMeasurements)
 
 
-		self.thread = None
-		self.stopEvent = None
+		# self.thread = None
+		# self.stopEvent = None
 
-		self.stopEvent = threading.Event()
-		self.thread = threading.Thread(target=self.liveMeasuring)
+		# self.stopEvent = threading.Event()
+		# self.thread = threading.Thread(target=self.liveMeasuring)
+		stopEvent = threading.Event()
+		thread = threading.Thread(target=self.liveMeasuring)
 		# self.thread = threading.Thread(target=self.liveMeasuring, daemon=True)
 		# self.thread = threading.Thread(target=self.liveTest)
 
-		self.thread.start()
+		# self.thread.start()
+		thread.start()
 
 		# root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -1252,6 +1263,9 @@ bodySweepTol = 0
 targetBackNeckWidth = 0
 backNeckWidthTol = 0
 whiteMode = None
+
+thread = None
+stopEvent = None
 
 initSerialRead()
 
