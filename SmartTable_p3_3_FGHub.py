@@ -31,7 +31,7 @@ def getPixelDistance(mm):														# Calibration to get pixel from mm
 
 
 def addTextOnFrame(imgSrc, bodyLength=0, bodyWidth=0, bodySweep=0, backNeckWidth=0):								# Add default text on frame and resize it
-	global styleNo, size
+	global styleNo, size, poNumber, liNumber, plant
 	(height, width) = imgSrc.shape[:2]
 	# frame_diagonal = int(math.sqrt(math.pow(height,2) + math.pow(width,2)))
 	# rotation_matrix = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
@@ -41,8 +41,8 @@ def addTextOnFrame(imgSrc, bodyLength=0, bodyWidth=0, bodySweep=0, backNeckWidth
 	imgTemp = imgSrc.copy()
 	cv2.rectangle(imgTemp,(0,0),(width,25),(0,0,0),-1)
 	cv2.addWeighted(imgTemp,0.5,imgSrc,0.5,0,imgSrc)							# Adding transparent layer
-	cv2.putText(imgSrc, "Style No: %s     Size: %s" %(styleNo, size), (20,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
-	cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
+	cv2.putText(imgSrc, "PO: %s   LI: %s   Plant: %s   Style: %s   Size: %s" %(poNumber, liNumber, plant, styleNo, size), (5,15), cv2.FONT_HERSHEY_TRIPLEX, 0.35, (255,255,255), 1, cv2.LINE_AA)
+	# cv2.putText(imgSrc, "Press 'q' to Exit", (width-150,15), cv2.FONT_HERSHEY_TRIPLEX, 0.40, (255,255,255), 1, cv2.LINE_AA)
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.2),int(height*1.2)))
 	# imgSrc = cv2.resize(imgSrc, (int(width*1.45),int(height*1.45)))
 	imgSrc = cv2.resize(imgSrc, (int(width*2.1),int(height*2.1)))
@@ -65,9 +65,9 @@ def addSavedOnFrame(imgSrc):														# Add default text and "Saved" text on
 
 def valueColor(value, comparator, tolerance):
 	color = (0,0,0)
-	if abs(comparator - value) <= tolerance - 0.3:
+	if abs(comparator - value) <= tolerance - 0.5:
 		color = (0,255,0)
-	elif abs(comparator - value) <= tolerance + 0.3:
+	elif abs(comparator - value) <= tolerance + 0.5:
 		color = (0,255,255)
 	else:
 		color = (0,0,255)
@@ -104,31 +104,31 @@ def storeMeasurements(imgSrc, height, heightDif, sweep, sweepDif, width, widthDi
 			buttonPressed = True
 			# print ("Button pressed")
 
-			connection = pymysql.connect(host='localhost',
-										user='root',
-										password='password',
-										charset='utf8mb4',
-										cursorclass=pymysql.cursors.DictCursor)
+			# connection = pymysql.connect(host='localhost',
+			# 							user='root',
+			# 							password='password',
+			# 							charset='utf8mb4',
+			# 							cursorclass=pymysql.cursors.DictCursor)
 
-			try:
-				with connection.cursor() as cursor:
-					cursor.execute("use nmc")
-					sql = (
-						"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
-						"ON DUPLICATE KEY UPDATE "
-						"DateTime = %s, TableIndex = %s, Plant = %s, Style = %s, Size = %s, "
-						"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
-						"BodySweep = %s, BodySweepDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
-					)
-					# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
-					# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
-					cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
-										 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
-										datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
-										 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
-				connection.commit()
-			finally:
-				connection.close()
+			# try:
+			# 	with connection.cursor() as cursor:
+			# 		cursor.execute("use nmc")
+			# 		sql = (
+			# 			"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+			# 			"ON DUPLICATE KEY UPDATE "
+			# 			"DateTime = %s, TableIndex = %s, Plant = %s, Style = %s, Size = %s, "
+			# 			"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "
+			# 			"BodySweep = %s, BodySweepDif = %s, BackNeckWidth = %s, BackNeckWidthDif = %s"
+			# 		)
+			# 		# cursor.execute(sql, (datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91),
+			# 		# 					datetime.datetime.now(), '123', 'm', float(25), float(11), float(19), float(91)))
+			# 		cursor.execute(sql, (datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
+			# 							 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif),
+			# 							datetime.datetime.now(), tableIndex, plant, styleNo, size, float(height), float(heightDif), float(sweep),
+			# 							 float(sweepDif), float(width), float(widthDif), float(backNeckWidth), float(backNeckWidthDif)))
+			# 	connection.commit()
+			# finally:
+			# 	connection.close()
 			return addSavedOnFrame(imgSrc)
 	return imgSrc
 
@@ -141,7 +141,7 @@ def ignoreButtonPress():
 
 
 
-def tshirtMeasuring(imgSrc, poNumber, liNumber, plant, styleNumber, size, targetBH, targetBHT, targetBW,
+def tshirtMeasuring(imgSrc, PON, LIN, Plnt, styleNumber, sz, targetBH, targetBHT, targetBW,
 					targetBWT, targetBS, targetBST, targetBNW, targetBNWT, wM):
 	# print("New")
 	global preRotatedFrame, preRotatedMask, preAreaTshirt
@@ -149,6 +149,7 @@ def tshirtMeasuring(imgSrc, poNumber, liNumber, plant, styleNumber, size, target
 	global targetBodyHeight, targetBodySweep, targetBodyWidth, targetBackNeckWidth
 	global targetBodyHeightTol, targetBodySweepTol, targetBodyWidthTol, targetBackNeckWidthTol
 	global whiteMode
+	global poNumber, liNumber, plant, styleNo, size
 
 	valueHeight = 0
 	valueSweep = 0
@@ -163,6 +164,12 @@ def tshirtMeasuring(imgSrc, poNumber, liNumber, plant, styleNumber, size, target
 	targetBodySweepTol = targetBST
 	targetBackNeckWidthTol = targetBNWT
 	whiteMode = wM
+
+	poNumber = PON
+	liNumber = LIN
+	plant = Plnt
+	styleNo = styleNumber
+	size = sz
 
 	frame = imgSrc.copy()														# Backup original image
 	# cv2.imshow("Original", imgSrc)
@@ -745,7 +752,9 @@ preWidth = 0
 preBackNeck = 0
 
 tableIndex = "st0001"
-plant = "Vaanavil"
+poNumber = None
+liNumber = None
+plant = None
 styleNo = None
 size = None
 # styleNo = 832835

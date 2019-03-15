@@ -75,7 +75,8 @@ def destroy_Smart_Table():
 	global w2, thread
 
 	print("[INFO] Closing...")
-	stopEvent.set()
+	# stopEvent.set()
+	stopEvent = True
 	thread.join()
 
 	w2.destroy()
@@ -154,7 +155,7 @@ class Smart_Table:
 
 		SmartTable_p3_3_FGHub.loadCalibrationData()
 
-		cap = cv2.VideoCapture(0)
+		cap = cv2.VideoCapture(1)
 		# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
 
 		UIWidth = root.winfo_screenwidth()
@@ -162,7 +163,7 @@ class Smart_Table:
 
 		try:
 			# while(True):
-			while not stopEvent.is_set():
+			while not stopEvent:
 				buttonPressed = False
 				# Capture frame-by-frame
 				ret, frame = cap.read()
@@ -196,8 +197,14 @@ class Smart_Table:
 					if backNeckWidth > 0:
 						self.txtBackNeckWidth.delete(0,len(self.txtBackNeckWidth.get()))
 						self.txtBackNeckWidth.insert(0, backNeckWidth)
-					if buttonPressed:
-						time.sleep(2)
+					# if buttonPressed:
+					# 	time.sleep(2)
+
+					if ser is not None:
+						serRead = ser.readline()
+						if serRead == b'1\r\n':
+							buttonPressed = True
+							self.saveMeasurements()
 
 				# if cv2.waitKey(1) & 0xFF == ord('q'):					# "q" key to quit
 				# 	print("q")
@@ -1224,7 +1231,7 @@ class Smart_Table:
 
 		# self.stopEvent = threading.Event()
 		# self.thread = threading.Thread(target=self.liveMeasuring)
-		stopEvent = threading.Event()
+		# stopEvent = threading.Event()
 		thread = threading.Thread(target=self.liveMeasuring)
 		# self.thread = threading.Thread(target=self.liveMeasuring, daemon=True)
 		# self.thread = threading.Thread(target=self.liveTest)
@@ -1265,7 +1272,7 @@ backNeckWidthTol = 0
 whiteMode = None
 
 thread = None
-stopEvent = None
+stopEvent = False
 
 initSerialRead()
 
