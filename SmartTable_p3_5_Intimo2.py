@@ -156,15 +156,15 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("Original", imgSrc)
 
 	# (height, width) = frame.shape[:2]
-	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 180, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix_temp = cv2.getRotationMatrix2D((width/2, height/2), 5, 1)	# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
 	# frame = cv2.warpAffine(frame, rotation_matrix_temp, (width,height))			# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 
-	# (height, width) = frame.shape[:2]
-	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# # rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
-	# rotation_matrix1[0,2] += int((height/2)-width/2)
-	# rotation_matrix1[1,2] += int((width/2)-height/2)
-	# frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
+	(height, width) = frame.shape[:2]
+	rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 270, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	# rotation_matrix1 = cv2.getRotationMatrix2D((width/2, height/2), 90, 1)		# Rotation matrix ((centerOfRotation), Anti-ClockwiseRotationAngle, Scale)
+	rotation_matrix1[0,2] += int((height/2)-width/2)
+	rotation_matrix1[1,2] += int((width/2)-height/2)
+	frame = cv2.warpAffine(frame, rotation_matrix1, (height,width))				# Rotate filtered image (Image, RotationMatrix, NewImageDimensions)
 	(height, width) = frame.shape[:2]
 	# print("height ", height, "width ", width)
 	# frame = frame[int(150/640*height):int(590/640*height), 0:width]
@@ -359,7 +359,7 @@ def tshirtMeasuring(imgSrc):
 		if rotated == False:
 			non_sleeve_side += step 											# Checking ending side
 			# if non_sleeve_side >= body_height_last-step:
-			if non_sleeve_side >= height - step:
+			if non_sleeve_side >= body_height_last + 25:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre-5:										# Compare pixel counts
@@ -372,7 +372,7 @@ def tshirtMeasuring(imgSrc):
 		else:
 			non_sleeve_side -= step 											# Checking starting side
 			# if non_sleeve_side <= body_height_first+step:
-			if non_sleeve_side <= step:
+			if non_sleeve_side <= body_height_first - 25:
 				break
 			temp_count = np.count_nonzero(rotated_mask[non_sleeve_side])
 			if temp_count < temp_width_pre-5: 									# Compare pixel counts
@@ -551,33 +551,58 @@ def tshirtMeasuring(imgSrc):
 	back_neck_x2 = height_array_x
 	back_neck_y1 = 0 															# Initializing to zero
 	back_neck_y2 = 0
+	step = 1														# Neck checking step size changes according to camera frame size
 	# step = int(width*0.005)														# Neck checking step size changes according to camera frame size
-	step = int(width*0.001)														# Neck checking step size changes according to camera frame size
+	# step = int(width*0.001)														# Neck checking step size changes according to camera frame size
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])	# To store previous value to compare with white pixel count
 	temp_count_pre_2 = temp_count_pre_1
-	# print("pixel_body_width_actual ", pixel_body_width_actual)
+	print("pixel_body_width_actual ", pixel_body_width_actual)
+	tempx1 = back_neck_x1
+	tempx2 = back_neck_x2
 
-	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
+	# for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
+	for i in range(int(1),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])	# White pixel count to compare
-		# print("test 1 ", temp_count_1)
+		print("test  ", temp_count_1)
+		print("test 0 ", height_array_x)
+		print("test 1 ", height_array_x+(i*step))
+		print("test 2 ", i)
 		if temp_count_1 < temp_count_pre_1:
 			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
-			if temp_count_1_1 < temp_count_1:
-				back_neck_x1 = height_array_x + (i*step)
+			print("temp_count ", temp_count_1_1)
+			print("temp_count pre ", temp_count_pre_1)
+			# if temp_count_1_1 < temp_count_1:
+			if temp_count_1_1 < temp_count_pre_2:
+				# back_neck_x1 = height_array_x + (i*step)
+				back_neck_x1 = tempx1
+				print("temp_count pre 2 ", temp_count_pre_2)
+				print("break ", back_neck_x1)
 				break
+			else:
+				temp_count_pre_2 = temp_count_1_1
 		else:
 			temp_count_pre_1 = temp_count_1
+			tempx1 = height_array_x + (i*step)
 
+	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])	# To store previous value to compare with white pixel count
+	temp_count_pre_2 = temp_count_pre_1
 	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
 		temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
 		# print("test 2 ", temp_count_2)
-		if temp_count_2 < temp_count_pre_2:
+		# if temp_count_2 < temp_count_pre_2:
+		if temp_count_2 < temp_count_pre_1:
 			temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
-			if (temp_count_2_1<temp_count_2): # and abs(temp_count_2-temp_count_1)<100:
-				back_neck_x2 = height_array_x - (i*step)
+			# if (temp_count_2_1<temp_count_2): # and abs(temp_count_2-temp_count_1)<100:
+			if (temp_count_2_1<temp_count_pre_2): # and abs(temp_count_2-temp_count_1)<100:
+				# back_neck_x2 = height_array_x - (i*step)
+				back_neck_x2 = tempx2
 				break
+			else:
+				temp_count_pre_2 = temp_count_2_1
 		else:
-			temp_count_pre_2 = temp_count_2
+			# temp_count_pre_2 = temp_count_2
+			temp_count_pre_1 = temp_count_2
+			tempx2 = height_array_x - (i*step)
 
 	if rotated == False:
 		# print("body_height_first ", body_height_first)
@@ -611,11 +636,11 @@ def tshirtMeasuring(imgSrc):
 	# cv2.imshow("test6", temp_img)
 	# print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
 	# print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
-	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.05:
-		# print("******x1 ", back_neck_x1)
-		# print("******x2 ", back_neck_x2)
-		# print("******y1 ", back_neck_y1)
-		# print("******y2 ", back_neck_y2)
+	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.03:
+		print("******x1 ", back_neck_x1)
+		print("******x2 ", back_neck_x2)
+		print("******y1 ", back_neck_y1)
+		print("******y2 ", back_neck_y2)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 2)
@@ -665,46 +690,48 @@ def tshirtMeasuring(imgSrc):
 	return addTextOnFrame(rotated_frame)
 
 
-# def getMeasurements():
-def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
-	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
-	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
-	global whiteMode
-	global ser, buttonPressed
-	styleNo = sN
-	size = sz
-	targetBodyHeight = float(bH)
-	targetBodyHeightTol = float(bHT)
-	targetBodyWidth = float(bW)
-	targetBodyWidthTol = float(bWT)
-	targetBodySweap = float(bS)
-	targetBodySweapTol = float(bST)
-	targetBackNeckWidth = float(bNW)
-	targetBackNeckWidthTol = float(bNWT)
+def getMeasurements():
+# def getMeasurements(sN, sz, bH, bHT, bW, bWT, bS, bST, bNW, bNWT, wM):
+# 	global styleNo, size, targetBodyHeight, targetBodyHeightTol, targetBodyWidth, targetBodyWidthTol
+# 	global targetBodySweap, targetBodySweapTol, targetBackNeckWidth, targetBackNeckWidthTol
+# 	global whiteMode
+# 	global ser, buttonPressed
+# 	styleNo = sN
+# 	size = sz
+# 	targetBodyHeight = float(bH)
+# 	targetBodyHeightTol = float(bHT)
+# 	targetBodyWidth = float(bW)
+# 	targetBodyWidthTol = float(bWT)
+# 	targetBodySweap = float(bS)
+# 	targetBodySweapTol = float(bST)
+# 	targetBackNeckWidth = float(bNW)
+# 	targetBackNeckWidthTol = float(bNWT)
 
-	whiteMode = wM
+# 	whiteMode = wM
 
 	loadCalibrationData()
-	initSerialRead()
+	# initSerialRead()
 
-	cap = cv2.VideoCapture(0)
-	# cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
+	# cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture("test\WIN_20180403_081531.MP4")
 	# cap = cv2.VideoCapture("E:\SmartTable_Test\WIN_20181220_12_37_36_Pro.mp4")
 	# cap.set(cv2.CAP_PROP_SETTINGS, 0)
 	# original = cv2.imread("test\WIN_20180126_152758.JPG")
+	# original = cv2.imread("test\IMG_20190925_144204.jpg")
 
 	while(True):
 		buttonPressed = False
 		# Capture frame-by-frame
 		ret, frame = cap.read()
+		# frame = original
 		if ret:
 			# print("New frame")
 			(height, width) = frame.shape[:2]
 			# print("height ", height, "width ", width)
 			frame = frame[0:height, int(60/640*width):int(620/640*width)]			# 480, 560 # This is correct crop for SmartTable in Vaanavil
-			# frame = frame[0:height, int(60/640*width):int(605/640*width)]		# 480, 465
-			# frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
-			# frame = cv2.resize(frame, (int(width*0.17),int(height*0.17)))
+			# frame = frame[800:height, int(60/640*width):int(605/640*width)]		# 480, 465
+			frame = cv2.resize(frame, (int(width*0.25),int(height*0.38)))
+			# frame = cv2.resize(frame, (int(width*0.1),int(height*0.08)))
 			output = tshirtMeasuring(frame)						# Process live video
 			# output = tshirtMeasuring(original.copy())			# Process a saved image instead of live video
 			cv2.imshow("Smart Table", output)
