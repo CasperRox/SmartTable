@@ -554,12 +554,12 @@ def tshirtMeasuring(imgSrc):
 	back_neck_x1_temp = back_neck_x1
 	back_neck_x2_temp = back_neck_x2
 	# step = int(width*0.005)														# Neck checking step size changes according to camera frame size
-	step = int(width*0.001)														# Neck checking step size changes according to camera frame size
+	step = 1																		# Neck checking step size changes according to camera frame size
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])	# To store previous value to compare with white pixel count
 	temp_count_pre_2 = temp_count_pre_1
 	# print("pixel_body_width_actual ", pixel_body_width_actual)
 
-	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
+	for i in range(int(pixel_body_width_actual*0.1),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])	# White pixel count to compare
 		# print("test 1 ", temp_count_1)
 		if temp_count_1 < temp_count_pre_1:
@@ -578,7 +578,7 @@ def tshirtMeasuring(imgSrc):
 	temp_count_pre_1 = np.count_nonzero(transpose_rotated_mask[height_array_x])	# To store previous value to compare with white pixel count
 	temp_count_pre_2 = temp_count_pre_1
 
-	for i in range(int(pixel_body_width_actual*0.02),int(pixel_body_width_actual*0.5)):
+	for i in range(int(pixel_body_width_actual*0.1),int(pixel_body_width_actual*0.5)):
 		temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
 		# print("test 2 ", temp_count_2)
 		# if temp_count_2 < temp_count_pre_2:
@@ -600,13 +600,13 @@ def tshirtMeasuring(imgSrc):
 		# print("body_height_first ", body_height_first)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
 		# for i in range(0,body_height_first):
-		for i in range(0,int(width*0.5)):
+		for i in range(0,int(height*0.5)):
 			# if transpose_rotated_mask[back_neck_x1,i] != 0:
 			if rotated_mask[i,back_neck_x1] != 0:
 				back_neck_y1 = i
 				break
 		# for i in range(0,body_height_first):
-		for i in range(0,int(width*0.5)):
+		for i in range(0,int(height*0.5)):
 			# if transpose_rotated_mask[back_neck_x2,i] != 0:
 			if rotated_mask[i,back_neck_x2] != 0:
 				back_neck_y2 = i
