@@ -560,10 +560,15 @@ def tshirtMeasuring(imgSrc):
 	# print("pixel_body_width_actual ", pixel_body_width_actual)
 
 	for i in range(int(pixel_body_width_actual*0.1),int(pixel_body_width_actual*0.5)):		# Pre guessing a range for neck width with respect to body width
+		if (height_array_x+(i*step)) > width:
+			break
 		temp_count_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)])	# White pixel count to compare
 		# print("test 1 ", temp_count_1)
 		if temp_count_1 < temp_count_pre_1:
+			if (height_array_x+(i*step)+step) > width:
+				break
 			temp_count_1_1 = np.count_nonzero(transpose_rotated_mask[height_array_x+(i*step)+step])
+			temp_count_pre_2 = temp_count_1
 			# if temp_count_1_1 < temp_count_1:
 			if temp_count_1_1 < temp_count_pre_2:
 				# back_neck_x1 = height_array_x + (i*step)
@@ -579,11 +584,16 @@ def tshirtMeasuring(imgSrc):
 	temp_count_pre_2 = temp_count_pre_1
 
 	for i in range(int(pixel_body_width_actual*0.1),int(pixel_body_width_actual*0.5)):
+		if (height_array_x-(i*step)) < 0:
+			break
 		temp_count_2 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)])
 		# print("test 2 ", temp_count_2)
 		# if temp_count_2 < temp_count_pre_2:
 		if temp_count_2 < temp_count_pre_1:
+			if (height_array_x-(i*step)-step) < 0:
+				break
 			temp_count_2_1 = np.count_nonzero(transpose_rotated_mask[height_array_x-(i*step)-step])
+			temp_count_pre_2 = temp_count_2
 			# if (temp_count_2_1 < temp_count_2): # and abs(temp_count_2-temp_count_1)<100:
 			if (temp_count_2_1 < temp_count_pre_2): # and abs(temp_count_2-temp_count_1)<100:
 				# back_neck_x2 = height_array_x - (i*step)
@@ -627,20 +637,22 @@ def tshirtMeasuring(imgSrc):
 	# temp_img = cv2.resize(rotated_mask, (int(width*0.2),int(height*0.2)))
 	# cv2.imshow("test6", temp_img)
 	# print("neckWidth_x ", abs(back_neck_x2 - back_neck_x1))
+	# print("wwwww ", width*0.05)
 	# print("neckWidth_y ", abs(back_neck_y2 - back_neck_y1))
-	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.9 and abs(back_neck_y2 - back_neck_y1) < height*0.05:
+	# print("hhhhh ", height*0.03)
+	if width*0.05 < abs(back_neck_x2 - back_neck_x1) and abs(back_neck_x2 - back_neck_x1) < width*0.6 and abs(back_neck_y2 - back_neck_y1) < height*0.03:
 		# print("******x1 ", back_neck_x1)
 		# print("******x2 ", back_neck_x2)
 		# print("******y1 ", back_neck_y1)
 		# print("******y2 ", back_neck_y2)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_last), (back_neck_x2,body_height_last), (255,0,0), 3)
 		# cv2.line(rotated_frame, (back_neck_x1,body_height_first), (back_neck_x2,body_height_first), (255,0,0), 3)
-		cv2.line(rotated_frame, (back_neck_x1,back_neck_y1), (back_neck_x2,back_neck_y2), (255,0,0), 2)
-		cv2.circle(rotated_frame,(back_neck_x1,back_neck_y1), 3, (0,0,255), -1)
-		cv2.circle(rotated_frame,(back_neck_x2,back_neck_y2), 3, (0,0,255), -1)
+		cv2.line(rotated_frame, (back_neck_x1-2,back_neck_y1), (back_neck_x2+2,back_neck_y2), (255,0,0), 2)
+		cv2.circle(rotated_frame,(back_neck_x1-2,back_neck_y1), 3, (0,0,255), -1)
+		cv2.circle(rotated_frame,(back_neck_x2+2,back_neck_y2), 3, (0,0,255), -1)
 		font = cv2.FONT_HERSHEY_SCRIPT_COMPLEX
 		pixel_back_neck = abs(back_neck_x2-back_neck_x1)
-		valueBackNeck = (getmmDistance(pixel_back_neck)/10) - 0.5
+		valueBackNeck = (getmmDistance(pixel_back_neck)/10) - 1.4
 		# valueBackNeck = (getmmDistance(pixel_back_neck)/10)
 		if abs(preBackNeck - valueBackNeck) < 1:
 			valueBackNeck = preBackNeck
