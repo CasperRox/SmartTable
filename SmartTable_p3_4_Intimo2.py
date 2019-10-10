@@ -114,7 +114,7 @@ def storeMeasurements(imgSrc, height, heightDif, sweap, sweapDif, width, widthDi
 				with connection.cursor() as cursor:
 					cursor.execute("use nmc")
 					sql = (
-						"INSERT INTO PolyTop_Records VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+						"INSERT INTO TShirtMeasuringRecords VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 						"ON DUPLICATE KEY UPDATE "
 						"DateTime = %s, TableIndex = %s, Plant = %s, Style = %s, Size = %s, "
 						"BodyHeight = %s, BodyHeightDif = %s, BodyWidth = %s, BodyWidthDif = %s, "

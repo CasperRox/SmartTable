@@ -54,7 +54,7 @@ def initDatabase():
 			cursor.execute("create database if not exists nmc")
 			cursor.execute("use nmc")
 			cursor.execute("""
-			create table if not exists PolyTop (
+			create table if not exists TShirtSpec (
 				Style varchar(100) not null,
 				Size varchar(10) not null,
 				BodyHeight float(4,1) not null,
@@ -69,7 +69,7 @@ def initDatabase():
 			);
 			""")
 			cursor.execute("""
-			create table if not exists PolyTop_Records (
+			create table if not exists TShirtMeasuringRecords (
 				DateTime varchar(30) not null,
 				TableIndex varchar(10) not null,
 				Plant varchar(100) not null,
@@ -133,7 +133,7 @@ class Smart_Table:
 		try:
 			with connection.cursor() as cursor:
 				cursor.execute("use nmc")
-				sql = "SELECT * FROM PolyTop where Style=%s and Size=%s"
+				sql = "SELECT * FROM TShirtSpec where Style=%s and Size=%s"
 				cursor.execute(sql, (styleNo, size))
 				result = cursor.fetchall()
 				# print (result)
@@ -231,7 +231,7 @@ class Smart_Table:
 					cursor.execute("use nmc")
 					# print(float(self.txtBodyHeight.get()))
 					sql = (
-						"INSERT INTO PolyTop VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+						"INSERT INTO TShirtSpec VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
 						"ON DUPLICATE KEY UPDATE "
 						"BodyHeight = %s, BodyHeightTol = %s, BodyWidth = %s, BodyWidthTol = %s, "
 						"BodySweap = %s, BodySweapTol = %s, BackNeckWidth = %s, BackNeckWidthTol = %s"
